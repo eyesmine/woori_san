@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color primary = Color(0xFF2D6A4F);      // 딥 포레스트 그린
-  static const Color primaryLight = Color(0xFF52B788);  // 밝은 그린
-  static const Color accent = Color(0xFFFF8C42);        // 따뜻한 오렌지 (일몰)
-  static const Color bg = Color(0xFFF8F6F1);            // 따뜻한 크림 배경
+  static const Color primary = Color(0xFF2D6A4F);
+  static const Color primaryLight = Color(0xFF52B788);
+  static const Color accent = Color(0xFFFF8C42);
+  static const Color bg = Color(0xFFF8F6F1);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color textPrimary = Color(0xFF1C1C1E);
   static const Color textSecondary = Color(0xFF6B7280);
@@ -12,10 +12,8 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      fontFamily: 'Pretendard',
       colorScheme: ColorScheme.fromSeed(
         seedColor: primary,
-        background: bg,
         surface: surface,
       ),
       scaffoldBackgroundColor: bg,
@@ -28,7 +26,6 @@ class AppTheme {
           color: textPrimary,
           fontSize: 18,
           fontWeight: FontWeight.w700,
-          fontFamily: 'Pretendard',
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(

@@ -70,35 +70,3 @@ final List<Mountain> sampleMountains = [
     description: '계곡이 아름다워 여름에 특히 인기. 초보자도 쉽게 오를 수 있어요.',
   ),
 ];
-
-// 100대 명산 도장 데이터
-class StampMountain {
-  final String name;
-  final String region;
-  final int height;
-  final bool isStamped;
-  final bool isTogetherStamped;
-  final String? stampDate;
-
-  const StampMountain({
-    required this.name,
-    required this.region,
-    required this.height,
-    required this.isStamped,
-    required this.isTogetherStamped,
-    this.stampDate,
-  });
-}
-
-final List<StampMountain> stampMountains = [
-  StampMountain(name: '북한산', region: '서울', height: 836, isStamped: true, isTogetherStamped: true, stampDate: '2025.01.20'),
-  StampMountain(name: '관악산', region: '서울', height: 629, isStamped: true, isTogetherStamped: true, stampDate: '2025.02.01'),
-  StampMountain(name: '청계산', region: '경기', height: 618, isStamped: true, isTogetherStamped: false, stampDate: '2024.11.15'),
-  StampMountain(name: '도봉산', region: '서울', height: 740, isStamped: true, isTogetherStamped: true, stampDate: '2025.02.10'),
-  StampMountain(name: '수락산', region: '경기', height: 638, isStamped: true, isTogetherStamped: false, stampDate: '2024.12.05'),
-  StampMountain(name: '불암산', region: '서울', height: 508, isStamped: false, isTogetherStamped: false),
-  StampMountain(name: '아차산', region: '서울', height: 285, isStamped: false, isTogetherStamped: false),
-  StampMountain(name: '용마산', region: '서울', height: 348, isStamped: false, isTogetherStamped: false),
-  StampMountain(name: '인왕산', region: '서울', height: 338, isStamped: false, isTogetherStamped: false),
-  StampMountain(name: '삼성산', region: '경기', height: 481, isStamped: false, isTogetherStamped: false),
-];

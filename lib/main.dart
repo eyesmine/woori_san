@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
 import 'screens/plan_screen.dart';
 import 'screens/stamp_screen.dart';
+import 'services/storage_service.dart';
+import 'providers/app_state.dart';
 import 'theme/app_theme.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -13,7 +17,16 @@ void main() {
       statusBarIconBrightness: Brightness.dark,
     ),
   );
-  runApp(const WooriSanApp());
+
+  final prefs = await SharedPreferences.getInstance();
+  final storage = StorageService(prefs);
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AppState(storage),
+      child: const WooriSanApp(),
+    ),
+  );
 }
 
 class WooriSanApp extends StatelessWidget {
@@ -55,7 +68,7 @@ class _MainNavigationState extends State<MainNavigation> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withAlpha(15),
               blurRadius: 20,
               offset: const Offset(0, -4),
             ),
@@ -108,7 +121,7 @@ class _NavItem extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? AppTheme.primary.withOpacity(0.1) : Colors.transparent,
+          color: isActive ? AppTheme.primary.withAlpha(25) : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(

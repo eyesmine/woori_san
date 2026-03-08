@@ -1,65 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
-import '../models/mountain.dart';
+import '../models/stamp_mountain.dart';
+import '../providers/app_state.dart';
 
 class StampScreen extends StatelessWidget {
   const StampScreen({super.key});
-
-  int get _totalStamped => stampMountains.where((m) => m.isStamped).length;
-  int get _togetherStamped => stampMountains.where((m) => m.isTogetherStamped).length;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.bg,
       appBar: AppBar(title: const Text('도장 컬렉션')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          // 진행 현황 헤더
-          _ProgressHeader(total: stampMountains.length, stamped: _totalStamped, together: _togetherStamped),
-          const SizedBox(height: 24),
-
-          // 함께 찍은 도장 강조
-          if (_togetherStamped > 0) ...[
-            Row(children: [
-              const Text('💑 함께 오른 산', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(color: AppTheme.accent.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
-                child: Text('$_togetherStamped개', style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700, fontSize: 12)),
+      body: Consumer<AppState>(
+        builder: (context, state, _) {
+          final togetherList = state.togetherStamps;
+          return ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              _ProgressHeader(
+                total: state.stamps.length,
+                stamped: state.totalStamped,
+                together: state.togetherStamped,
               ),
-            ]),
-            const SizedBox(height: 12),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 10, mainAxisSpacing: 10, childAspectRatio: 0.85),
-              itemCount: stampMountains.where((m) => m.isTogetherStamped).length,
-              itemBuilder: (context, index) {
-                final mountains = stampMountains.where((m) => m.isTogetherStamped).toList();
-                return _StampTile(mountain: mountains[index]);
-              },
-            ),
-            const SizedBox(height: 28),
-          ],
+              const SizedBox(height: 24),
 
-          // 전체 도장 목록
-          Row(children: [
-            const Text('전체 명산', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-            const SizedBox(width: 8),
-            Text('$_totalStamped / ${stampMountains.length}', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
-          ]),
-          const SizedBox(height: 12),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 10, mainAxisSpacing: 10, childAspectRatio: 0.85),
-            itemCount: stampMountains.length,
-            itemBuilder: (context, index) => _StampTile(mountain: stampMountains[index]),
-          ),
-        ],
+              if (togetherList.isNotEmpty) ...[
+                Row(children: [
+                  const Text('💑 함께 오른 산', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(color: AppTheme.accent.withAlpha(38), borderRadius: BorderRadius.circular(8)),
+                    child: Text('${togetherList.length}개', style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700, fontSize: 12)),
+                  ),
+                ]),
+                const SizedBox(height: 12),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 10, mainAxisSpacing: 10, childAspectRatio: 0.85),
+                  itemCount: togetherList.length,
+                  itemBuilder: (context, index) => _StampTile(
+                    mountain: togetherList[index],
+                    globalIndex: state.stamps.indexOf(togetherList[index]),
+                  ),
+                ),
+                const SizedBox(height: 28),
+              ],
+
+              Row(children: [
+                const Text('전체 명산', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                const SizedBox(width: 8),
+                Text('${state.totalStamped} / ${state.stamps.length}', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+              ]),
+              const SizedBox(height: 12),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 10, mainAxisSpacing: 10, childAspectRatio: 0.85),
+                itemCount: state.stamps.length,
+                itemBuilder: (context, index) => _StampTile(
+                  mountain: state.stamps[index],
+                  globalIndex: index,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -80,7 +88,7 @@ class _ProgressHeader extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 12, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 12, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,7 +111,6 @@ class _ProgressHeader extends StatelessWidget {
                   ),
                 ],
               ),
-              // 원형 진행률
               SizedBox(
                 width: 70,
                 height: 70,
@@ -124,11 +131,10 @@ class _ProgressHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          // 같이 찍은 도장 표시
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppTheme.accent.withOpacity(0.08),
+              color: AppTheme.accent.withAlpha(20),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -153,7 +159,8 @@ class _ProgressHeader extends StatelessWidget {
 
 class _StampTile extends StatelessWidget {
   final StampMountain mountain;
-  const _StampTile({required this.mountain});
+  final int globalIndex;
+  const _StampTile({required this.mountain, required this.globalIndex});
 
   @override
   Widget build(BuildContext context) {
@@ -166,14 +173,14 @@ class _StampTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: mountain.isTogetherStamped
-                ? AppTheme.accent.withOpacity(0.5)
+                ? AppTheme.accent.withAlpha(128)
                 : mountain.isStamped
-                    ? AppTheme.primary.withOpacity(0.2)
+                    ? AppTheme.primary.withAlpha(51)
                     : Colors.grey.shade200,
             width: mountain.isTogetherStamped ? 2 : 1,
           ),
           boxShadow: mountain.isStamped
-              ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 6, offset: const Offset(0, 2))]
+              ? [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 6, offset: const Offset(0, 2))]
               : null,
         ),
         child: Stack(
@@ -183,14 +190,13 @@ class _StampTile extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // 도장 이미지 영역
                   Container(
                     width: 52,
                     height: 52,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: mountain.isStamped
-                          ? (mountain.isTogetherStamped ? AppTheme.accent.withOpacity(0.15) : AppTheme.primary.withOpacity(0.1))
+                          ? (mountain.isTogetherStamped ? AppTheme.accent.withAlpha(38) : AppTheme.primary.withAlpha(25))
                           : Colors.grey.shade200,
                     ),
                     child: Center(
@@ -220,7 +226,6 @@ class _StampTile extends StatelessWidget {
                 ],
               ),
             ),
-            // 함께 도장 뱃지
             if (mountain.isTogetherStamped)
               Positioned(
                 top: 6,
@@ -232,12 +237,11 @@ class _StampTile extends StatelessWidget {
                   child: const Center(child: Text('💑', style: TextStyle(fontSize: 9))),
                 ),
               ),
-            // 미완성 표시
             if (!mountain.isStamped)
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withAlpha(128),
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
@@ -249,6 +253,7 @@ class _StampTile extends StatelessWidget {
   }
 
   void _showDetail(BuildContext context) {
+    final state = context.read<AppState>();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -263,7 +268,7 @@ class _StampTile extends StatelessWidget {
           children: [
             Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)))),
             const SizedBox(height: 20),
-            Text('🏔️', style: const TextStyle(fontSize: 48)),
+            const Text('🏔️', style: TextStyle(fontSize: 48)),
             const SizedBox(height: 8),
             Text(mountain.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
             Text('${mountain.region} · ${mountain.height}m', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
@@ -271,7 +276,7 @@ class _StampTile extends StatelessWidget {
             if (mountain.isTogetherStamped)
               Container(
                 padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: AppTheme.accent.withOpacity(0.1), borderRadius: BorderRadius.circular(14)),
+                decoration: BoxDecoration(color: AppTheme.accent.withAlpha(25), borderRadius: BorderRadius.circular(14)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -283,7 +288,7 @@ class _StampTile extends StatelessWidget {
             else if (mountain.isStamped)
               Container(
                 padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: AppTheme.primary.withOpacity(0.08), borderRadius: BorderRadius.circular(14)),
+                decoration: BoxDecoration(color: AppTheme.primary.withAlpha(20), borderRadius: BorderRadius.circular(14)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -297,6 +302,59 @@ class _StampTile extends StatelessWidget {
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(14)),
                 child: const Text('아직 오르지 않은 산이에요 🌱\n함께 도전해 볼까요?', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.textSecondary, height: 1.5)),
+              ),
+            const SizedBox(height: 16),
+            if (!mountain.isStamped)
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        state.toggleStamp(globalIndex);
+                        Navigator.pop(context);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.primary,
+                        side: const BorderSide(color: AppTheme.primary),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: const Text('혼자 도장'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        state.toggleStamp(globalIndex, together: true);
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.accent,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: const Text('💑 함께 도장'),
+                    ),
+                  ),
+                ],
+              )
+            else
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () {
+                    state.toggleStamp(globalIndex);
+                    Navigator.pop(context);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: const Text('도장 취소'),
+                ),
               ),
             const SizedBox(height: 20),
           ],

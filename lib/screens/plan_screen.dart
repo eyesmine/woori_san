@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../models/mountain.dart';
+import '../models/plan.dart';
+import '../providers/app_state.dart';
 
-class PlanScreen extends StatefulWidget {
+class PlanScreen extends StatelessWidget {
   const PlanScreen({super.key});
-
-  @override
-  State<PlanScreen> createState() => _PlanScreenState();
-}
-
-class _PlanScreenState extends State<PlanScreen> {
-  final List<_Plan> _plans = [
-    _Plan(mountain: '북한산', date: '3월 15일 (토)', status: PlanStatus.confirmed, emoji: '⛰️'),
-    _Plan(mountain: '관악산', date: '3월 29일 (토)', status: PlanStatus.pending, emoji: '🌄'),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -24,69 +17,80 @@ class _PlanScreenState extends State<PlanScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_circle_outline, color: AppTheme.primary),
-            onPressed: _showNewPlanSheet,
+            onPressed: () => _showNewPlanSheet(context),
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          // 날씨 미리보기 카드
-          _WeatherCard(),
-          const SizedBox(height: 24),
+      body: Consumer<AppState>(
+        builder: (context, state, _) => ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            _WeatherCard(),
+            const SizedBox(height: 24),
 
-          // 예정된 산행
-          const Text('예정된 산행', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-          const SizedBox(height: 12),
+            const Text('예정된 산행', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+            const SizedBox(height: 12),
 
-          ..._plans.map((plan) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: _PlanCard(plan: plan),
-          )),
-
-          const SizedBox(height: 24),
-
-          // 새 계획 추가 버튼
-          GestureDetector(
-            onTap: _showNewPlanSheet,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppTheme.primary.withOpacity(0.3), width: 1.5),
-                borderRadius: BorderRadius.circular(16),
-                color: AppTheme.primary.withOpacity(0.03),
+            if (state.plans.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Center(
+                  child: Text('아직 계획이 없어요\n새 산행을 추가해보세요! 🌱', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.textSecondary, height: 1.5)),
+                ),
               ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add, color: AppTheme.primary),
-                  SizedBox(width: 8),
-                  Text('새 산행 계획 추가', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w600)),
-                ],
+
+            ...state.plans.map((plan) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _PlanCard(
+                plan: plan,
+                onDelete: () => state.removePlan(plan.id),
+              ),
+            )),
+
+            const SizedBox(height: 24),
+
+            GestureDetector(
+              onTap: () => _showNewPlanSheet(context),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppTheme.primary.withAlpha(77), width: 1.5),
+                  borderRadius: BorderRadius.circular(16),
+                  color: AppTheme.primary.withAlpha(8),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add, color: AppTheme.primary),
+                    SizedBox(width: 8),
+                    Text('새 산행 계획 추가', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w600)),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          // 준비물 체크리스트
-          const Text('준비물 체크리스트', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-          const SizedBox(height: 12),
-          _ChecklistCard(),
-        ],
+            const Text('준비물 체크리스트', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+            const SizedBox(height: 12),
+            _ChecklistCard(),
+          ],
+        ),
       ),
     );
   }
 
-  void _showNewPlanSheet() {
+  void _showNewPlanSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _NewPlanSheet(
-        onSave: (plan) {
-          setState(() => _plans.add(plan));
-        },
+        onSave: (plan) => context.read<AppState>().addPlan(plan),
       ),
     );
   }
@@ -104,7 +108,7 @@ class _WeatherCard extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: const Color(0xFF4895D0).withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 6))],
+        boxShadow: [BoxShadow(color: const Color(0xFF4895D0).withAlpha(77), blurRadius: 16, offset: const Offset(0, 6))],
       ),
       child: const Row(
         children: [
@@ -127,140 +131,132 @@ class _WeatherCard extends StatelessWidget {
   }
 }
 
-enum PlanStatus { confirmed, pending }
-
-class _Plan {
-  final String mountain;
-  final String date;
-  final PlanStatus status;
-  final String emoji;
-
-  _Plan({required this.mountain, required this.date, required this.status, required this.emoji});
-}
-
 class _PlanCard extends StatelessWidget {
-  final _Plan plan;
-  const _PlanCard({required this.plan});
+  final Plan plan;
+  final VoidCallback onDelete;
+  const _PlanCard({required this.plan, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
     final isConfirmed = plan.status == PlanStatus.confirmed;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: isConfirmed ? AppTheme.primary.withOpacity(0.2) : Colors.orange.withOpacity(0.2),
-          width: 1.5,
+    return Dismissible(
+      key: ValueKey(plan.id),
+      direction: DismissDirection.endToStart,
+      onDismissed: (_) => onDelete(),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        decoration: BoxDecoration(
+          color: Colors.red.shade400,
+          borderRadius: BorderRadius.circular(18),
         ),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+        child: const Icon(Icons.delete_outline, color: Colors.white),
       ),
-      child: Row(
-        children: [
-          Text(plan.emoji, style: const TextStyle(fontSize: 32)),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(plan.mountain, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.textPrimary)),
-                const SizedBox(height: 4),
-                Row(children: [
-                  const Icon(Icons.calendar_today_outlined, size: 13, color: AppTheme.textSecondary),
-                  const SizedBox(width: 4),
-                  Text(plan.date, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
-                ]),
-              ],
-            ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isConfirmed ? AppTheme.primary.withAlpha(51) : Colors.orange.withAlpha(51),
+            width: 1.5,
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: isConfirmed ? AppTheme.primary.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              isConfirmed ? '확정 ✓' : '조율 중',
-              style: TextStyle(
-                color: isConfirmed ? AppTheme.primary : Colors.orange.shade700,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+          boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 8, offset: const Offset(0, 2))],
+        ),
+        child: Row(
+          children: [
+            Text(plan.emoji, style: const TextStyle(fontSize: 32)),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(plan.mountain, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.textPrimary)),
+                  const SizedBox(height: 4),
+                  Row(children: [
+                    const Icon(Icons.calendar_today_outlined, size: 13, color: AppTheme.textSecondary),
+                    const SizedBox(width: 4),
+                    Text(plan.date, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                  ]),
+                ],
               ),
             ),
-          ),
-        ],
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: isConfirmed ? AppTheme.primary.withAlpha(25) : Colors.orange.withAlpha(25),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                isConfirmed ? '확정 ✓' : '조율 중',
+                style: TextStyle(
+                  color: isConfirmed ? AppTheme.primary : Colors.orange.shade700,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _ChecklistCard extends StatefulWidget {
-  @override
-  State<_ChecklistCard> createState() => _ChecklistCardState();
-}
-
-class _ChecklistCardState extends State<_ChecklistCard> {
-  final List<Map<String, dynamic>> _items = [
-    {'text': '등산화', 'checked': true},
-    {'text': '물 (500ml × 2)', 'checked': true},
-    {'text': '간식 (에너지바, 견과류)', 'checked': false},
-    {'text': '방풍자켓', 'checked': false},
-    {'text': '스틱', 'checked': false},
-    {'text': '구급약', 'checked': false},
-  ];
-
+class _ChecklistCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
-      ),
-      child: Column(
-        children: _items.asMap().entries.map((entry) {
-          final index = entry.key;
-          final item = entry.value;
-          return InkWell(
-            onTap: () => setState(() => _items[index]['checked'] = !item['checked']),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: 22,
-                    height: 22,
-                    decoration: BoxDecoration(
-                      color: item['checked'] ? AppTheme.primary : Colors.transparent,
-                      border: Border.all(color: item['checked'] ? AppTheme.primary : Colors.grey.shade300, width: 2),
-                      borderRadius: BorderRadius.circular(6),
+    return Consumer<AppState>(
+      builder: (context, state, _) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 8, offset: const Offset(0, 2))],
+        ),
+        child: Column(
+          children: state.checklist.asMap().entries.map((entry) {
+            final index = entry.key;
+            final item = entry.value;
+            return InkWell(
+              onTap: () => state.toggleChecklistItem(index),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: item.checked ? AppTheme.primary : Colors.transparent,
+                        border: Border.all(color: item.checked ? AppTheme.primary : Colors.grey.shade300, width: 2),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: item.checked ? const Icon(Icons.check, color: Colors.white, size: 14) : null,
                     ),
-                    child: item['checked'] ? const Icon(Icons.check, color: Colors.white, size: 14) : null,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    item['text'],
-                    style: TextStyle(
-                      color: item['checked'] ? AppTheme.textSecondary : AppTheme.textPrimary,
-                      decoration: item['checked'] ? TextDecoration.lineThrough : null,
-                      fontSize: 15,
+                    const SizedBox(width: 12),
+                    Text(
+                      item.text,
+                      style: TextStyle(
+                        color: item.checked ? AppTheme.textSecondary : AppTheme.textPrimary,
+                        decoration: item.checked ? TextDecoration.lineThrough : null,
+                        fontSize: 15,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
 }
 
 class _NewPlanSheet extends StatefulWidget {
-  final Function(_Plan) onSave;
+  final Function(Plan) onSave;
   const _NewPlanSheet({required this.onSave});
 
   @override
@@ -269,6 +265,7 @@ class _NewPlanSheet extends StatefulWidget {
 
 class _NewPlanSheetState extends State<_NewPlanSheet> {
   String? _selectedMountain;
+  String? _selectedEmoji;
   DateTime? _selectedDate;
 
   @override
@@ -297,7 +294,10 @@ class _NewPlanSheetState extends State<_NewPlanSheet> {
               children: sampleMountains.map((m) => ChoiceChip(
                 label: Text(m.name),
                 selected: _selectedMountain == m.name,
-                onSelected: (v) => setState(() => _selectedMountain = v ? m.name : null),
+                onSelected: (v) => setState(() {
+                  _selectedMountain = v ? m.name : null;
+                  _selectedEmoji = v ? m.emoji : null;
+                }),
                 selectedColor: AppTheme.primary,
                 labelStyle: TextStyle(color: _selectedMountain == m.name ? Colors.white : AppTheme.textPrimary),
               )).toList(),
@@ -341,11 +341,11 @@ class _NewPlanSheetState extends State<_NewPlanSheet> {
               child: ElevatedButton(
                 onPressed: (_selectedMountain != null && _selectedDate != null)
                     ? () {
-                        widget.onSave(_Plan(
+                        widget.onSave(Plan(
                           mountain: _selectedMountain!,
                           date: '${_selectedDate!.month}월 ${_selectedDate!.day}일',
                           status: PlanStatus.pending,
-                          emoji: '🏔️',
+                          emoji: _selectedEmoji ?? '🏔️',
                         ));
                         Navigator.pop(context);
                       }
