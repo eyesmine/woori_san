@@ -1,13 +1,13 @@
 enum PlanStatus { confirmed, pending }
 
-class Plan {
+class HikingPlan {
   final String id;
   final String mountain;
   final String date;
   final PlanStatus status;
   final String emoji;
 
-  Plan({
+  HikingPlan({
     String? id,
     required this.mountain,
     required this.date,
@@ -23,7 +23,7 @@ class Plan {
     'emoji': emoji,
   };
 
-  factory Plan.fromJson(Map<String, dynamic> json) => Plan(
+  factory HikingPlan.fromJson(Map<String, dynamic> json) => HikingPlan(
     id: json['id'],
     mountain: json['mountain'],
     date: json['date'],
@@ -36,19 +36,19 @@ class ChecklistItem {
   final String text;
   bool checked;
 
-  ChecklistItem({required this.text, required this.checked});
+  ChecklistItem({required this.text, this.checked = false});
 
   Map<String, dynamic> toJson() => {'text': text, 'checked': checked};
 
   factory ChecklistItem.fromJson(Map<String, dynamic> json) =>
-      ChecklistItem(text: json['text'], checked: json['checked']);
+      ChecklistItem(text: json['text'], checked: json['checked'] ?? false);
 }
 
 final List<ChecklistItem> defaultChecklist = [
-  ChecklistItem(text: '등산화', checked: false),
-  ChecklistItem(text: '물 (500ml × 2)', checked: false),
-  ChecklistItem(text: '간식 (에너지바, 견과류)', checked: false),
-  ChecklistItem(text: '방풍자켓', checked: false),
-  ChecklistItem(text: '스틱', checked: false),
-  ChecklistItem(text: '구급약', checked: false),
+  ChecklistItem(text: '등산화'),
+  ChecklistItem(text: '물 (500ml × 2)'),
+  ChecklistItem(text: '간식 (에너지바, 견과류)'),
+  ChecklistItem(text: '방풍자켓'),
+  ChecklistItem(text: '스틱'),
+  ChecklistItem(text: '구급약'),
 ];

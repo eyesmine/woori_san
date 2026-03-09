@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../models/mountain.dart';
-import '../providers/app_state.dart';
+import '../providers/mountain_provider.dart';
+import '../providers/stamp_provider.dart';
+import '../widgets/mountain_card.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -39,15 +41,17 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 220,
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                scrollDirection: Axis.horizontal,
-                itemCount: sampleMountains.length,
-                separatorBuilder: (_, _) => const SizedBox(width: 12),
-                itemBuilder: (context, index) => _MountainCard(mountain: sampleMountains[index]),
+          Consumer<MountainProvider>(
+            builder: (context, state, _) => SliverToBoxAdapter(
+              child: SizedBox(
+                height: 220,
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: state.mountains.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 12),
+                  itemBuilder: (context, index) => MountainCard(mountain: state.mountains[index]),
+                ),
               ),
             ),
           ),
@@ -68,17 +72,17 @@ class HomeScreen extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Consumer<AppState>(
-                builder: (context, state, _) => _StatsCard(
-                  hikes: state.totalHikes,
-                  distance: state.totalDistance,
-                  stamps: state.totalStamped,
+              child: Consumer2<MountainProvider, StampProvider>(
+                builder: (context, mState, sState, _) => _StatsCard(
+                  hikes: mState.totalHikes,
+                  distance: mState.totalDistance,
+                  stamps: sState.totalStamped,
                 ),
               ),
             ),
           ),
 
-          Consumer<AppState>(
+          Consumer<MountainProvider>(
             builder: (context, state, _) => SliverPadding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
               sliver: SliverList(
@@ -108,6 +112,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   void _showAllMountains(BuildContext context) {
+    final mountains = context.read<MountainProvider>().mountains;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -137,12 +142,9 @@ class HomeScreen extends StatelessWidget {
                 child: ListView.separated(
                   controller: scrollController,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: sampleMountains.length,
+                  itemCount: mountains.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final m = sampleMountains[index];
-                    return _MountainDetailTile(mountain: m);
-                  },
+                  itemBuilder: (context, index) => _MountainDetailTile(mountain: mountains[index]),
                 ),
               ),
             ],
@@ -201,9 +203,9 @@ class _StatsCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _StatItem(value: '$hikes', label: '함께한 산행', icon: '🏔️'),
-          _Divider(),
+          Container(width: 1, height: 40, color: Colors.white24),
           _StatItem(value: distance, label: '총 거리', icon: '📍'),
-          _Divider(),
+          Container(width: 1, height: 40, color: Colors.white24),
           _StatItem(value: '$stamps개', label: '획득 도장', icon: '🎖️'),
         ],
       ),
@@ -226,102 +228,6 @@ class _StatItem extends StatelessWidget {
         Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
         Text(label, style: const TextStyle(color: Colors.white70, fontSize: 11)),
       ],
-    );
-  }
-}
-
-class _Divider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(width: 1, height: 40, color: Colors.white24);
-  }
-}
-
-class _MountainCard extends StatelessWidget {
-  final Mountain mountain;
-  const _MountainCard({required this.mountain});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _showMountainDetail(context),
-      child: Container(
-        width: 160,
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [BoxShadow(color: Colors.black.withAlpha(18), blurRadius: 12, offset: const Offset(0, 4))],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 110,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: mountain.colors,
-                ),
-              ),
-              child: Center(child: Text(mountain.emoji, style: const TextStyle(fontSize: 40))),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(mountain.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppTheme.textPrimary)),
-                  const SizedBox(height: 4),
-                  Row(children: [
-                    _Tag(mountain.difficulty),
-                    const SizedBox(width: 6),
-                    Text(mountain.time, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
-                  ]),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showMountainDetail(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2))),
-            const SizedBox(height: 20),
-            Text(mountain.emoji, style: const TextStyle(fontSize: 48)),
-            const SizedBox(height: 8),
-            Text(mountain.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-            Text('${mountain.location} · ${mountain.height}m · ${mountain.distance}', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
-            const SizedBox(height: 12),
-            Text(mountain.description, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15, height: 1.5), textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _Tag(mountain.difficulty),
-                const SizedBox(width: 10),
-                Text(mountain.time, style: const TextStyle(color: AppTheme.textSecondary)),
-              ],
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -363,33 +269,13 @@ class _MountainDetailTile extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              _Tag(mountain.difficulty),
+              DifficultyTag(text: mountain.difficulty),
               const SizedBox(height: 4),
               Text(mountain.time, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
             ],
           ),
         ],
       ),
-    );
-  }
-}
-
-class _Tag extends StatelessWidget {
-  final String text;
-  const _Tag(this.text);
-
-  Color get color {
-    if (text == '초급') return Colors.green;
-    if (text == '중급') return Colors.orange;
-    return Colors.red;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-      decoration: BoxDecoration(color: color.withAlpha(25), borderRadius: BorderRadius.circular(6)),
-      child: Text(text, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w600)),
     );
   }
 }

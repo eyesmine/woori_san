@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Mountain {
+  final String id;
   final String name;
   final String location;
   final String difficulty;
@@ -12,6 +13,7 @@ class Mountain {
   final String description;
 
   const Mountain({
+    required this.id,
     required this.name,
     required this.location,
     required this.difficulty,
@@ -22,10 +24,37 @@ class Mountain {
     required this.colors,
     required this.description,
   });
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'location': location,
+    'difficulty': difficulty,
+    'time': time,
+    'distance': distance,
+    'height': height,
+    'emoji': emoji,
+    'colors': colors.map((c) => c.toARGB32()).toList(),
+    'description': description,
+  };
+
+  factory Mountain.fromJson(Map<String, dynamic> json) => Mountain(
+    id: json['id'],
+    name: json['name'],
+    location: json['location'],
+    difficulty: json['difficulty'],
+    time: json['time'],
+    distance: json['distance'],
+    height: json['height'],
+    emoji: json['emoji'],
+    colors: (json['colors'] as List).map((c) => Color(c as int)).toList(),
+    description: json['description'],
+  );
 }
 
-final List<Mountain> sampleMountains = [
+final List<Mountain> defaultMountains = [
   Mountain(
+    id: 'mt_1',
     name: '청계산',
     location: '서울/경기',
     difficulty: '초급',
@@ -37,6 +66,7 @@ final List<Mountain> sampleMountains = [
     description: '서울 근교에서 가장 인기 있는 초급 코스. 정상에서 서울 전경이 펼쳐져요.',
   ),
   Mountain(
+    id: 'mt_2',
     name: '북한산',
     location: '서울',
     difficulty: '중급',
@@ -48,6 +78,7 @@ final List<Mountain> sampleMountains = [
     description: '서울의 상징적인 명산. 백운대 정상에서의 뷰는 잊을 수 없어요.',
   ),
   Mountain(
+    id: 'mt_3',
     name: '관악산',
     location: '서울',
     difficulty: '중급',
@@ -59,6 +90,7 @@ final List<Mountain> sampleMountains = [
     description: '가을 단풍이 아름다운 산. 연주대에서 보는 일몰은 정말 특별해요.',
   ),
   Mountain(
+    id: 'mt_4',
     name: '수락산',
     location: '노원',
     difficulty: '초급',

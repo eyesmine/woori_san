@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'core/constants.dart';
+import 'datasources/local/mountain_local.dart';
+import 'datasources/local/stamp_local.dart';
+import 'datasources/local/plan_local.dart';
+import 'repositories/mountain_repository.dart';
+import 'repositories/stamp_repository.dart';
+import 'repositories/plan_repository.dart';
+import 'providers/mountain_provider.dart';
+import 'providers/plan_provider.dart';
+import 'providers/stamp_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/plan_screen.dart';
 import 'screens/stamp_screen.dart';
-import 'services/storage_service.dart';
-import 'providers/app_state.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -18,12 +26,29 @@ void main() async {
     ),
   );
 
-  final prefs = await SharedPreferences.getInstance();
-  final storage = StorageService(prefs);
+  // Hive 초기화
+  await Hive.initFlutter();
+  await Hive.openBox(AppConstants.cacheBox);
+  await Hive.openBox(AppConstants.stampBox);
+  await Hive.openBox(AppConstants.planBox);
+
+  // DataSources
+  final mountainLocal = MountainLocalDataSource();
+  final stampLocal = StampLocalDataSource();
+  final planLocal = PlanLocalDataSource();
+
+  // Repositories
+  final mountainRepo = MountainRepository(mountainLocal);
+  final stampRepo = StampRepository(stampLocal);
+  final planRepo = PlanRepository(planLocal);
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => AppState(storage),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => MountainProvider(mountainRepo, planRepo)),
+        ChangeNotifierProvider(create: (_) => PlanProvider(planRepo)),
+        ChangeNotifierProvider(create: (_) => StampProvider(stampRepo)),
+      ],
       child: const WooriSanApp(),
     ),
   );

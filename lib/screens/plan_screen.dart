@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../models/mountain.dart';
-import '../models/plan.dart';
-import '../providers/app_state.dart';
+import '../models/hiking_plan.dart';
+import '../providers/mountain_provider.dart';
+import '../providers/plan_provider.dart';
+import '../widgets/weather_card.dart';
+import '../widgets/plan_card.dart';
+import '../widgets/checklist_card.dart';
 
 class PlanScreen extends StatelessWidget {
   const PlanScreen({super.key});
@@ -21,11 +25,11 @@ class PlanScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer<AppState>(
+      body: Consumer<PlanProvider>(
         builder: (context, state, _) => ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            _WeatherCard(),
+            const WeatherCard(),
             const SizedBox(height: 24),
 
             const Text('예정된 산행', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
@@ -45,7 +49,7 @@ class PlanScreen extends StatelessWidget {
 
             ...state.plans.map((plan) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: _PlanCard(
+              child: PlanCard(
                 plan: plan,
                 onDelete: () => state.removePlan(plan.id),
               ),
@@ -77,7 +81,7 @@ class PlanScreen extends StatelessWidget {
 
             const Text('준비물 체크리스트', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
             const SizedBox(height: 12),
-            _ChecklistCard(),
+            const ChecklistCard(),
           ],
         ),
       ),
@@ -85,179 +89,23 @@ class PlanScreen extends StatelessWidget {
   }
 
   void _showNewPlanSheet(BuildContext context) {
+    final mountains = context.read<MountainProvider>().mountains;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _NewPlanSheet(
-        onSave: (plan) => context.read<AppState>().addPlan(plan),
-      ),
-    );
-  }
-}
-
-class _WeatherCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF74B3CE), Color(0xFF4895D0)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: const Color(0xFF4895D0).withAlpha(77), blurRadius: 16, offset: const Offset(0, 6))],
-      ),
-      child: const Row(
-        children: [
-          Text('☀️', style: TextStyle(fontSize: 48)),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('이번 주 토요일', style: TextStyle(color: Colors.white70, fontSize: 13)),
-                Text('등산하기 딱 좋은 날씨!', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700)),
-                SizedBox(height: 4),
-                Text('맑음 · 12°C · 바람 약함', style: TextStyle(color: Colors.white70, fontSize: 13)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PlanCard extends StatelessWidget {
-  final Plan plan;
-  final VoidCallback onDelete;
-  const _PlanCard({required this.plan, required this.onDelete});
-
-  @override
-  Widget build(BuildContext context) {
-    final isConfirmed = plan.status == PlanStatus.confirmed;
-    return Dismissible(
-      key: ValueKey(plan.id),
-      direction: DismissDirection.endToStart,
-      onDismissed: (_) => onDelete(),
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        decoration: BoxDecoration(
-          color: Colors.red.shade400,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: const Icon(Icons.delete_outline, color: Colors.white),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: isConfirmed ? AppTheme.primary.withAlpha(51) : Colors.orange.withAlpha(51),
-            width: 1.5,
-          ),
-          boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 8, offset: const Offset(0, 2))],
-        ),
-        child: Row(
-          children: [
-            Text(plan.emoji, style: const TextStyle(fontSize: 32)),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(plan.mountain, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.textPrimary)),
-                  const SizedBox(height: 4),
-                  Row(children: [
-                    const Icon(Icons.calendar_today_outlined, size: 13, color: AppTheme.textSecondary),
-                    const SizedBox(width: 4),
-                    Text(plan.date, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
-                  ]),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: isConfirmed ? AppTheme.primary.withAlpha(25) : Colors.orange.withAlpha(25),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                isConfirmed ? '확정 ✓' : '조율 중',
-                style: TextStyle(
-                  color: isConfirmed ? AppTheme.primary : Colors.orange.shade700,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ChecklistCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<AppState>(
-      builder: (context, state, _) => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 8, offset: const Offset(0, 2))],
-        ),
-        child: Column(
-          children: state.checklist.asMap().entries.map((entry) {
-            final index = entry.key;
-            final item = entry.value;
-            return InkWell(
-              onTap: () => state.toggleChecklistItem(index),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: 22,
-                      height: 22,
-                      decoration: BoxDecoration(
-                        color: item.checked ? AppTheme.primary : Colors.transparent,
-                        border: Border.all(color: item.checked ? AppTheme.primary : Colors.grey.shade300, width: 2),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: item.checked ? const Icon(Icons.check, color: Colors.white, size: 14) : null,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      item.text,
-                      style: TextStyle(
-                        color: item.checked ? AppTheme.textSecondary : AppTheme.textPrimary,
-                        decoration: item.checked ? TextDecoration.lineThrough : null,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-        ),
+        mountains: mountains,
+        onSave: (plan) => context.read<PlanProvider>().addPlan(plan),
       ),
     );
   }
 }
 
 class _NewPlanSheet extends StatefulWidget {
-  final Function(Plan) onSave;
-  const _NewPlanSheet({required this.onSave});
+  final List<Mountain> mountains;
+  final Function(HikingPlan) onSave;
+  const _NewPlanSheet({required this.mountains, required this.onSave});
 
   @override
   State<_NewPlanSheet> createState() => _NewPlanSheetState();
@@ -291,7 +139,7 @@ class _NewPlanSheetState extends State<_NewPlanSheet> {
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
-              children: sampleMountains.map((m) => ChoiceChip(
+              children: widget.mountains.map((m) => ChoiceChip(
                 label: Text(m.name),
                 selected: _selectedMountain == m.name,
                 onSelected: (v) => setState(() {
@@ -341,7 +189,7 @@ class _NewPlanSheetState extends State<_NewPlanSheet> {
               child: ElevatedButton(
                 onPressed: (_selectedMountain != null && _selectedDate != null)
                     ? () {
-                        widget.onSave(Plan(
+                        widget.onSave(HikingPlan(
                           mountain: _selectedMountain!,
                           date: '${_selectedDate!.month}월 ${_selectedDate!.day}일',
                           status: PlanStatus.pending,
