@@ -28,6 +28,20 @@ class PlanProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updatePlanStatus(String id, PlanStatus status) {
+    final index = _plans.indexWhere((p) => p.id == id);
+    if (index == -1) return;
+    _plans[index] = HikingPlan(
+      id: _plans[index].id,
+      mountain: _plans[index].mountain,
+      date: _plans[index].date,
+      status: status,
+      emoji: _plans[index].emoji,
+    );
+    _repo.savePlans(_plans);
+    notifyListeners();
+  }
+
   void toggleChecklistItem(int index) {
     _checklist[index].checked = !_checklist[index].checked;
     _repo.saveChecklist(_checklist);

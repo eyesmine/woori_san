@@ -17,6 +17,7 @@ class StampProvider extends ChangeNotifier {
   List<Stamp> get togetherStamps => _stamps.where((m) => m.isTogetherStamped).toList();
 
   void toggleStamp(int index, {bool together = false}) {
+    if (index < 0 || index >= _stamps.length) return;
     final m = _stamps[index];
     m.isStamped = !m.isStamped;
     if (m.isStamped) {
@@ -31,6 +32,7 @@ class StampProvider extends ChangeNotifier {
   }
 
   void toggleTogetherStamp(int index) {
+    if (index < 0 || index >= _stamps.length) return;
     final m = _stamps[index];
     if (!m.isStamped) return;
     m.isTogetherStamped = !m.isTogetherStamped;

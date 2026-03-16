@@ -5,7 +5,8 @@ import '../models/hiking_plan.dart';
 class PlanCard extends StatelessWidget {
   final HikingPlan plan;
   final VoidCallback onDelete;
-  const PlanCard({super.key, required this.plan, required this.onDelete});
+  final ValueChanged<PlanStatus>? onStatusChanged;
+  const PlanCard({super.key, required this.plan, required this.onDelete, this.onStatusChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -52,18 +53,24 @@ class PlanCard extends StatelessWidget {
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: isConfirmed ? AppTheme.primary.withAlpha(25) : Colors.orange.withAlpha(25),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                isConfirmed ? '확정 ✓' : '조율 중',
-                style: TextStyle(
-                  color: isConfirmed ? AppTheme.primary : Colors.orange.shade700,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+            GestureDetector(
+              onTap: () {
+                final newStatus = isConfirmed ? PlanStatus.pending : PlanStatus.confirmed;
+                onStatusChanged?.call(newStatus);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: isConfirmed ? AppTheme.primary.withAlpha(25) : Colors.orange.withAlpha(25),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  isConfirmed ? '확정 ✓' : '조율 중',
+                  style: TextStyle(
+                    color: isConfirmed ? AppTheme.primary : Colors.orange.shade700,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),

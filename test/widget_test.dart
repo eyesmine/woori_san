@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:woori_san/models/mountain.dart';
 import 'package:woori_san/models/stamp.dart';
 import 'package:woori_san/models/hiking_plan.dart';
 import 'package:woori_san/models/hiking_record.dart';
+import 'package:woori_san/models/user.dart';
+import 'package:woori_san/models/weather.dart';
 
 void main() {
   group('Model serialization', () {
@@ -14,6 +15,33 @@ void main() {
       expect(restored.name, mountain.name);
       expect(restored.height, mountain.height);
       expect(restored.id, mountain.id);
+      expect(restored.latitude, mountain.latitude);
+      expect(restored.longitude, mountain.longitude);
+    });
+
+    test('User toJson/fromJson', () {
+      final user = User(id: '1', email: 'test@test.com', nickname: '산타');
+      final json = user.toJson();
+      final restored = User.fromJson(json);
+      expect(restored.email, 'test@test.com');
+      expect(restored.nickname, '산타');
+    });
+
+    test('Weather toJson/fromJson', () {
+      final weather = Weather(
+        temperature: 12.5,
+        condition: 'Clear',
+        description: '맑음',
+        windSpeed: 2.1,
+        humidity: 45,
+        iconCode: '01d',
+        forecastDate: DateTime(2025, 3, 15),
+      );
+      final json = weather.toJson();
+      final restored = Weather.fromJson(json);
+      expect(restored.temperature, 12.5);
+      expect(restored.emoji, '☀️');
+      expect(restored.windLabel, '바람 약함');
     });
 
     test('Stamp toJson/fromJson', () {
@@ -34,11 +62,11 @@ void main() {
     });
 
     test('HikingRecord toJson/fromJson', () {
-      final record = HikingRecord(mountain: '관악산', date: '2025.02.01', duration: '3시간', distance: '6.5km', emoji: '🌄');
+      final record = HikingRecord(mountain: '관악산', date: '2025.02.01', duration: '3시간', distanceKm: 6.5, emoji: '🌄');
       final json = record.toJson();
       final restored = HikingRecord.fromJson(json);
       expect(restored.mountain, '관악산');
-      expect(restored.distance, '6.5km');
+      expect(restored.distanceKm, 6.5);
     });
 
     test('ChecklistItem toJson/fromJson', () {

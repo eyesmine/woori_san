@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../providers/stamp_provider.dart';
 import '../widgets/stamp_tile.dart';
+import '../widgets/empty_state.dart';
 
 class StampScreen extends StatelessWidget {
   const StampScreen({super.key});
@@ -14,6 +15,14 @@ class StampScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('도장 컬렉션')),
       body: Consumer<StampProvider>(
         builder: (context, state, _) {
+          if (state.stamps.isEmpty) {
+            return const Center(
+              child: EmptyState(
+                emoji: '🎖️',
+                message: '아직 도장이 없어요\n산 정상에서 첫 도장을 받아보세요!',
+              ),
+            );
+          }
           final togetherList = state.togetherStamps;
           return ListView(
             padding: const EdgeInsets.all(20),

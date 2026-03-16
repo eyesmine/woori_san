@@ -7,12 +7,13 @@ class StampRemoteDataSource {
   StampRemoteDataSource(this.api);
 
   Future<List<Stamp>> getStamps() async {
-    // TODO: 백엔드 연동 시 구현
-    throw UnimplementedError('백엔드 미연동');
+    final response = await api.get('/stamps');
+    final data = response.data;
+    if (data is! List) return [];
+    return data.map((e) => Stamp.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<void> updateStamp(Stamp stamp) async {
-    // TODO: 백엔드 연동 시 구현
-    throw UnimplementedError('백엔드 미연동');
+    await api.put('/stamps/${stamp.name}', data: stamp.toJson());
   }
 }

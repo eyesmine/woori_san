@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../models/mountain.dart';
@@ -52,6 +53,7 @@ class PlanScreen extends StatelessWidget {
               child: PlanCard(
                 plan: plan,
                 onDelete: () => state.removePlan(plan.id),
+                onStatusChanged: (status) => state.updatePlanStatus(plan.id, status),
               ),
             )),
 
@@ -120,9 +122,9 @@ class _NewPlanSheetState extends State<_NewPlanSheet> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -175,7 +177,7 @@ class _NewPlanSheetState extends State<_NewPlanSheet> {
                   const SizedBox(width: 10),
                   Text(
                     _selectedDate != null
-                        ? '${_selectedDate!.month}월 ${_selectedDate!.day}일'
+                        ? DateFormat('M월 d일', 'ko_KR').format(_selectedDate!)
                         : '날짜 선택',
                     style: TextStyle(color: _selectedDate != null ? AppTheme.textPrimary : Colors.grey),
                   ),
@@ -191,7 +193,7 @@ class _NewPlanSheetState extends State<_NewPlanSheet> {
                     ? () {
                         widget.onSave(HikingPlan(
                           mountain: _selectedMountain!,
-                          date: '${_selectedDate!.month}월 ${_selectedDate!.day}일',
+                          date: DateFormat('M월 d일', 'ko_KR').format(_selectedDate!),
                           status: PlanStatus.pending,
                           emoji: _selectedEmoji ?? '🏔️',
                         ));

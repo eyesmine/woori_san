@@ -7,14 +7,14 @@ class MountainRemoteDataSource {
   MountainRemoteDataSource(this.api);
 
   Future<List<Mountain>> getRecommended() async {
-    // TODO: 백엔드 연동 시 구현
-    // final response = await _api.get('/mountains/recommended');
-    // return (response.data as List).map((e) => Mountain.fromJson(e)).toList();
-    throw UnimplementedError('백엔드 미연동');
+    final response = await api.get('/mountains/recommended');
+    final data = response.data;
+    if (data is! List) return [];
+    return data.map((e) => Mountain.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<Mountain> getDetail(String id) async {
-    // TODO: 백엔드 연동 시 구현
-    throw UnimplementedError('백엔드 미연동');
+    final response = await api.get('/mountains/$id');
+    return Mountain.fromJson(response.data as Map<String, dynamic>);
   }
 }

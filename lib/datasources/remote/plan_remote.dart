@@ -7,17 +7,17 @@ class PlanRemoteDataSource {
   PlanRemoteDataSource(this.api);
 
   Future<List<HikingPlan>> getPlans() async {
-    // TODO: 백엔드 연동 시 구현
-    throw UnimplementedError('백엔드 미연동');
+    final response = await api.get('/plans');
+    final data = response.data;
+    if (data is! List) return [];
+    return data.map((e) => HikingPlan.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<void> createPlan(HikingPlan plan) async {
-    // TODO: 백엔드 연동 시 구현
-    throw UnimplementedError('백엔드 미연동');
+    await api.post('/plans', data: plan.toJson());
   }
 
   Future<void> deletePlan(String id) async {
-    // TODO: 백엔드 연동 시 구현
-    throw UnimplementedError('백엔드 미연동');
+    await api.delete('/plans/$id');
   }
 }

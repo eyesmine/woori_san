@@ -40,8 +40,8 @@ class PlanLocalDataSource {
     final data = _box.get(_recordKey);
     if (data == null) {
       return [
-        HikingRecord(id: '1', mountain: '북한산', date: '2025.02.15', duration: '4시간 23분', distance: '8.2km', emoji: '🌲'),
-        HikingRecord(id: '2', mountain: '관악산', date: '2025.02.01', duration: '3시간 10분', distance: '6.5km', emoji: '⛅'),
+        HikingRecord(id: '1', mountain: '북한산', date: '2025.02.15', duration: '4시간 23분', distanceKm: 8.2, emoji: '🌲'),
+        HikingRecord(id: '2', mountain: '관악산', date: '2025.02.01', duration: '3시간 10분', distanceKm: 6.5, emoji: '⛅'),
       ];
     }
     final list = jsonDecode(data) as List;

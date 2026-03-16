@@ -1,112 +1,221 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../models/mountain.dart';
 import '../providers/mountain_provider.dart';
 import '../providers/stamp_provider.dart';
+import '../providers/weather_provider.dart';
+import '../providers/location_provider.dart';
 import '../widgets/mountain_card.dart';
+import '../widgets/weather_card.dart';
+import '../widgets/empty_state.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchWeatherWithLocation();
+    });
+  }
+
+  Future<void> _fetchWeatherWithLocation() async {
+    final locationProvider = context.read<LocationProvider>();
+    final weatherProvider = context.read<WeatherProvider>();
+
+    await locationProvider.getCurrentPosition();
+    final pos = locationProvider.currentPosition;
+    if (pos != null) {
+      await weatherProvider.fetchWeather(pos.latitude, pos.longitude);
+    } else {
+      // GPS 못 가져오면 서울 좌표 폴백
+      await weatherProvider.fetchWeather(37.5665, 126.9780);
+    }
+  }
+
+  Future<void> _onRefresh() async {
+    await Future.wait([
+      _fetchWeatherWithLocation(),
+      context.read<MountainProvider>().refresh(),
+    ]);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.bg,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 200,
-            pinned: true,
-            backgroundColor: AppTheme.bg,
-            flexibleSpace: FlexibleSpaceBar(
-              background: _HeaderBanner(),
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        color: AppTheme.primary,
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 200,
+              pinned: true,
+              backgroundColor: AppTheme.bg,
+              flexibleSpace: FlexibleSpaceBar(
+                background: const _HeaderBanner(),
+              ),
+              title: const Text('우리산 🏔️'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () => context.push('/search'),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.person_outline),
+                  onPressed: () => context.push('/profile'),
+                ),
+              ],
             ),
-            title: const Text('우리산 🏔️'),
-          ),
 
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('이번 주 추천 코스', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-                  TextButton(
-                    onPressed: () => _showAllMountains(context),
-                    child: const Text('전체보기', style: TextStyle(color: AppTheme.primary)),
-                  ),
-                ],
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+                child: WeatherCard(),
               ),
             ),
-          ),
 
-          Consumer<MountainProvider>(
-            builder: (context, state, _) => SliverToBoxAdapter(
-              child: SizedBox(
-                height: 220,
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: state.mountains.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 12),
-                  itemBuilder: (context, index) => MountainCard(mountain: state.mountains[index]),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('이번 주 추천 코스', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                    TextButton(
+                      onPressed: () => _showAllMountains(context),
+                      child: const Text('전체보기', style: TextStyle(color: AppTheme.primary)),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
 
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 32, 20, 8),
-              child: Row(
-                children: [
-                  Container(width: 4, height: 20, decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(2))),
-                  const SizedBox(width: 10),
-                  const Text('우리의 기록', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-                ],
-              ),
-            ),
-          ),
-
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Consumer2<MountainProvider, StampProvider>(
-                builder: (context, mState, sState, _) => _StatsCard(
-                  hikes: mState.totalHikes,
-                  distance: mState.totalDistance,
-                  stamps: sState.totalStamped,
-                ),
-              ),
-            ),
-          ),
-
-          Consumer<MountainProvider>(
-            builder: (context, state, _) => SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    if (index >= state.records.length) return null;
-                    final r = state.records[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _RecentRecord(
-                        mountain: r.mountain,
-                        date: r.date,
-                        duration: r.duration,
-                        distance: r.distance,
-                        emoji: r.emoji,
+            Consumer<MountainProvider>(
+              builder: (context, state, _) {
+                if (state.isLoading) {
+                  return const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Center(child: CircularProgressIndicator(color: AppTheme.primary)),
+                    ),
+                  );
+                }
+                if (state.error != null) {
+                  return SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: EmptyState(
+                        emoji: '⚠️',
+                        message: state.error!,
                       ),
-                    );
-                  },
-                  childCount: state.records.length,
+                    ),
+                  );
+                }
+                if (state.mountains.isEmpty) {
+                  return const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: EmptyState(
+                        emoji: '🏔️',
+                        message: '추천 코스를 불러오는 중...',
+                      ),
+                    ),
+                  );
+                }
+                return SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 220,
+                    child: ListView.separated(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: state.mountains.length,
+                      separatorBuilder: (_, _) => const SizedBox(width: 12),
+                      itemBuilder: (context, index) => MountainCard(mountain: state.mountains[index]),
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 32, 20, 8),
+                child: Row(
+                  children: [
+                    Container(width: 4, height: 20, decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(2))),
+                    const SizedBox(width: 10),
+                    const Expanded(child: Text('우리의 기록', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary))),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline, color: AppTheme.primary),
+                      onPressed: () => context.push('/record/new'),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-        ],
+
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Consumer2<MountainProvider, StampProvider>(
+                  builder: (context, mState, sState, _) => _StatsCard(
+                    hikes: mState.totalHikes,
+                    distance: mState.totalDistance,
+                    stamps: sState.totalStamped,
+                  ),
+                ),
+              ),
+            ),
+
+            Consumer<MountainProvider>(
+              builder: (context, state, _) {
+                if (state.records.isEmpty) {
+                  return const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(20, 16, 20, 100),
+                      child: EmptyState(
+                        emoji: '🌱',
+                        message: '아직 기록이 없어요\n첫 산행을 시작해보세요!',
+                      ),
+                    ),
+                  );
+                }
+                return SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        if (index >= state.records.length) return null;
+                        final r = state.records[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _RecentRecord(
+                            mountain: r.mountain,
+                            date: r.date,
+                            duration: r.duration,
+                            distance: r.distance,
+                            emoji: r.emoji,
+                          ),
+                        );
+                      },
+                      childCount: state.records.length,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -121,10 +230,10 @@ class HomeScreen extends StatelessWidget {
         initialChildSize: 0.7,
         minChildSize: 0.5,
         maxChildSize: 0.9,
-        builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        builder: (sheetContext, scrollController) => Container(
+          decoration: BoxDecoration(
+            color: Theme.of(sheetContext).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             children: [
@@ -144,7 +253,13 @@ class HomeScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   itemCount: mountains.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) => _MountainDetailTile(mountain: mountains[index]),
+                  itemBuilder: (ctx, index) => GestureDetector(
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      context.push('/mountain/${mountains[index].id}');
+                    },
+                    child: _MountainDetailTile(mountain: mountains[index]),
+                  ),
                 ),
               ),
             ],
@@ -156,6 +271,8 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _HeaderBanner extends StatelessWidget {
+  const _HeaderBanner();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -269,7 +386,7 @@ class _MountainDetailTile extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              DifficultyTag(text: mountain.difficulty),
+              DifficultyTag(difficulty: mountain.difficulty),
               const SizedBox(height: 4),
               Text(mountain.time, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
             ],

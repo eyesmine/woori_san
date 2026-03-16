@@ -19,3 +19,7 @@ class CacheException extends AppException {
 class ServerException extends AppException {
   ServerException(super.message, {super.statusCode});
 }
+
+class AuthException extends AppException {
+  AuthException([super.message = '인증에 실패했습니다.']);
+}
