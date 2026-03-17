@@ -98,7 +98,7 @@
 | 이미지 | `cached_network_image` | 산 썸네일 캐싱 |
 | 사진 | `image_picker` | 갤러리/카메라 이미지 선택, 프로필/기록 사진 첨부 |
 | 알림 | `firebase_messaging` + `flutter_local_notifications` | FCM 푸시 + 포그라운드 로컬 알림 |
-| 다국어 | `flutter_localizations` + `intl` + `AppLocalizations` | 한국어/영어 l10n (83키), 모든 Screen 적용, 날짜 포맷 통일 |
+| 다국어 | `flutter_localizations` + `intl` + `AppLocalizations` | 한국어/영어 l10n (118키), 모든 Screen/Widget 적용, 날짜 포맷 통일 |
 | 환경 변수 | `flutter_dotenv` | `.env.example` 파일에서 API 키 로드 |
 | 보안 저장소 | `flutter_secure_storage` | JWT 토큰 암호화 저장 (Keychain / EncryptedSharedPreferences) |
 | 유틸 | `permission_handler` | 권한 관리 |
@@ -224,8 +224,8 @@ lib/
     ├── app_localizations.dart         # 생성된 AppLocalizations 클래스
     ├── app_localizations_ko.dart      # 한국어 구현
     ├── app_localizations_en.dart      # 영어 구현
-    ├── app_ko.arb                     # 한국어 (83키)
-    └── app_en.arb                     # 영어 (83키)
+    ├── app_ko.arb                     # 한국어 (118키)
+    └── app_en.arb                     # 영어 (118키)
 
 test/                                  # 123개 테스트, 17개 파일
 ├── core/
