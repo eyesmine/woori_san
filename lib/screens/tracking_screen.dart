@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../core/constants.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../providers/tracking_provider.dart';
@@ -97,11 +98,11 @@ class _TrackingScreenState extends State<TrackingScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: Text(l.stopHiking),
-        content: const Text('등산을 종료하고 기록을 저장하시겠습니까?'),
+        content: Text(l.stopConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(l.resumeHiking),
+            child: Text(l.continueHiking),
           ),
           TextButton(
             onPressed: () {
@@ -110,7 +111,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
               context.read<MountainProvider>().addRecord(record);
               context.pop();
             },
-            child: Text('${l.stopHiking} & ${l.save}', style: const TextStyle(color: Colors.red)),
+            child: Text(l.stopAndSave, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -135,7 +136,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => context.pop(),
-                    child: const Text('돌아가기'),
+                    child: Text(l.goBack),
                   ),
                 ],
               ),
@@ -145,7 +146,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(tracking.currentMountain?.name ?? '자유 등산'),
+            title: Text(tracking.currentMountain?.name ?? l.freeHiking),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () {
@@ -361,7 +362,7 @@ class _TrackingMapState extends State<_TrackingMap> {
     final mountain = widget.tracking.currentMountain;
     final defaultTarget = mountain != null
         ? NLatLng(mountain.latitude, mountain.longitude)
-        : const NLatLng(37.55, 127.0);
+        : const NLatLng(AppConstants.defaultLat, AppConstants.defaultLng);
 
     return NaverMap(
       options: NaverMapViewOptions(

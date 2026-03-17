@@ -118,8 +118,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         const SizedBox(height: 16),
                         Text(
                           _query.isEmpty && _selectedDifficulty == null && _selectedRegion == null
-                              ? '산 이름이나 지역으로 검색해보세요'
-                              : '검색 결과가 없습니다',
+                              ? l.searchPrompt
+                              : l.noSearchResults,
                           style: TextStyle(color: context.appTextSub, fontSize: 15),
                         ),
                       ],

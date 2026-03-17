@@ -583,6 +583,252 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'분'**
   String get minutes;
+
+  /// No description provided for @noStampsYet.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 도장이 없어요\n산 정상에서 첫 도장을 받아보세요!'**
+  String get noStampsYet;
+
+  /// No description provided for @noRecordsYet.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 기록이 없어요\n첫 산행을 시작해보세요!'**
+  String get noRecordsYet;
+
+  /// No description provided for @loadingCourses.
+  ///
+  /// In ko, this message translates to:
+  /// **'추천 코스를 불러오는 중...'**
+  String get loadingCourses;
+
+  /// No description provided for @mountainNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'산 정보를 찾을 수 없습니다.'**
+  String get mountainNotFound;
+
+  /// No description provided for @introduction.
+  ///
+  /// In ko, this message translates to:
+  /// **'소개'**
+  String get introduction;
+
+  /// No description provided for @courseInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'코스 정보'**
+  String get courseInfo;
+
+  /// No description provided for @location.
+  ///
+  /// In ko, this message translates to:
+  /// **'위치'**
+  String get location;
+
+  /// No description provided for @tag.
+  ///
+  /// In ko, this message translates to:
+  /// **'태그'**
+  String get tag;
+
+  /// No description provided for @language.
+  ///
+  /// In ko, this message translates to:
+  /// **'언어'**
+  String get language;
+
+  /// No description provided for @appInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'앱 정보'**
+  String get appInfo;
+
+  /// No description provided for @imagePickError.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지를 선택할 수 없습니다'**
+  String get imagePickError;
+
+  /// No description provided for @durationRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'소요 시간을 입력해주세요'**
+  String get durationRequired;
+
+  /// No description provided for @photo.
+  ///
+  /// In ko, this message translates to:
+  /// **'사진'**
+  String get photo;
+
+  /// No description provided for @addButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'추가'**
+  String get addButton;
+
+  /// No description provided for @stopConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'등산을 종료하고 기록을 저장하시겠습니까?'**
+  String get stopConfirm;
+
+  /// No description provided for @goBack.
+  ///
+  /// In ko, this message translates to:
+  /// **'돌아가기'**
+  String get goBack;
+
+  /// No description provided for @continueHiking.
+  ///
+  /// In ko, this message translates to:
+  /// **'계속하기'**
+  String get continueHiking;
+
+  /// No description provided for @stopAndSave.
+  ///
+  /// In ko, this message translates to:
+  /// **'종료 및 저장'**
+  String get stopAndSave;
+
+  /// No description provided for @freeHiking.
+  ///
+  /// In ko, this message translates to:
+  /// **'자유 등산'**
+  String get freeHiking;
+
+  /// No description provided for @searchPrompt.
+  ///
+  /// In ko, this message translates to:
+  /// **'산 이름이나 지역으로 검색해보세요'**
+  String get searchPrompt;
+
+  /// No description provided for @noSearchResults.
+  ///
+  /// In ko, this message translates to:
+  /// **'검색 결과가 없습니다'**
+  String get noSearchResults;
+
+  /// No description provided for @invalidAccess.
+  ///
+  /// In ko, this message translates to:
+  /// **'잘못된 접근입니다.'**
+  String get invalidAccess;
+
+  /// No description provided for @notClimbedYet.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 오르지 않은 산이에요 🌱\n함께 도전해 볼까요?'**
+  String get notClimbedYet;
+
+  /// No description provided for @soloStamp.
+  ///
+  /// In ko, this message translates to:
+  /// **'혼자 도장'**
+  String get soloStamp;
+
+  /// No description provided for @togetherStamp.
+  ///
+  /// In ko, this message translates to:
+  /// **'함께 도장'**
+  String get togetherStamp;
+
+  /// No description provided for @cancelStamp.
+  ///
+  /// In ko, this message translates to:
+  /// **'도장 취소'**
+  String get cancelStamp;
+
+  /// No description provided for @climbedDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'완등한 날'**
+  String get climbedDate;
+
+  /// No description provided for @togetherClimbedDate.
+  ///
+  /// In ko, this message translates to:
+  /// **'함께 오른 날'**
+  String get togetherClimbedDate;
+
+  /// No description provided for @weatherDefault.
+  ///
+  /// In ko, this message translates to:
+  /// **'등산하기 딱 좋은 날씨!'**
+  String get weatherDefault;
+
+  /// No description provided for @weatherRain.
+  ///
+  /// In ko, this message translates to:
+  /// **'비 소식이 있어요. 우비를 챙기세요!'**
+  String get weatherRain;
+
+  /// No description provided for @weatherSnow.
+  ///
+  /// In ko, this message translates to:
+  /// **'눈이 올 예정이에요. 방한 장비 필수!'**
+  String get weatherSnow;
+
+  /// No description provided for @weatherThunder.
+  ///
+  /// In ko, this message translates to:
+  /// **'천둥번개 예보! 산행을 미루는 게 좋겠어요.'**
+  String get weatherThunder;
+
+  /// No description provided for @weatherFog.
+  ///
+  /// In ko, this message translates to:
+  /// **'안개가 낄 수 있어요. 시야에 주의하세요.'**
+  String get weatherFog;
+
+  /// No description provided for @weatherVeryHot.
+  ///
+  /// In ko, this message translates to:
+  /// **'매우 더운 날씨! 충분한 수분 섭취 필수!'**
+  String get weatherVeryHot;
+
+  /// No description provided for @weatherHot.
+  ///
+  /// In ko, this message translates to:
+  /// **'더운 날씨에요. 물을 넉넉히 챙기세요.'**
+  String get weatherHot;
+
+  /// No description provided for @weatherVeryCold.
+  ///
+  /// In ko, this message translates to:
+  /// **'매우 추운 날씨! 방한 장비를 꼭 챙기세요.'**
+  String get weatherVeryCold;
+
+  /// No description provided for @weatherCold.
+  ///
+  /// In ko, this message translates to:
+  /// **'쌀쌀한 날씨에요. 따뜻하게 입으세요.'**
+  String get weatherCold;
+
+  /// No description provided for @weatherCloudy.
+  ///
+  /// In ko, this message translates to:
+  /// **'구름이 있지만 산행하기 좋아요!'**
+  String get weatherCloudy;
+
+  /// No description provided for @weatherLoading.
+  ///
+  /// In ko, this message translates to:
+  /// **'날씨 확인 중...'**
+  String get weatherLoading;
+
+  /// No description provided for @weatherError.
+  ///
+  /// In ko, this message translates to:
+  /// **'날씨 정보를 불러올 수 없어요'**
+  String get weatherError;
+
+  /// No description provided for @weatherFallback.
+  ///
+  /// In ko, this message translates to:
+  /// **'맑음 · 12°C · 바람 약함'**
+  String get weatherFallback;
 }
 
 class _AppLocalizationsDelegate

@@ -250,4 +250,127 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get minutes => '분';
+
+  @override
+  String get noStampsYet => '아직 도장이 없어요\n산 정상에서 첫 도장을 받아보세요!';
+
+  @override
+  String get noRecordsYet => '아직 기록이 없어요\n첫 산행을 시작해보세요!';
+
+  @override
+  String get loadingCourses => '추천 코스를 불러오는 중...';
+
+  @override
+  String get mountainNotFound => '산 정보를 찾을 수 없습니다.';
+
+  @override
+  String get introduction => '소개';
+
+  @override
+  String get courseInfo => '코스 정보';
+
+  @override
+  String get location => '위치';
+
+  @override
+  String get tag => '태그';
+
+  @override
+  String get language => '언어';
+
+  @override
+  String get appInfo => '앱 정보';
+
+  @override
+  String get imagePickError => '이미지를 선택할 수 없습니다';
+
+  @override
+  String get durationRequired => '소요 시간을 입력해주세요';
+
+  @override
+  String get photo => '사진';
+
+  @override
+  String get addButton => '추가';
+
+  @override
+  String get stopConfirm => '등산을 종료하고 기록을 저장하시겠습니까?';
+
+  @override
+  String get goBack => '돌아가기';
+
+  @override
+  String get continueHiking => '계속하기';
+
+  @override
+  String get stopAndSave => '종료 및 저장';
+
+  @override
+  String get freeHiking => '자유 등산';
+
+  @override
+  String get searchPrompt => '산 이름이나 지역으로 검색해보세요';
+
+  @override
+  String get noSearchResults => '검색 결과가 없습니다';
+
+  @override
+  String get invalidAccess => '잘못된 접근입니다.';
+
+  @override
+  String get notClimbedYet => '아직 오르지 않은 산이에요 🌱\n함께 도전해 볼까요?';
+
+  @override
+  String get soloStamp => '혼자 도장';
+
+  @override
+  String get togetherStamp => '함께 도장';
+
+  @override
+  String get cancelStamp => '도장 취소';
+
+  @override
+  String get climbedDate => '완등한 날';
+
+  @override
+  String get togetherClimbedDate => '함께 오른 날';
+
+  @override
+  String get weatherDefault => '등산하기 딱 좋은 날씨!';
+
+  @override
+  String get weatherRain => '비 소식이 있어요. 우비를 챙기세요!';
+
+  @override
+  String get weatherSnow => '눈이 올 예정이에요. 방한 장비 필수!';
+
+  @override
+  String get weatherThunder => '천둥번개 예보! 산행을 미루는 게 좋겠어요.';
+
+  @override
+  String get weatherFog => '안개가 낄 수 있어요. 시야에 주의하세요.';
+
+  @override
+  String get weatherVeryHot => '매우 더운 날씨! 충분한 수분 섭취 필수!';
+
+  @override
+  String get weatherHot => '더운 날씨에요. 물을 넉넉히 챙기세요.';
+
+  @override
+  String get weatherVeryCold => '매우 추운 날씨! 방한 장비를 꼭 챙기세요.';
+
+  @override
+  String get weatherCold => '쌀쌀한 날씨에요. 따뜻하게 입으세요.';
+
+  @override
+  String get weatherCloudy => '구름이 있지만 산행하기 좋아요!';
+
+  @override
+  String get weatherLoading => '날씨 확인 중...';
+
+  @override
+  String get weatherError => '날씨 정보를 불러올 수 없어요';
+
+  @override
+  String get weatherFallback => '맑음 · 12°C · 바람 약함';
 }

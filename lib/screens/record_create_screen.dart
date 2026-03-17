@@ -39,7 +39,7 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
       if (files.isNotEmpty) {
         setState(() => _photos.addAll(files));
       }
-    } catch (_) {}
+    } catch (e) { debugPrint('Photo pick error: $e'); }
   }
 
   void _save() {
@@ -49,7 +49,7 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
     if (distanceKm <= 0) return;
     if (_hours == 0 && _minutes == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('소요 시간을 입력해주세요')),
+        SnackBar(content: Text(AppLocalizations.of(context)?.durationRequired ?? 'Please enter duration')),
       );
       return;
     }
@@ -193,7 +193,7 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
             ),
 
             const SizedBox(height: 24),
-            Text('사진', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),
+            Text(l.photo, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -231,12 +231,12 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
                       borderRadius: BorderRadius.circular(12),
                       color: AppTheme.primary.withAlpha(8),
                     ),
-                    child: const Column(
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.add_photo_alternate_outlined, color: AppTheme.primary),
-                        SizedBox(height: 4),
-                        Text('추가', style: TextStyle(color: AppTheme.primary, fontSize: 11)),
+                        const Icon(Icons.add_photo_alternate_outlined, color: AppTheme.primary),
+                        const SizedBox(height: 4),
+                        Text(l.addButton, style: const TextStyle(color: AppTheme.primary, fontSize: 11)),
                       ],
                     ),
                   ),

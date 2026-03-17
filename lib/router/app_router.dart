@@ -85,8 +85,8 @@ GoRouter createRouter(AuthProvider authProvider) {
         builder: (context, state) {
           final id = state.pathParameters['id'];
           if (id == null) {
-            return const Scaffold(
-              body: Center(child: Text('잘못된 접근입니다.')),
+            return Scaffold(
+              body: Center(child: Text(AppLocalizations.of(context)?.invalidAccess ?? 'Invalid access.')),
             );
           }
           return MountainDetailScreen(mountainId: id);

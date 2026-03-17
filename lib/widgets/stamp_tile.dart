@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../models/stamp.dart';
 import '../providers/stamp_provider.dart';
@@ -100,6 +101,7 @@ class StampTile extends StatelessWidget {
   }
 
   void _showDetail(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final state = context.read<StampProvider>();
     showModalBottomSheet(
       context: context,
@@ -127,7 +129,7 @@ class StampTile extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('💑 함께 오른 날: ', style: TextStyle(fontWeight: FontWeight.w600, color: context.appText)),
+                    Text('💑 ${l.togetherClimbedDate}: ', style: TextStyle(fontWeight: FontWeight.w600, color: context.appText)),
                     Text(mountain.stampDate ?? '', style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700)),
                   ],
                 ),
@@ -139,7 +141,7 @@ class StampTile extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('✅ 완등한 날: ', style: TextStyle(fontWeight: FontWeight.w600, color: context.appText)),
+                    Text('✅ ${l.climbedDate}: ', style: TextStyle(fontWeight: FontWeight.w600, color: context.appText)),
                     Text(mountain.stampDate ?? '', style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700)),
                   ],
                 ),
@@ -148,7 +150,7 @@ class StampTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(14)),
-                child: Text('아직 오르지 않은 산이에요 🌱\n함께 도전해 볼까요?', textAlign: TextAlign.center, style: TextStyle(color: context.appTextSub, height: 1.5)),
+                child: Text(l.notClimbedYet, textAlign: TextAlign.center, style: TextStyle(color: context.appTextSub, height: 1.5)),
               ),
             const SizedBox(height: 16),
             if (!mountain.isStamped)
@@ -166,7 +168,7 @@ class StampTile extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: const Text('혼자 도장'),
+                      child: Text(l.soloStamp),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -181,7 +183,7 @@ class StampTile extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      child: const Text('💑 함께 도장'),
+                      child: Text('💑 ${l.togetherStamp}'),
                     ),
                   ),
                 ],
@@ -200,7 +202,7 @@ class StampTile extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text('도장 취소'),
+                  child: Text(l.cancelStamp),
                 ),
               ),
             const SizedBox(height: 20),

@@ -101,11 +101,11 @@ class ProfileScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _StatColumn(value: '${mState.totalHikes}', label: '산행'),
+                      _StatColumn(value: '${mState.totalHikes}', label: l.totalHikes),
                       Container(width: 1, height: 40, color: Colors.white24),
-                      _StatColumn(value: mState.totalDistance, label: '총 거리'),
+                      _StatColumn(value: mState.totalDistance, label: l.totalDistance),
                       Container(width: 1, height: 40, color: Colors.white24),
-                      _StatColumn(value: '${sState.totalStamped}', label: '도장'),
+                      _StatColumn(value: '${sState.totalStamped}', label: l.tabStamp),
                     ],
                   ),
                 ),
@@ -146,7 +146,7 @@ class ProfileScreen extends StatelessWidget {
               Consumer<SettingsProvider>(
                 builder: (context, settings, _) => _SettingsTile(
                   icon: Icons.language,
-                  title: '언어',
+                  title: l.language,
                   trailing: GestureDetector(
                     onTap: () => settings.toggleLocale(),
                     child: Text(
@@ -158,7 +158,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               _SettingsTile(
                 icon: Icons.info_outline,
-                title: '앱 정보',
+                title: l.appInfo,
                 trailing: Text('v1.0.0', style: TextStyle(color: context.appTextSub)),
               ),
 
@@ -233,7 +233,7 @@ class ProfileScreen extends StatelessWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('이미지를 선택할 수 없습니다')),
+          SnackBar(content: Text(AppLocalizations.of(context)?.imagePickError ?? 'Cannot select image')),
         );
       }
     }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../core/constants.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../providers/mountain_provider.dart';
@@ -39,7 +40,7 @@ class _MapScreenState extends State<MapScreen> {
         builder: (context, state, _) => NaverMap(
           options: const NaverMapViewOptions(
             initialCameraPosition: NCameraPosition(
-              target: NLatLng(37.55, 127.0),
+              target: NLatLng(AppConstants.defaultLat, AppConstants.defaultLng),
               zoom: 10,
             ),
             locationButtonEnable: true,

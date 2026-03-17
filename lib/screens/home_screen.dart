@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../core/constants.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../models/mountain.dart';
@@ -38,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await weatherProvider.fetchWeather(pos.latitude, pos.longitude);
     } else {
       // GPS 못 가져오면 서울 좌표 폴백
-      await weatherProvider.fetchWeather(37.5665, 126.9780);
+      await weatherProvider.fetchWeather(AppConstants.defaultLat, AppConstants.defaultLng);
     }
   }
 
@@ -123,12 +124,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
                 if (state.mountains.isEmpty) {
-                  return const SliverToBoxAdapter(
+                  return SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: EmptyState(
                         emoji: '🏔️',
-                        message: '추천 코스를 불러오는 중...',
+                        message: l.loadingCourses,
                       ),
                     ),
                   );
@@ -181,12 +182,12 @@ class _HomeScreenState extends State<HomeScreen> {
             Consumer<MountainProvider>(
               builder: (context, state, _) {
                 if (state.records.isEmpty) {
-                  return const SliverToBoxAdapter(
+                  return SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(20, 16, 20, 100),
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
                       child: EmptyState(
                         emoji: '🌱',
-                        message: '아직 기록이 없어요\n첫 산행을 시작해보세요!',
+                        message: l.noRecordsYet,
                       ),
                     ),
                   );

@@ -17,7 +17,7 @@ class MountainDetailScreen extends StatelessWidget {
         if (mountain == null) {
           return Scaffold(
             appBar: AppBar(),
-            body: const Center(child: Text('산 정보를 찾을 수 없습니다.')),
+            body: Center(child: Text(AppLocalizations.of(context)?.mountainNotFound ?? 'Mountain not found.')),
           );
         }
         return _DetailBody(mountain: mountain);
@@ -101,12 +101,12 @@ class _DetailBody extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(child: _InfoCard(icon: Icons.location_on_outlined, label: l.region, value: mountain.location)),
                       const SizedBox(width: 12),
-                      Expanded(child: _InfoCard(icon: Icons.star_outline, label: '태그', value: mountain.emoji)),
+                      Expanded(child: _InfoCard(icon: Icons.star_outline, label: l.tag, value: mountain.emoji)),
                     ],
                   ),
 
                   const SizedBox(height: 24),
-                  Text('소개', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
+                  Text(l.introduction, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
                   const SizedBox(height: 8),
                   Text(
                     mountain.description,
@@ -118,7 +118,7 @@ class _DetailBody extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 24),
-                  Text('코스 정보', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
+                  Text(l.courseInfo, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -140,7 +140,7 @@ class _DetailBody extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 24),
-                  Text('위치', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
+                  Text(l.location, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(16),

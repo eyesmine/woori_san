@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/weather.dart';
 import '../providers/weather_provider.dart';
 
@@ -14,44 +15,45 @@ class WeatherCard extends StatelessWidget {
     return DateFormat('M월 d일 (E)', 'ko_KR').format(saturday);
   }
 
-  String _weatherMessage(Weather? weather) {
-    if (weather == null) return '등산하기 딱 좋은 날씨!';
+  String _weatherMessage(AppLocalizations l, Weather? weather) {
+    if (weather == null) return l.weatherDefault;
 
     final condition = weather.condition.toLowerCase();
     final temp = weather.temperature;
 
     if (condition.contains('rain') || condition.contains('drizzle')) {
-      return '비 소식이 있어요. 우비를 챙기세요!';
+      return l.weatherRain;
     }
     if (condition.contains('snow')) {
-      return '눈이 올 예정이에요. 방한 장비 필수!';
+      return l.weatherSnow;
     }
     if (condition.contains('thunderstorm')) {
-      return '천둥번개 예보! 산행을 미루는 게 좋겠어요.';
+      return l.weatherThunder;
     }
     if (condition.contains('mist') || condition.contains('fog') || condition.contains('haze')) {
-      return '안개가 낄 수 있어요. 시야에 주의하세요.';
+      return l.weatherFog;
     }
     if (temp >= 33) {
-      return '매우 더운 날씨! 충분한 수분 섭취 필수!';
+      return l.weatherVeryHot;
     }
     if (temp >= 28) {
-      return '더운 날씨에요. 물을 넉넉히 챙기세요.';
+      return l.weatherHot;
     }
     if (temp <= -5) {
-      return '매우 추운 날씨! 방한 장비를 꼭 챙기세요.';
+      return l.weatherVeryCold;
     }
     if (temp <= 3) {
-      return '쌀쌀한 날씨에요. 따뜻하게 입으세요.';
+      return l.weatherCold;
     }
     if (condition.contains('cloud')) {
-      return '구름이 있지만 산행하기 좋아요!';
+      return l.weatherCloudy;
     }
-    return '등산하기 딱 좋은 날씨!';
+    return l.weatherDefault;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Consumer<WeatherProvider>(
       builder: (context, state, _) {
         final weather = state.weather;
@@ -84,20 +86,20 @@ class WeatherCard extends StatelessWidget {
                   children: [
                     Text(_nextSaturday, style: const TextStyle(color: Colors.white70, fontSize: 13)),
                     if (state.error != null)
-                      const Text(
-                        '날씨 정보를 불러올 수 없어요',
-                        style: TextStyle(color: Colors.white70, fontSize: 15, fontWeight: FontWeight.w600),
+                      Text(
+                        l.weatherError,
+                        style: const TextStyle(color: Colors.white70, fontSize: 15, fontWeight: FontWeight.w600),
                       )
                     else
                       Text(
-                        state.isLoading ? '날씨 확인 중...' : _weatherMessage(weather),
+                        state.isLoading ? l.weatherLoading : _weatherMessage(l, weather),
                         style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
                       ),
                     const SizedBox(height: 4),
                     Text(
                       weather != null
                           ? '${weather.description} · ${weather.temperature.round()}°C · ${weather.windLabel}'
-                          : state.isLoading ? '' : '맑음 · 12°C · 바람 약함',
+                          : state.isLoading ? '' : l.weatherFallback,
                       style: const TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                   ],

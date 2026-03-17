@@ -250,4 +250,129 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get minutes => 'min';
+
+  @override
+  String get noStampsYet =>
+      'No stamps yet\nReach a summit to earn your first stamp!';
+
+  @override
+  String get noRecordsYet => 'No records yet\nStart your first hike!';
+
+  @override
+  String get loadingCourses => 'Loading recommended courses...';
+
+  @override
+  String get mountainNotFound => 'Mountain not found.';
+
+  @override
+  String get introduction => 'About';
+
+  @override
+  String get courseInfo => 'Course Info';
+
+  @override
+  String get location => 'Location';
+
+  @override
+  String get tag => 'Tag';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get appInfo => 'App Info';
+
+  @override
+  String get imagePickError => 'Could not select image';
+
+  @override
+  String get durationRequired => 'Please enter the duration';
+
+  @override
+  String get photo => 'Photo';
+
+  @override
+  String get addButton => 'Add';
+
+  @override
+  String get stopConfirm => 'Stop hiking and save the record?';
+
+  @override
+  String get goBack => 'Go Back';
+
+  @override
+  String get continueHiking => 'Continue';
+
+  @override
+  String get stopAndSave => 'Stop & Save';
+
+  @override
+  String get freeHiking => 'Free Hiking';
+
+  @override
+  String get searchPrompt => 'Search by mountain name or region';
+
+  @override
+  String get noSearchResults => 'No results found';
+
+  @override
+  String get invalidAccess => 'Invalid access.';
+
+  @override
+  String get notClimbedYet => 'Not climbed yet 🌱\nWant to try together?';
+
+  @override
+  String get soloStamp => 'Solo Stamp';
+
+  @override
+  String get togetherStamp => 'Together Stamp';
+
+  @override
+  String get cancelStamp => 'Cancel Stamp';
+
+  @override
+  String get climbedDate => 'Climbed on';
+
+  @override
+  String get togetherClimbedDate => 'Hiked together on';
+
+  @override
+  String get weatherDefault => 'Perfect weather for hiking!';
+
+  @override
+  String get weatherRain => 'Rain expected. Bring a raincoat!';
+
+  @override
+  String get weatherSnow => 'Snow expected. Winter gear is a must!';
+
+  @override
+  String get weatherThunder =>
+      'Thunderstorm warning! Better postpone the hike.';
+
+  @override
+  String get weatherFog => 'Fog expected. Watch your visibility.';
+
+  @override
+  String get weatherVeryHot => 'Very hot! Stay hydrated!';
+
+  @override
+  String get weatherHot => 'Hot weather. Bring plenty of water.';
+
+  @override
+  String get weatherVeryCold => 'Very cold! Don\'t forget winter gear.';
+
+  @override
+  String get weatherCold => 'Chilly weather. Dress warmly.';
+
+  @override
+  String get weatherCloudy => 'Cloudy but great for hiking!';
+
+  @override
+  String get weatherLoading => 'Checking weather...';
+
+  @override
+  String get weatherError => 'Could not load weather info';
+
+  @override
+  String get weatherFallback => 'Clear · 12°C · Light wind';
 }

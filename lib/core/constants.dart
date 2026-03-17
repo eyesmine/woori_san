@@ -23,8 +23,10 @@ class AppConstants {
   static const Duration mountainCacheTtl = Duration(hours: 24);
   static const Duration weatherCacheTtl = Duration(hours: 3);
 
-  // GPS — 정상 도착 판정 반경 (미터)
-  static const double summitThresholdMeters = 200;
+  // GPS
+  static const double summitThresholdMeters = 200; // 정상 도착 판정 반경 (미터)
+  static const double defaultLat = 37.5665; // 서울 기본 좌표
+  static const double defaultLng = 126.9780;
 
   /// dotenv에서 값을 읽되, 초기화되지 않은 경우 기본값 반환
   static String _env(String key, String fallback) {

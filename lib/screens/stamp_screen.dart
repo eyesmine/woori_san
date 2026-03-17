@@ -17,10 +17,10 @@ class StampScreen extends StatelessWidget {
       body: Consumer<StampProvider>(
         builder: (context, state, _) {
           if (state.stamps.isEmpty) {
-            return const Center(
+            return Center(
               child: EmptyState(
                 emoji: '🎖️',
-                message: '아직 도장이 없어요\n산 정상에서 첫 도장을 받아보세요!',
+                message: l.noStampsYet,
               ),
             );
           }
