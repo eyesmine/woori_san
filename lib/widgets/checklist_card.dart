@@ -12,7 +12,7 @@ class ChecklistCard extends StatelessWidget {
       builder: (context, state, _) => Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.surface,
+          color: context.appSurface,
           borderRadius: BorderRadius.circular(18),
           boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 8, offset: const Offset(0, 2))],
         ),
@@ -41,7 +41,7 @@ class ChecklistCard extends StatelessWidget {
                     Text(
                       item.text,
                       style: TextStyle(
-                        color: item.checked ? AppTheme.textSecondary : AppTheme.textPrimary,
+                        color: item.checked ? context.appTextSub : context.appText,
                         decoration: item.checked ? TextDecoration.lineThrough : null,
                         fontSize: 15,
                       ),

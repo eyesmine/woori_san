@@ -16,7 +16,7 @@ class StampTile extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: mountain.isStamped ? AppTheme.surface : Colors.grey.shade100,
+          color: mountain.isStamped ? context.appSurface : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: mountain.isTogetherStamped
@@ -59,7 +59,7 @@ class StampTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: mountain.isStamped ? AppTheme.textPrimary : Colors.grey.shade400,
+                      color: mountain.isStamped ? context.appText : Colors.grey.shade400,
                     ),
                     textAlign: TextAlign.center,
                     maxLines: 1,
@@ -68,7 +68,7 @@ class StampTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     '${mountain.height}m',
-                    style: TextStyle(fontSize: 11, color: mountain.isStamped ? AppTheme.textSecondary : Colors.grey.shade300),
+                    style: TextStyle(fontSize: 11, color: mountain.isStamped ? context.appTextSub : Colors.grey.shade300),
                   ),
                 ],
               ),
@@ -106,9 +106,9 @@ class StampTile extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (_) => Container(
         padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: context.appSurface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -117,8 +117,8 @@ class StampTile extends StatelessWidget {
             const SizedBox(height: 20),
             const Text('🏔️', style: TextStyle(fontSize: 48)),
             const SizedBox(height: 8),
-            Text(mountain.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-            Text('${mountain.region} · ${mountain.height}m', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+            Text(mountain.name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: context.appText)),
+            Text('${mountain.region} · ${mountain.height}m', style: TextStyle(color: context.appTextSub, fontSize: 14)),
             const SizedBox(height: 16),
             if (mountain.isTogetherStamped)
               Container(
@@ -127,7 +127,7 @@ class StampTile extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('💑 함께 오른 날: ', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                    Text('💑 함께 오른 날: ', style: TextStyle(fontWeight: FontWeight.w600, color: context.appText)),
                     Text(mountain.stampDate ?? '', style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700)),
                   ],
                 ),
@@ -139,7 +139,7 @@ class StampTile extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('✅ 완등한 날: ', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                    Text('✅ 완등한 날: ', style: TextStyle(fontWeight: FontWeight.w600, color: context.appText)),
                     Text(mountain.stampDate ?? '', style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700)),
                   ],
                 ),
@@ -148,7 +148,7 @@ class StampTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(14)),
-                child: const Text('아직 오르지 않은 산이에요 🌱\n함께 도전해 볼까요?', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.textSecondary, height: 1.5)),
+                child: Text('아직 오르지 않은 산이에요 🌱\n함께 도전해 볼까요?', textAlign: TextAlign.center, style: TextStyle(color: context.appTextSub, height: 1.5)),
               ),
             const SizedBox(height: 16),
             if (!mountain.isStamped)

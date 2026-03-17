@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../providers/stamp_provider.dart';
 import '../widgets/stamp_tile.dart';
@@ -10,9 +11,9 @@ class StampScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppTheme.bg,
-      appBar: AppBar(title: const Text('도장 컬렉션')),
+      appBar: AppBar(title: Text(l.stampCollection)),
       body: Consumer<StampProvider>(
         builder: (context, state, _) {
           if (state.stamps.isEmpty) {
@@ -36,7 +37,7 @@ class StampScreen extends StatelessWidget {
 
               if (togetherList.isNotEmpty) ...[
                 Row(children: [
-                  const Text('💑 함께 오른 산', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                  Text('💑 ${l.togetherMountains}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.appText)),
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -59,9 +60,9 @@ class StampScreen extends StatelessWidget {
               ],
 
               Row(children: [
-                const Text('전체 명산', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                Text(l.allMountains, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.appText)),
                 const SizedBox(width: 8),
-                Text('${state.totalStamped} / ${state.stamps.length}', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+                Text('${state.totalStamped} / ${state.stamps.length}', style: TextStyle(color: context.appTextSub, fontSize: 14)),
               ]),
               const SizedBox(height: 12),
               GridView.builder(
@@ -91,11 +92,12 @@ class _ProgressHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final progress = stamped / total;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 12, offset: const Offset(0, 4))],
       ),
@@ -108,13 +110,13 @@ class _ProgressHeader extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('명산 100 도전', style: TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                  Text(l.challenge100, style: TextStyle(fontSize: 13, color: context.appTextSub)),
                   const SizedBox(height: 2),
                   RichText(
                     text: TextSpan(
                       children: [
                         TextSpan(text: '$stamped', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppTheme.primary)),
-                        TextSpan(text: ' / $total', style: const TextStyle(fontSize: 16, color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
+                        TextSpan(text: ' / $total', style: TextStyle(fontSize: 16, color: context.appTextSub, fontWeight: FontWeight.w500)),
                       ],
                     ),
                   ),
@@ -153,8 +155,8 @@ class _ProgressHeader extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('함께 $together개 오름', style: const TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimary, fontSize: 14)),
-                    Text('${total - stamped}개의 산이 여러분을 기다리고 있어요', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                    Text('${l.together} $together개 오름', style: TextStyle(fontWeight: FontWeight.w700, color: context.appText, fontSize: 14)),
+                    Text('${total - stamped}${l.waitingMountains}', style: TextStyle(color: context.appTextSub, fontSize: 12)),
                   ],
                 ),
               ],

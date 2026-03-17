@@ -15,7 +15,7 @@ class MountainCard extends StatelessWidget {
       child: Container(
         width: 160,
         decoration: BoxDecoration(
-          color: AppTheme.surface,
+          color: context.appSurface,
           borderRadius: BorderRadius.circular(18),
           boxShadow: [BoxShadow(color: Colors.black.withAlpha(18), blurRadius: 12, offset: const Offset(0, 4))],
         ),
@@ -42,12 +42,12 @@ class MountainCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(mountain.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppTheme.textPrimary)),
+                  Text(mountain.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: context.appText)),
                   const SizedBox(height: 4),
                   Row(children: [
                     DifficultyTag(difficulty: mountain.difficulty),
                     const SizedBox(width: 6),
-                    Text(mountain.time, style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+                    Text(mountain.time, style: TextStyle(fontSize: 11, color: context.appTextSub)),
                   ]),
                 ],
               ),

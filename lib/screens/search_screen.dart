@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../models/mountain.dart';
 import '../providers/mountain_provider.dart';
@@ -27,8 +28,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppTheme.bg,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -37,10 +38,10 @@ class _SearchScreenState extends State<SearchScreen> {
         title: TextField(
           controller: _searchController,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: '산 이름으로 검색',
+          decoration: InputDecoration(
+            hintText: l.searchHint,
             border: InputBorder.none,
-            hintStyle: TextStyle(color: AppTheme.textSecondary),
+            hintStyle: TextStyle(color: context.appTextSub),
           ),
           style: const TextStyle(fontSize: 16),
           onChanged: (v) => setState(() => _query = v.trim()),
@@ -119,7 +120,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           _query.isEmpty && _selectedDifficulty == null && _selectedRegion == null
                               ? '산 이름이나 지역으로 검색해보세요'
                               : '검색 결과가 없습니다',
-                          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 15),
+                          style: TextStyle(color: context.appTextSub, fontSize: 15),
                         ),
                       ],
                     ),
@@ -161,7 +162,7 @@ class _FilterChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: selected ? (color ?? AppTheme.primary) : AppTheme.surface,
+          color: selected ? (color ?? AppTheme.primary) : context.appSurface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: selected ? (color ?? AppTheme.primary) : Colors.grey.shade200,
@@ -170,7 +171,7 @@ class _FilterChip extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? Colors.white : AppTheme.textSecondary,
+            color: selected ? Colors.white : context.appTextSub,
             fontSize: 13,
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
           ),
@@ -189,7 +190,7 @@ class _SearchResultTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 8, offset: const Offset(0, 2))],
       ),
@@ -208,9 +209,9 @@ class _SearchResultTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(mountain.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.textPrimary)),
+                Text(mountain.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),
                 const SizedBox(height: 4),
-                Text('${mountain.location} · ${mountain.height}m · ${mountain.distance}', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                Text('${mountain.location} · ${mountain.height}m · ${mountain.distance}', style: TextStyle(color: context.appTextSub, fontSize: 13)),
               ],
             ),
           ),
@@ -219,7 +220,7 @@ class _SearchResultTile extends StatelessWidget {
             children: [
               DifficultyTag(difficulty: mountain.difficulty),
               const SizedBox(height: 4),
-              Text(mountain.time, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+              Text(mountain.time, style: TextStyle(color: context.appTextSub, fontSize: 12)),
             ],
           ),
         ],

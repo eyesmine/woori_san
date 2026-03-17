@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../providers/mountain_provider.dart';
 import '../providers/location_provider.dart';
@@ -28,12 +29,11 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppTheme.bg,
       appBar: AppBar(
-        backgroundColor: AppTheme.bg,
         elevation: 0,
-        title: const Text('산 지도', style: TextStyle(fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+        title: Text(l.mountainMap, style: TextStyle(fontWeight: FontWeight.w700, color: context.appText)),
       ),
       body: Consumer<MountainProvider>(
         builder: (context, state, _) => NaverMap(
@@ -85,6 +85,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _showMountainDetail(Mountain mountain) {
+    final l = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -101,17 +102,17 @@ class _MapScreenState extends State<MapScreen> {
             const SizedBox(height: 20),
             Text(mountain.emoji, style: const TextStyle(fontSize: 48)),
             const SizedBox(height: 8),
-            Text(mountain.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
-            Text('${mountain.location} · ${mountain.height}m · ${mountain.distance}', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+            Text(mountain.name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: context.appText)),
+            Text('${mountain.location} · ${mountain.height}m · ${mountain.distance}', style: TextStyle(color: context.appTextSub, fontSize: 14)),
             const SizedBox(height: 12),
-            Text(mountain.description, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 15, height: 1.5), textAlign: TextAlign.center),
+            Text(mountain.description, style: TextStyle(color: context.appText, fontSize: 15, height: 1.5), textAlign: TextAlign.center),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 DifficultyTag(difficulty: mountain.difficulty),
                 const SizedBox(width: 10),
-                Text(mountain.time, style: const TextStyle(color: AppTheme.textSecondary)),
+                Text(mountain.time, style: TextStyle(color: context.appTextSub)),
               ],
             ),
             const SizedBox(height: 16),
@@ -122,7 +123,7 @@ class _MapScreenState extends State<MapScreen> {
                   Navigator.pop(context);
                   context.push('/mountain/${mountain.id}');
                 },
-                child: const Text('상세보기'),
+                child: Text(l.mountainDetail),
               ),
             ),
             const SizedBox(height: 8),

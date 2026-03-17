@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../screens/home_screen.dart';
 import '../screens/plan_screen.dart';
@@ -123,6 +124,7 @@ class ShellScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: Container(
@@ -147,7 +149,7 @@ class ShellScaffold extends StatelessWidget {
                 _NavItem(
                   icon: Icons.landscape_outlined,
                   activeIcon: Icons.landscape,
-                  label: '홈',
+                  label: l.tabHome,
                   index: 0,
                   currentIndex: navigationShell.currentIndex,
                   onTap: (i) => navigationShell.goBranch(i),
@@ -155,7 +157,7 @@ class ShellScaffold extends StatelessWidget {
                 _NavItem(
                   icon: Icons.event_outlined,
                   activeIcon: Icons.event,
-                  label: '계획',
+                  label: l.tabPlan,
                   index: 1,
                   currentIndex: navigationShell.currentIndex,
                   onTap: (i) => navigationShell.goBranch(i),
@@ -163,7 +165,7 @@ class ShellScaffold extends StatelessWidget {
                 _NavItem(
                   icon: Icons.military_tech_outlined,
                   activeIcon: Icons.military_tech,
-                  label: '도장',
+                  label: l.tabStamp,
                   index: 2,
                   currentIndex: navigationShell.currentIndex,
                   onTap: (i) => navigationShell.goBranch(i),
@@ -171,7 +173,7 @@ class ShellScaffold extends StatelessWidget {
                 _NavItem(
                   icon: Icons.map_outlined,
                   activeIcon: Icons.map,
-                  label: '지도',
+                  label: l.tabMap,
                   index: 3,
                   currentIndex: navigationShell.currentIndex,
                   onTap: (i) => navigationShell.goBranch(i),

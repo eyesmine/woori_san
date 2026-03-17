@@ -64,7 +64,7 @@
 - 산행 통계 요약
 - 프로필 편집 (닉네임 변경)
 - 다크 모드 토글 (수동 전환, Hive 영속화)
-- 알림 설정 토글 (Hive 영속화)
+- 알림 설정 토글 (Hive 영속화, FCM 토픽 구독/해제 연동)
 - 언어 전환 (한국어/English, Hive 영속화)
 - 로그아웃
 
@@ -80,7 +80,7 @@
 - Firebase Cloud Messaging 푸시 알림
 - 포그라운드: flutter_local_notifications로 표시
 - 알림 탭 시 GoRouter 기반 화면 이동 (라우트 유효성 검증)
-- 토픽 구독 (weather_alerts, hiking_tips)
+- 토픽 구독/해제 (weather_alerts, hiking_tips) — 프로필 설정과 연동
 
 ---
 
@@ -98,7 +98,7 @@
 | 이미지 | `cached_network_image` | 산 썸네일 캐싱 |
 | 사진 | `image_picker` | 갤러리/카메라 이미지 선택, 프로필/기록 사진 첨부 |
 | 알림 | `firebase_messaging` + `flutter_local_notifications` | FCM 푸시 + 포그라운드 로컬 알림 |
-| 다국어 | `flutter_localizations` + `intl` | 한국어/영어 l10n, 날짜 포맷 통일 |
+| 다국어 | `flutter_localizations` + `intl` + `AppLocalizations` | 한국어/영어 l10n (83키), 모든 Screen 적용, 날짜 포맷 통일 |
 | 환경 변수 | `flutter_dotenv` | `.env.example` 파일에서 API 키 로드 |
 | 보안 저장소 | `flutter_secure_storage` | JWT 토큰 암호화 저장 (Keychain / EncryptedSharedPreferences) |
 | 유틸 | `permission_handler` | 권한 관리 |
@@ -188,14 +188,13 @@ lib/
 │   ├── plan_provider.dart             # 계획, 체크리스트, 상태 토글
 │   ├── stamp_provider.dart            # 도장 현황, 범위 검사
 │   ├── weather_provider.dart          # 날씨 데이터, 로딩/에러 상태
-│   ├── settings_provider.dart         # 다크 모드, 알림, 언어 설정 (Hive 영속화)
+│   ├── settings_provider.dart         # 다크 모드, 알림 (FCM 연동), 언어 설정 (Hive 영속화)
 │   ├── location_provider.dart         # GPS 위치, 추적 상태, 스트림 중복 방어, 에러 로깅
 │   └── tracking_provider.dart         # 실시간 등산 추적 (경로, 시간, 거리, 정상 감지, 다이얼로그 상태)
 │
 ├── services/
 │   ├── location_service.dart          # Geolocator 래퍼, 정상 인증 (isNearSummit)
-│   ├── notification_service.dart      # FCM + 로컬 알림, GoRouter 기반 화면 이동
-│   └── image_service.dart             # image_picker 래퍼 (갤러리/카메라)
+│   └── notification_service.dart      # FCM + 로컬 알림, GoRouter 기반 화면 이동
 │
 ├── screens/
 │   ├── home_screen.dart               # 코스 추천 + 날씨 + 통계 + 기록 + 로딩/에러 상태
@@ -219,11 +218,14 @@ lib/
 │   └── checklist_card.dart            # 준비물 체크리스트 (애니메이션)
 │
 ├── theme/
-│   └── app_theme.dart                 # Light/Dark 테마, 색상, 버튼 스타일, cardTheme
+│   └── app_theme.dart                 # Light/Dark 테마, AppThemeColors extension, 색상, 버튼 스타일
 │
 └── l10n/
-    ├── app_ko.arb                     # 한국어 (80+ 키)
-    └── app_en.arb                     # 영어
+    ├── app_localizations.dart         # 생성된 AppLocalizations 클래스
+    ├── app_localizations_ko.dart      # 한국어 구현
+    ├── app_localizations_en.dart      # 영어 구현
+    ├── app_ko.arb                     # 한국어 (83키)
+    └── app_en.arb                     # 영어 (83키)
 
 test/                                  # 123개 테스트, 17개 파일
 ├── core/
@@ -351,7 +353,8 @@ Remote     Local
 
 ### 다크 모드 지원
 
-모든 화면과 컴포넌트가 Light/Dark 테마를 지원합니다.
+모든 화면과 컴포넌트가 Light/Dark 테마를 완전히 지원합니다.
+`AppThemeColors` extension을 통해 `context.appBg`, `context.appSurface`, `context.appText`, `context.appTextSub`로 테마 인식 색상을 사용합니다.
 프로필 > 설정에서 수동 전환 가능하며, 설정값은 Hive에 영속화됩니다.
 
 | 항목 | Light | Dark |

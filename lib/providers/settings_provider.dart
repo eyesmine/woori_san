@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import '../core/constants.dart';
@@ -45,7 +46,23 @@ class SettingsProvider extends ChangeNotifier {
   void setNotificationsEnabled(bool enabled) {
     _notificationsEnabled = enabled;
     _box.put('notifications', enabled);
+    _syncFcmTopics(enabled);
     notifyListeners();
+  }
+
+  void _syncFcmTopics(bool enabled) {
+    try {
+      final messaging = FirebaseMessaging.instance;
+      if (enabled) {
+        messaging.subscribeToTopic('weather_alerts');
+        messaging.subscribeToTopic('hiking_tips');
+      } else {
+        messaging.unsubscribeFromTopic('weather_alerts');
+        messaging.unsubscribeFromTopic('hiking_tips');
+      }
+    } catch (e) {
+      debugPrint('SettingsProvider._syncFcmTopics error: $e');
+    }
   }
 
   void setLocale(Locale locale) {

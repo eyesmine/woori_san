@@ -27,7 +27,7 @@ class PlanCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.surface,
+          color: context.appSurface,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isConfirmed ? AppTheme.primary.withAlpha(51) : Colors.orange.withAlpha(51),
@@ -43,12 +43,12 @@ class PlanCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(plan.mountain, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.textPrimary)),
+                  Text(plan.mountain, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),
                   const SizedBox(height: 4),
                   Row(children: [
-                    const Icon(Icons.calendar_today_outlined, size: 13, color: AppTheme.textSecondary),
+                    Icon(Icons.calendar_today_outlined, size: 13, color: context.appTextSub),
                     const SizedBox(width: 4),
-                    Text(plan.date, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                    Text(plan.date, style: TextStyle(color: context.appTextSub, fontSize: 13)),
                   ]),
                 ],
               ),

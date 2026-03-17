@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../models/mountain.dart';
 import '../providers/mountain_provider.dart';
@@ -31,6 +32,7 @@ class _DetailBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -85,38 +87,38 @@ class _DetailBody extends StatelessWidget {
                   // Info cards row
                   Row(
                     children: [
-                      Expanded(child: _InfoCard(icon: Icons.trending_up, label: '난이도', value: mountain.difficulty.label, color: mountain.difficulty.color)),
+                      Expanded(child: _InfoCard(icon: Icons.trending_up, label: l.difficulty, value: mountain.difficulty.label, color: mountain.difficulty.color)),
                       const SizedBox(width: 12),
-                      Expanded(child: _InfoCard(icon: Icons.timer_outlined, label: '소요 시간', value: mountain.time)),
+                      Expanded(child: _InfoCard(icon: Icons.timer_outlined, label: l.duration, value: mountain.time)),
                       const SizedBox(width: 12),
-                      Expanded(child: _InfoCard(icon: Icons.straighten, label: '거리', value: mountain.distance)),
+                      Expanded(child: _InfoCard(icon: Icons.straighten, label: l.distance, value: mountain.distance)),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Expanded(child: _InfoCard(icon: Icons.height, label: '고도', value: '${mountain.height}m')),
+                      Expanded(child: _InfoCard(icon: Icons.height, label: l.altitude, value: '${mountain.height}m')),
                       const SizedBox(width: 12),
-                      Expanded(child: _InfoCard(icon: Icons.location_on_outlined, label: '위치', value: mountain.location)),
+                      Expanded(child: _InfoCard(icon: Icons.location_on_outlined, label: l.region, value: mountain.location)),
                       const SizedBox(width: 12),
                       Expanded(child: _InfoCard(icon: Icons.star_outline, label: '태그', value: mountain.emoji)),
                     ],
                   ),
 
                   const SizedBox(height: 24),
-                  const Text('소개', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                  Text('소개', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
                   const SizedBox(height: 8),
                   Text(
                     mountain.description,
-                    style: const TextStyle(
-                      color: AppTheme.textSecondary,
+                    style: TextStyle(
+                      color: context.appTextSub,
                       fontSize: 15,
                       height: 1.6,
                     ),
                   ),
 
                   const SizedBox(height: 24),
-                  const Text('코스 정보', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                  Text('코스 정보', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -126,24 +128,24 @@ class _DetailBody extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        _CourseRow(label: '코스 거리', value: mountain.distance),
+                        _CourseRow(label: l.courseDistance, value: mountain.distance),
                         const Divider(height: 24),
-                        _CourseRow(label: '예상 소요시간', value: mountain.time),
+                        _CourseRow(label: l.courseTime, value: mountain.time),
                         const Divider(height: 24),
-                        _CourseRow(label: '최고 고도', value: '${mountain.height}m'),
+                        _CourseRow(label: l.altitude, value: '${mountain.height}m'),
                         const Divider(height: 24),
-                        _CourseRow(label: '난이도', value: mountain.difficulty.label),
+                        _CourseRow(label: l.difficulty, value: mountain.difficulty.label),
                       ],
                     ),
                   ),
 
                   const SizedBox(height: 24),
-                  const Text('위치', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                  Text('위치', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppTheme.surface,
+                      color: context.appSurface,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 8, offset: const Offset(0, 2))],
                     ),
@@ -155,10 +157,10 @@ class _DetailBody extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(mountain.location, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                              Text(mountain.location, style: TextStyle(fontWeight: FontWeight.w600, color: context.appText)),
                               Text(
                                 '위도 ${mountain.latitude.toStringAsFixed(4)}, 경도 ${mountain.longitude.toStringAsFixed(4)}',
-                                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                                style: TextStyle(color: context.appTextSub, fontSize: 12),
                               ),
                             ],
                           ),
@@ -179,7 +181,7 @@ class _DetailBody extends StatelessWidget {
         backgroundColor: AppTheme.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.directions_walk),
-        label: const Text('등산 시작', style: TextStyle(fontWeight: FontWeight.w700)),
+        label: Text(l.startHiking, style: const TextStyle(fontWeight: FontWeight.w700)),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -198,7 +200,7 @@ class _InfoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 6, offset: const Offset(0, 2))],
       ),
@@ -206,9 +208,9 @@ class _InfoCard extends StatelessWidget {
         children: [
           Icon(icon, color: color ?? AppTheme.primary, size: 20),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 10)),
+          Text(label, style: TextStyle(color: context.appTextSub, fontSize: 10)),
           const SizedBox(height: 2),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppTheme.textPrimary), textAlign: TextAlign.center),
+          Text(value, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: context.appText), textAlign: TextAlign.center),
         ],
       ),
     );
@@ -225,8 +227,8 @@ class _CourseRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary, fontSize: 14)),
+        Text(label, style: TextStyle(color: context.appTextSub, fontSize: 14)),
+        Text(value, style: TextStyle(fontWeight: FontWeight.w600, color: context.appText, fontSize: 14)),
       ],
     );
   }

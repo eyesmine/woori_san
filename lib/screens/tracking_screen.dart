@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../providers/tracking_provider.dart';
 import '../providers/mountain_provider.dart';
@@ -61,6 +62,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
   }
 
   void _showSummitDialog() {
+    final l = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -70,19 +72,19 @@ class _TrackingScreenState extends State<TrackingScreen> {
           children: [
             const Text('🎉', style: TextStyle(fontSize: 64)),
             const SizedBox(height: 16),
-            const Text('정상 도착!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.textPrimary)),
+            Text(l.summitReached, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: context.appText)),
             const SizedBox(height: 8),
             Text(
-              '${context.read<TrackingProvider>().currentMountain?.name ?? ""} 정상에 도착했습니다!\n도장이 자동으로 부여되었습니다.',
+              '${context.read<TrackingProvider>().currentMountain?.name ?? ""} 정상에 도착했습니다!\n${l.stampAwarded}.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppTheme.textSecondary, height: 1.5),
+              style: TextStyle(color: context.appTextSub, height: 1.5),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('확인', style: TextStyle(color: AppTheme.primary)),
+            child: Text(l.confirm, style: const TextStyle(color: AppTheme.primary)),
           ),
         ],
       ),
@@ -90,15 +92,16 @@ class _TrackingScreenState extends State<TrackingScreen> {
   }
 
   void _stopTracking() {
+    final l = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('등산 종료'),
+        title: Text(l.stopHiking),
         content: const Text('등산을 종료하고 기록을 저장하시겠습니까?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('계속하기'),
+            child: Text(l.resumeHiking),
           ),
           TextButton(
             onPressed: () {
@@ -107,7 +110,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
               context.read<MountainProvider>().addRecord(record);
               context.pop();
             },
-            child: const Text('종료 및 저장', style: TextStyle(color: Colors.red)),
+            child: Text('${l.stopHiking} & ${l.save}', style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -116,19 +119,19 @@ class _TrackingScreenState extends State<TrackingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Consumer<TrackingProvider>(
       builder: (context, tracking, _) {
         if (tracking.error != null) {
           return Scaffold(
-            backgroundColor: AppTheme.bg,
-            appBar: AppBar(title: const Text('등산 추적')),
+            appBar: AppBar(title: Text(l.trackingTitle)),
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.location_off, size: 48, color: AppTheme.textSecondary),
+                  Icon(Icons.location_off, size: 48, color: context.appTextSub),
                   const SizedBox(height: 16),
-                  Text(tracking.error!, style: const TextStyle(fontSize: 16, color: AppTheme.textPrimary)),
+                  Text(tracking.error!, style: TextStyle(fontSize: 16, color: context.appText)),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => context.pop(),
@@ -141,7 +144,6 @@ class _TrackingScreenState extends State<TrackingScreen> {
         }
 
         return Scaffold(
-          backgroundColor: AppTheme.bg,
           appBar: AppBar(
             title: Text(tracking.currentMountain?.name ?? '자유 등산'),
             leading: IconButton(
@@ -182,19 +184,19 @@ class _TrackingScreenState extends State<TrackingScreen> {
                       // Timer
                       Text(
                         tracking.elapsedFormatted,
-                        style: const TextStyle(fontSize: 48, fontWeight: FontWeight.w800, color: AppTheme.textPrimary),
+                        style: TextStyle(fontSize: 48, fontWeight: FontWeight.w800, color: context.appText),
                       ),
                       const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           _TrackingStat(
-                            label: '거리',
+                            label: l.currentDistance,
                             value: '${tracking.totalDistanceKm.toStringAsFixed(1)}km',
                             icon: Icons.straighten,
                           ),
                           _TrackingStat(
-                            label: '속도',
+                            label: l.currentSpeed,
                             value: '${tracking.speedKmh}km/h',
                             icon: Icons.speed,
                           ),
@@ -249,6 +251,7 @@ class _GradientPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -272,12 +275,12 @@ class _GradientPlaceholder extends StatelessWidget {
                       color: Colors.white.withAlpha(50),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.flag, color: Colors.white, size: 18),
-                        SizedBox(width: 4),
-                        Text('정상 도착!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                        const Icon(Icons.flag, color: Colors.white, size: 18),
+                        const SizedBox(width: 4),
+                        Text(l.summitReached, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
                       ],
                     ),
                   ),
@@ -396,8 +399,8 @@ class _TrackingStat extends StatelessWidget {
       children: [
         Icon(icon, color: AppTheme.primary, size: 22),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
-        Text(label, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+        Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
+        Text(label, style: TextStyle(color: context.appTextSub, fontSize: 12)),
       ],
     );
   }

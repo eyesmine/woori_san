@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../models/mountain.dart';
 import '../models/hiking_record.dart';
@@ -69,12 +70,12 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final mountains = context.read<MountainProvider>().mountains;
 
     return Scaffold(
-      backgroundColor: AppTheme.bg,
       appBar: AppBar(
-        title: const Text('기록 추가'),
+        title: Text(l.addRecord),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
@@ -85,7 +86,7 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('어느 산?', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.textPrimary)),
+            Text(l.selectMountain, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -96,13 +97,13 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
                 onSelected: (v) => setState(() => _selectedMountain = v ? m : null),
                 selectedColor: AppTheme.primary,
                 labelStyle: TextStyle(
-                  color: _selectedMountain?.id == m.id ? Colors.white : AppTheme.textPrimary,
+                  color: _selectedMountain?.id == m.id ? Colors.white : context.appText,
                 ),
               )).toList(),
             ),
 
             const SizedBox(height: 24),
-            const Text('언제?', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.textPrimary)),
+            Text(l.selectDate, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),
             const SizedBox(height: 12),
             GestureDetector(
               onTap: () async {
@@ -117,7 +118,7 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
               child: Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppTheme.surface,
+                  color: context.appSurface,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(children: [
@@ -126,15 +127,15 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
                   Text(
                     _selectedDate != null
                         ? DateFormat('yyyy.M.d', 'ko_KR').format(_selectedDate!)
-                        : '날짜 선택',
-                    style: TextStyle(color: _selectedDate != null ? AppTheme.textPrimary : AppTheme.textSecondary),
+                        : l.selectDate,
+                    style: TextStyle(color: _selectedDate != null ? context.appText : context.appTextSub),
                   ),
                 ]),
               ),
             ),
 
             const SizedBox(height: 24),
-            const Text('소요 시간', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.textPrimary)),
+            Text(l.duration, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -142,14 +143,14 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: AppTheme.surface,
+                      color: context.appSurface,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<int>(
                         value: _hours,
                         isExpanded: true,
-                        items: List.generate(13, (i) => DropdownMenuItem(value: i, child: Text('$i 시간'))),
+                        items: List.generate(13, (i) => DropdownMenuItem(value: i, child: Text('$i ${l.hours}'))),
                         onChanged: (v) => setState(() => _hours = v ?? 0),
                       ),
                     ),
@@ -160,14 +161,14 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: AppTheme.surface,
+                      color: context.appSurface,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<int>(
                         value: _minutes,
                         isExpanded: true,
-                        items: List.generate(12, (i) => DropdownMenuItem(value: i * 5, child: Text('${i * 5} 분'))),
+                        items: List.generate(12, (i) => DropdownMenuItem(value: i * 5, child: Text('${i * 5} ${l.minutes}'))),
                         onChanged: (v) => setState(() => _minutes = v ?? 0),
                       ),
                     ),
@@ -177,7 +178,7 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
             ),
 
             const SizedBox(height: 24),
-            const Text('거리 (km)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.textPrimary)),
+            Text('${l.distance} (km)', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),
             const SizedBox(height: 12),
             TextField(
               controller: _distanceController,
@@ -185,14 +186,14 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
               decoration: InputDecoration(
                 hintText: '예: 6.5',
                 filled: true,
-                fillColor: AppTheme.surface,
+                fillColor: context.appSurface,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
                 suffixText: 'km',
               ),
             ),
 
             const SizedBox(height: 24),
-            const Text('사진', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.textPrimary)),
+            Text('사진', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -250,7 +251,7 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
                 onPressed: (_selectedMountain != null && _selectedDate != null && _distanceController.text.isNotEmpty)
                     ? _save
                     : null,
-                child: const Text('기록 저장'),
+                child: Text(l.save),
               ),
             ),
           ],

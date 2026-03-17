@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../models/mountain.dart';
 import '../providers/mountain_provider.dart';
@@ -50,8 +51,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppTheme.bg,
       body: RefreshIndicator(
         onRefresh: _onRefresh,
         color: AppTheme.primary,
@@ -60,11 +61,11 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverAppBar(
               expandedHeight: 200,
               pinned: true,
-              backgroundColor: AppTheme.bg,
+              backgroundColor: context.appBg,
               flexibleSpace: FlexibleSpaceBar(
                 background: const _HeaderBanner(),
               ),
-              title: const Text('우리산 🏔️'),
+              title: Text('${l.appTitle} 🏔️'),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.search),
@@ -90,10 +91,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('이번 주 추천 코스', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary)),
+                    Text(l.recommendedCourses, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
                     TextButton(
                       onPressed: () => _showAllMountains(context),
-                      child: const Text('전체보기', style: TextStyle(color: AppTheme.primary)),
+                      child: Text(l.viewAll, style: const TextStyle(color: AppTheme.primary)),
                     ),
                   ],
                 ),
@@ -154,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Container(width: 4, height: 20, decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(2))),
                     const SizedBox(width: 10),
-                    const Expanded(child: Text('우리의 기록', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTheme.textPrimary))),
+                    Expanded(child: Text(l.ourRecords, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText))),
                     IconButton(
                       icon: const Icon(Icons.add_circle_outline, color: AppTheme.primary),
                       onPressed: () => context.push('/record/new'),
@@ -221,6 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showAllMountains(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final mountains = context.read<MountainProvider>().mountains;
     showModalBottomSheet(
       context: context,
@@ -243,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2))),
                     const SizedBox(height: 16),
-                    const Text('추천 코스 전체보기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                    Text(l.allMountains, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),
@@ -275,6 +277,7 @@ class _HeaderBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -290,9 +293,9 @@ class _HeaderBanner extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              const Text('다음 산행은 어디로?', style: TextStyle(color: Colors.white70, fontSize: 14)),
+              Text(l.headerSubtitle, style: const TextStyle(color: Colors.white70, fontSize: 14)),
               const SizedBox(height: 4),
-              const Text('함께라면\n어디든 좋아요 🌿', style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800, height: 1.3)),
+              Text(l.headerTitle, style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800, height: 1.3)),
             ],
           ),
         ),
@@ -309,6 +312,7 @@ class _StatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -319,11 +323,11 @@ class _StatsCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _StatItem(value: '$hikes', label: '함께한 산행', icon: '🏔️'),
+          _StatItem(value: '$hikes', label: l.totalHikes, icon: '🏔️'),
           Container(width: 1, height: 40, color: Colors.white24),
-          _StatItem(value: distance, label: '총 거리', icon: '📍'),
+          _StatItem(value: distance, label: l.totalDistance, icon: '📍'),
           Container(width: 1, height: 40, color: Colors.white24),
-          _StatItem(value: '$stamps개', label: '획득 도장', icon: '🎖️'),
+          _StatItem(value: '$stamps개', label: l.earnedStamps, icon: '🎖️'),
         ],
       ),
     );
@@ -358,7 +362,7 @@ class _MountainDetailTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 8, offset: const Offset(0, 2))],
       ),
@@ -377,9 +381,9 @@ class _MountainDetailTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(mountain.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.textPrimary)),
+                Text(mountain.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),
                 const SizedBox(height: 4),
-                Text('${mountain.location} · ${mountain.height}m', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                Text('${mountain.location} · ${mountain.height}m', style: TextStyle(color: context.appTextSub, fontSize: 13)),
               ],
             ),
           ),
@@ -388,7 +392,7 @@ class _MountainDetailTile extends StatelessWidget {
             children: [
               DifficultyTag(difficulty: mountain.difficulty),
               const SizedBox(height: 4),
-              Text(mountain.time, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+              Text(mountain.time, style: TextStyle(color: context.appTextSub, fontSize: 12)),
             ],
           ),
         ],
@@ -411,7 +415,7 @@ class _RecentRecord extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 8, offset: const Offset(0, 2))],
       ),
@@ -427,9 +431,9 @@ class _RecentRecord extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(mountain, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppTheme.textPrimary)),
+                Text(mountain, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),
                 const SizedBox(height: 4),
-                Text(date, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                Text(date, style: TextStyle(color: context.appTextSub, fontSize: 13)),
               ],
             ),
           ),
@@ -437,7 +441,7 @@ class _RecentRecord extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(duration, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppTheme.primary)),
-              Text(distance, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+              Text(distance, style: TextStyle(color: context.appTextSub, fontSize: 12)),
             ],
           ),
         ],

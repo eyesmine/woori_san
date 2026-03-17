@@ -11,7 +11,7 @@ class EmptyState extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: AppTheme.surface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -21,7 +21,7 @@ class EmptyState extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14, height: 1.5),
+            style: TextStyle(color: context.appTextSub, fontSize: 14, height: 1.5),
           ),
         ],
       ),

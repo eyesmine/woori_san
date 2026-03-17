@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 
+/// 테마 인식 색상 접근 — `context.appBg`, `context.appSurface` 등
+extension AppThemeColors on BuildContext {
+  bool get _isDark => Theme.of(this).brightness == Brightness.dark;
+  Color get appBg => Theme.of(this).scaffoldBackgroundColor;
+  Color get appSurface => _isDark ? AppTheme.surfaceDark : AppTheme.surface;
+  Color get appText => _isDark ? AppTheme.textPrimaryDark : AppTheme.textPrimary;
+  Color get appTextSub => _isDark ? AppTheme.textSecondaryDark : AppTheme.textSecondary;
+}
+
 class AppTheme {
   static const Color primary = Color(0xFF2D6A4F);
   static const Color primaryLight = Color(0xFF52B788);

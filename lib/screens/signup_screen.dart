@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../providers/auth_provider.dart';
 
@@ -48,13 +49,12 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppTheme.bg,
       appBar: AppBar(
-        backgroundColor: AppTheme.bg,
         elevation: 0,
-        foregroundColor: AppTheme.textPrimary,
-        title: const Text('회원가입'),
+        foregroundColor: context.appText,
+        title: Text(l.signup),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -67,26 +67,26 @@ class _SignupScreenState extends State<SignupScreen> {
                 const SizedBox(height: 24),
                 TextFormField(
                   controller: _nicknameController,
-                  decoration: _inputDecoration('닉네임'),
-                  validator: (v) => v != null && v.length >= 2 ? null : '2자 이상 입력하세요',
+                  decoration: _inputDecoration(l.nickname),
+                  validator: (v) => v != null && v.length >= 2 ? null : l.nicknameValidation,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: _inputDecoration('이메일'),
+                  decoration: _inputDecoration(l.email),
                   validator: (v) {
-                    if (v == null || v.isEmpty) return '이메일을 입력하세요';
+                    if (v == null || v.isEmpty) return l.emailValidation;
                     final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-                    return emailRegex.hasMatch(v) ? null : '올바른 이메일 형식을 입력하세요';
+                    return emailRegex.hasMatch(v) ? null : l.emailValidation;
                   },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: _inputDecoration('비밀번호 (6자 이상)'),
-                  validator: (v) => v != null && v.length >= 6 ? null : '6자 이상 입력하세요',
+                  decoration: _inputDecoration('${l.password} (6자 이상)'),
+                  validator: (v) => v != null && v.length >= 6 ? null : l.passwordValidation,
                 ),
                 const SizedBox(height: 8),
                 Consumer<AuthProvider>(
@@ -112,7 +112,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     child: auth.isLoading
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Text('회원가입', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                        : Text(l.signup, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                   ),
                 ),
               ],
@@ -126,7 +126,7 @@ class _SignupScreenState extends State<SignupScreen> {
   InputDecoration _inputDecoration(String label) => InputDecoration(
     labelText: label,
     filled: true,
-    fillColor: AppTheme.surface,
+    fillColor: context.appSurface,
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
   );

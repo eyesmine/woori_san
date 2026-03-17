@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../providers/auth_provider.dart';
 
@@ -39,8 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppTheme.bg,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -52,26 +53,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 60),
                 const Text('🏔️', style: TextStyle(fontSize: 64), textAlign: TextAlign.center),
                 const SizedBox(height: 16),
-                const Text('우리산', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: AppTheme.textPrimary), textAlign: TextAlign.center),
+                Text(l.appTitle, style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: context.appText), textAlign: TextAlign.center),
                 const SizedBox(height: 8),
-                const Text('함께 산을 오르는 즐거움', style: TextStyle(fontSize: 15, color: AppTheme.textSecondary), textAlign: TextAlign.center),
+                Text('함께 산을 오르는 즐거움', style: TextStyle(fontSize: 15, color: context.appTextSub), textAlign: TextAlign.center),
                 const SizedBox(height: 48),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: _inputDecoration('이메일'),
+                  decoration: _inputDecoration(l.email),
                   validator: (v) {
-                    if (v == null || v.isEmpty) return '이메일을 입력하세요';
+                    if (v == null || v.isEmpty) return l.emailValidation;
                     final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-                    return emailRegex.hasMatch(v) ? null : '올바른 이메일 형식을 입력하세요';
+                    return emailRegex.hasMatch(v) ? null : l.emailValidation;
                   },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: _inputDecoration('비밀번호'),
-                  validator: (v) => v != null && v.length >= 6 ? null : '6자 이상 입력하세요',
+                  decoration: _inputDecoration(l.password),
+                  validator: (v) => v != null && v.length >= 6 ? null : l.passwordValidation,
                 ),
                 const SizedBox(height: 8),
                 Consumer<AuthProvider>(
@@ -97,13 +98,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: auth.isLoading
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Text('로그인', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                        : Text(l.login, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => context.push('/signup'),
-                  child: const Text('계정이 없으신가요? 회원가입', style: TextStyle(color: AppTheme.primary)),
+                  child: Text(l.noAccount, style: const TextStyle(color: AppTheme.primary)),
                 ),
               ],
             ),
@@ -116,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
   InputDecoration _inputDecoration(String label) => InputDecoration(
     labelText: label,
     filled: true,
-    fillColor: AppTheme.surface,
+    fillColor: context.appSurface,
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
   );
