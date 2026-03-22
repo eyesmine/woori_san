@@ -75,20 +75,6 @@ class BadgeProvider extends ChangeNotifier {
     return allBadgeDefinitions.where((b) => _earned.contains(b.type)).toList();
   }
 
-  /// Progress ratio 0.0 – 1.0 for progress bars.
-  double getProgressRatio(BadgeType type) {
-    if (_earned.contains(type)) return 1.0;
-    final p = getProgress(type);
-    final match = RegExp(r'(\d+)\s*/\s*(\d+)').firstMatch(p);
-    if (match != null) {
-      final current = int.parse(match.group(1)!);
-      final target = int.parse(match.group(2)!);
-      if (target == 0) return 0;
-      return (current / target).clamp(0.0, 1.0);
-    }
-    return 0;
-  }
-
   // ── progress strings ───────────────────────────
 
   /// Human-readable progress string (e.g. "5 / 10").

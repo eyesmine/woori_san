@@ -3,13 +3,15 @@ import '../models/badge.dart';
 import '../theme/app_theme.dart';
 
 class BadgeTile extends StatelessWidget {
-  final Badge badge;
+  final HikingBadge badge;
+  final bool isEarned;
   final bool isKorean;
   final String? progress;
 
   const BadgeTile({
     super.key,
     required this.badge,
+    required this.isEarned,
     this.isKorean = true,
     this.progress,
   });
@@ -22,15 +24,13 @@ class BadgeTile extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
-        color: badge.isEarned ? context.appSurface : context.appSurface,
+        color: context.appSurface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: badge.isEarned
-              ? const Color(0xFFFFD700).withAlpha(128)
-              : Colors.grey.withAlpha(51),
-          width: badge.isEarned ? 2 : 1,
+          color: isEarned ? const Color(0xFFFFD700).withAlpha(128) : Colors.grey.withAlpha(51),
+          width: isEarned ? 2 : 1,
         ),
-        boxShadow: badge.isEarned
+        boxShadow: isEarned
             ? [BoxShadow(color: const Color(0xFFFFD700).withAlpha(38), blurRadius: 8, offset: const Offset(0, 2))]
             : null,
       ),
@@ -46,80 +46,49 @@ class BadgeTile extends StatelessWidget {
                   height: 48,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: badge.isEarned
-                        ? const Color(0xFFFFD700).withAlpha(38)
-                        : Colors.grey.withAlpha(38),
+                    color: isEarned ? const Color(0xFFFFD700).withAlpha(38) : Colors.grey.withAlpha(38),
                   ),
                   child: Center(
-                    child: Text(
-                      badge.isEarned ? badge.emoji : '🔒',
-                      style: TextStyle(
-                        fontSize: badge.isEarned ? 24 : 20,
-                      ),
-                    ),
+                    child: Text(isEarned ? badge.emoji : '🔒', style: TextStyle(fontSize: isEarned ? 24 : 20)),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: badge.isEarned ? context.appText : context.appTextSub,
-                  ),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: isEarned ? context.appText : context.appTextSub),
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
-                if (!badge.isEarned && progress != null) ...[
-                  Text(
-                    progress!,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.primary.withAlpha(179),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ] else ...[
+                if (!isEarned && progress != null)
+                  Text(progress!, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppTheme.primary.withAlpha(179)), textAlign: TextAlign.center)
+                else
                   Text(
                     description,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: badge.isEarned ? context.appTextSub : Colors.grey.withAlpha(128),
-                    ),
+                    style: TextStyle(fontSize: 10, color: isEarned ? context.appTextSub : Colors.grey.withAlpha(128)),
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                ],
               ],
             ),
           ),
-          if (badge.isEarned)
+          if (isEarned)
             Positioned(
               top: 6,
               right: 6,
               child: Container(
-                width: 16,
-                height: 16,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFFFD700),
-                  shape: BoxShape.circle,
-                ),
-                child: const Center(
-                  child: Icon(Icons.check, size: 10, color: Colors.white),
-                ),
+                width: 16, height: 16,
+                decoration: const BoxDecoration(color: Color(0xFFFFD700), shape: BoxShape.circle),
+                child: const Center(child: Icon(Icons.check, size: 10, color: Colors.white)),
               ),
             ),
-          if (!badge.isEarned)
+          if (!isEarned)
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.black.withAlpha(77)
-                      : Colors.white.withAlpha(77),
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.black.withAlpha(77) : Colors.white.withAlpha(77),
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
