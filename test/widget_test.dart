@@ -79,12 +79,12 @@ void main() {
   });
 
   group('Default data', () {
-    test('defaultMountains has 4 items', () {
-      expect(defaultMountains.length, 4);
+    test('defaultMountains has 100 items', () {
+      expect(defaultMountains.length, 100);
     });
 
-    test('defaultStamps has 10 items', () {
-      expect(defaultStamps.length, 10);
+    test('defaultStamps has 100 items', () {
+      expect(defaultStamps.length, 100);
     });
 
     test('defaultChecklist has 6 items', () {

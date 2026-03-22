@@ -34,9 +34,11 @@ class PlanProvider extends ChangeNotifier {
     _plans[index] = HikingPlan(
       id: _plans[index].id,
       mountain: _plans[index].mountain,
+      mountainId: _plans[index].mountainId,
       date: _plans[index].date,
       status: status,
       emoji: _plans[index].emoji,
+      memo: _plans[index].memo,
     );
     _repo.savePlans(_plans);
     notifyListeners();
@@ -44,6 +46,20 @@ class PlanProvider extends ChangeNotifier {
 
   void toggleChecklistItem(int index) {
     _checklist[index].checked = !_checklist[index].checked;
+    _repo.saveChecklist(_checklist);
+    notifyListeners();
+  }
+
+  void addChecklistItem(String text) {
+    if (text.trim().isEmpty) return;
+    _checklist.add(ChecklistItem(text: text.trim()));
+    _repo.saveChecklist(_checklist);
+    notifyListeners();
+  }
+
+  void removeChecklistItem(int index) {
+    if (index < 0 || index >= _checklist.length) return;
+    _checklist.removeAt(index);
     _repo.saveChecklist(_checklist);
     notifyListeners();
   }

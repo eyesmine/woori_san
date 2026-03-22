@@ -13,6 +13,14 @@ import '../screens/profile_screen.dart';
 import '../screens/record_create_screen.dart';
 import '../screens/tracking_screen.dart';
 import '../screens/search_screen.dart';
+import '../screens/favorites_screen.dart';
+import '../screens/partner_screen.dart';
+import '../screens/record_detail_screen.dart';
+import '../screens/statistics_screen.dart';
+import '../screens/sos_settings_screen.dart';
+import '../screens/offline_map_settings_screen.dart';
+import '../screens/reviews_screen.dart';
+import '../screens/badge_screen.dart';
 import '../theme/app_theme.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -113,6 +121,52 @@ GoRouter createRouter(AuthProvider authProvider) {
         path: '/search',
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const SearchScreen(),
+      ),
+      GoRoute(
+        path: '/favorites',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const FavoritesScreen(),
+      ),
+      GoRoute(
+        path: '/partner',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const PartnerScreen(),
+      ),
+      GoRoute(
+        path: '/mountain/:id/reviews',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return ReviewsScreen(mountainId: id);
+        },
+      ),
+      GoRoute(
+        path: '/sos-settings',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const SosSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/offline-maps',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const OfflineMapSettingsScreen(),
+      ),
+      GoRoute(
+        path: '/badges',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const BadgeScreen(),
+      ),
+      GoRoute(
+        path: '/statistics',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const StatisticsScreen(),
+      ),
+      GoRoute(
+        path: '/record/:id',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return RecordDetailScreen(recordId: id);
+        },
       ),
     ],
   );

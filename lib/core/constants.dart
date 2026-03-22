@@ -1,10 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConstants {
   static const String appName = '우리산';
 
   // .env에서 로드 (테스트 환경에서는 기본값 사용)
-  static String get apiBaseUrl => _env('API_BASE_URL', 'http://localhost:8000');
+  static String get apiBaseUrl => _env('API_BASE_URL', 'http://localhost:8000/api');
   static String get naverMapClientId => _env('NAVER_MAP_CLIENT_ID', '');
   static String get weatherApiKey => _env('WEATHER_API_KEY', '');
 
@@ -18,6 +19,9 @@ class AppConstants {
   static const String cacheBox = 'cache';
   static const String weatherBox = 'weather';
   static const String settingsBox = 'settings';
+  static const String favoriteBox = 'favorites';
+  static const String reviewBox = 'reviews';
+  static const String badgeBox = 'badges';
 
   // Cache TTL
   static const Duration mountainCacheTtl = Duration(hours: 24);
@@ -32,7 +36,8 @@ class AppConstants {
   static String _env(String key, String fallback) {
     try {
       return dotenv.get(key, fallback: fallback);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('AppConstants._env($key) error: $e');
       return fallback;
     }
   }

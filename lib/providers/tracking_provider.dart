@@ -134,7 +134,7 @@ class TrackingProvider extends ChangeNotifier {
       distanceKm: double.parse(totalDistanceKm.toStringAsFixed(1)),
       emoji: _currentMountain?.emoji ?? '🏔️',
       routePoints: _routePoints
-          .map((p) => {'lat': p.latitude, 'lng': p.longitude})
+          .map((p) => {'lat': p.latitude, 'lng': p.longitude, 'alt': p.altitude})
           .toList(),
       startTime: now.subtract(_elapsed),
       endTime: now,

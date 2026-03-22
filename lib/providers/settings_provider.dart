@@ -65,6 +65,15 @@ class SettingsProvider extends ChangeNotifier {
     }
   }
 
+  String? get emergencyName => _box.get('emergencyName') as String?;
+  String? get emergencyPhone => _box.get('emergencyPhone') as String?;
+
+  void setEmergencyContact(String name, String phone) {
+    _box.put('emergencyName', name);
+    _box.put('emergencyPhone', phone);
+    notifyListeners();
+  }
+
   void setLocale(Locale locale) {
     _locale = locale;
     _box.put('locale', locale.languageCode);

@@ -375,4 +375,295 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get weatherFallback => 'Clear · 12°C · Light wind';
+
+  @override
+  String get rateLimitError => 'Too many requests. Please try again later.';
+
+  @override
+  String get imageTooLarge => 'Image must be under 10MB';
+
+  @override
+  String get addChecklistItem => 'Add item';
+
+  @override
+  String get deleteChecklistItem => 'Delete';
+
+  @override
+  String get checklistItemHint => 'Enter new item';
+
+  @override
+  String get favorites => 'Favorites';
+
+  @override
+  String get addToFavorites => 'Add to Favorites';
+
+  @override
+  String get removeFromFavorites => 'Remove from Favorites';
+
+  @override
+  String get noFavoritesYet => 'No favorites yet\nAdd mountains you love!';
+
+  @override
+  String get partner => 'Partner';
+
+  @override
+  String get registerPartner => 'Register Partner';
+
+  @override
+  String get removePartner => 'Remove Partner';
+
+  @override
+  String get partnerRegistered => 'Partner registered successfully';
+
+  @override
+  String get partnerRemoved => 'Partner removed successfully';
+
+  @override
+  String get partnerSearchHint => 'Enter partner ID';
+
+  @override
+  String get noPartnerYet => 'No partner registered yet\nAdd a hiking partner!';
+
+  @override
+  String get removePartnerConfirm => 'Remove this partner?';
+
+  @override
+  String get elevationProfile => 'Elevation Profile';
+
+  @override
+  String get maxElevation => 'Max Elevation';
+
+  @override
+  String get minElevation => 'Min Elevation';
+
+  @override
+  String get elevationGainLabel => 'Elevation Gain';
+
+  @override
+  String get recordDetail => 'Record Detail';
+
+  @override
+  String get routeMap => 'Route Map';
+
+  @override
+  String get startPoint => 'Start';
+
+  @override
+  String get endPoint => 'End';
+
+  @override
+  String get noRouteData => 'No route data available';
+
+  @override
+  String get statistics => 'Statistics';
+
+  @override
+  String get monthlyHikes => 'Monthly Hikes';
+
+  @override
+  String get cumulativeDistance => 'Cumulative Distance';
+
+  @override
+  String get averageDuration => 'Average Duration';
+
+  @override
+  String get hikesThisYear => 'Hikes This Year';
+
+  @override
+  String get distanceThisYear => 'Distance This Year';
+
+  @override
+  String get noDataForYear => 'No data for this year';
+
+  @override
+  String get statisticsSubtitle => 'Your hiking stats at a glance';
+
+  @override
+  String get emergencyContact => 'Emergency Contact';
+
+  @override
+  String get emergencySos => 'Emergency SOS';
+
+  @override
+  String get sosConfirm =>
+      'Send your current location to your emergency contact?';
+
+  @override
+  String get sosSent => 'SOS message sent';
+
+  @override
+  String get emergencyName => 'Contact Name';
+
+  @override
+  String get emergencyPhone => 'Phone Number';
+
+  @override
+  String get emergencySettings => 'Emergency Contact Settings';
+
+  @override
+  String get noEmergencyContact => 'Please set an emergency contact first';
+
+  @override
+  String get sunrise => 'Sunrise';
+
+  @override
+  String get sunset => 'Sunset';
+
+  @override
+  String get reviews => 'Reviews';
+
+  @override
+  String get writeReview => 'Write Review';
+
+  @override
+  String get reviewHint => 'Share your hiking experience (max 500 chars)';
+
+  @override
+  String get submitReview => 'Submit Review';
+
+  @override
+  String get deleteReview => 'Delete Review';
+
+  @override
+  String get noReviewsYet => 'No reviews yet\nBe the first to review!';
+
+  @override
+  String get reviewSubmitted => 'Review submitted';
+
+  @override
+  String get reviewDeleted => 'Review deleted';
+
+  @override
+  String get rating => 'Rating';
+
+  @override
+  String get deleteReviewConfirm => 'Delete this review?';
+
+  @override
+  String get shareRecord => 'Share Record';
+
+  @override
+  String get shareText => 'Woori San Hiking Record';
+
+  @override
+  String get offlineMaps => 'Offline Maps';
+
+  @override
+  String get downloadMaps => 'Pre-load Maps';
+
+  @override
+  String get clearMapCache => 'Clear Cache';
+
+  @override
+  String get offlineMapsInfo => 'Pre-view maps to use them offline';
+
+  @override
+  String get preloadMap => 'Pre-load';
+
+  @override
+  String get cacheCleared => 'Cache cleared';
+
+  @override
+  String get badges => 'Badges';
+
+  @override
+  String get earnedBadges => 'Earned Badges';
+
+  @override
+  String get lockedBadges => 'Locked Badges';
+
+  @override
+  String get badgeEarned => 'Badge Earned!';
+
+  @override
+  String get noBadgesYet => 'No badges yet\nStart hiking to earn badges!';
+
+  @override
+  String badgeProgress(Object earned, Object total) {
+    return '$earned/$total badges earned';
+  }
+
+  @override
+  String get earnedOn => 'Earned on';
+
+  @override
+  String get weatherFeelsLike => 'Feels Like';
+
+  @override
+  String get weatherHumidity => 'Humidity';
+
+  @override
+  String get weatherWind => 'Wind';
+
+  @override
+  String get weatherPressure => 'Pressure';
+
+  @override
+  String get weatherVisibility => 'Visibility';
+
+  @override
+  String get myLocation => 'My Location';
+
+  @override
+  String get allHeight => 'All Heights';
+
+  @override
+  String get heightUnder500 => 'Under 500m';
+
+  @override
+  String get height500to1000 => '500~1000m';
+
+  @override
+  String get heightOver1000 => 'Over 1000m';
+
+  @override
+  String get sortByName => 'By Name';
+
+  @override
+  String get sortByHeight => 'By Height';
+
+  @override
+  String get sortByDifficulty => 'By Difficulty';
+
+  @override
+  String get mountainCount => 'mountains';
+
+  @override
+  String get bestRecords => 'Best Records';
+
+  @override
+  String get longestDistance => 'Longest Distance';
+
+  @override
+  String get highestElevation => 'Highest Elevation';
+
+  @override
+  String get longestDuration => 'Longest Duration';
+
+  @override
+  String get hikingCalendar => 'Hiking Calendar';
+
+  @override
+  String get nextBadge => 'Next Badge';
+
+  @override
+  String get badgeCategory_count => 'Count';
+
+  @override
+  String get badgeCategory_distance => 'Distance';
+
+  @override
+  String get badgeCategory_region => 'Region';
+
+  @override
+  String get badgeCategory_stamp => 'Stamps';
+
+  @override
+  String get badgeCategory_special => 'Special';
+
+  @override
+  String get newBadgeEarned => 'New Badge Earned!';
+
+  @override
+  String get noRecordYet => 'No records yet';
 }

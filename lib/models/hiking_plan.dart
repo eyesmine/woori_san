@@ -1,34 +1,52 @@
-enum PlanStatus { confirmed, pending }
+enum PlanStatus {
+  confirmed,
+  pending,
+  done;
+
+  static PlanStatus fromString(String s) {
+    return PlanStatus.values.firstWhere(
+      (e) => e.name == s,
+      orElse: () => PlanStatus.pending,
+    );
+  }
+}
 
 class HikingPlan {
   final String id;
   final String mountain;
+  final int? mountainId;
   final String date;
   final PlanStatus status;
   final String emoji;
+  final String? memo;
 
   HikingPlan({
     String? id,
     required this.mountain,
+    this.mountainId,
     required this.date,
     required this.status,
     required this.emoji,
+    this.memo,
   }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'mountain': mountain,
-    'date': date,
+    'mountain': mountainId ?? mountain,
+    'planned_at': date,
     'status': status.name,
+    'memo': memo ?? '',
     'emoji': emoji,
   };
 
   factory HikingPlan.fromJson(Map<String, dynamic> json) => HikingPlan(
-    id: json['id'],
-    mountain: json['mountain'],
-    date: json['date'],
-    status: PlanStatus.values.byName(json['status']),
-    emoji: json['emoji'],
+    id: json['id']?.toString(),
+    mountain: json['mountain_name'] ?? json['mountain']?.toString() ?? '',
+    mountainId: json['mountain'] is int ? json['mountain'] : null,
+    date: json['planned_at'] ?? json['date'] ?? '',
+    status: PlanStatus.fromString(json['status'] ?? 'pending'),
+    emoji: json['emoji'] ?? '🏔️',
+    memo: json['memo'],
   );
 }
 
@@ -41,7 +59,10 @@ class ChecklistItem {
   Map<String, dynamic> toJson() => {'text': text, 'checked': checked};
 
   factory ChecklistItem.fromJson(Map<String, dynamic> json) =>
-      ChecklistItem(text: json['text'], checked: json['checked'] ?? false);
+      ChecklistItem(
+        text: json['text'] ?? json['label'] ?? '',
+        checked: json['checked'] ?? json['is_checked'] ?? false,
+      );
 }
 
 final List<ChecklistItem> defaultChecklist = [

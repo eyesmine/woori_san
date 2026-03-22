@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../models/stamp.dart';
-import '../providers/stamp_provider.dart';
+import '../providers/mountain_provider.dart';
 
 class StampTile extends StatelessWidget {
   final Stamp mountain;
@@ -102,7 +103,12 @@ class StampTile extends StatelessWidget {
 
   void _showDetail(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final state = context.read<StampProvider>();
+    // 산 ID 찾기 (MountainProvider에서 이름으로 매칭)
+    final mountainData = context.read<MountainProvider>().mountains
+        .where((m) => m.name == mountain.name)
+        .toList();
+    final mountainId = mountainData.isNotEmpty ? mountainData.first.id : null;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -153,56 +159,20 @@ class StampTile extends StatelessWidget {
                 child: Text(l.notClimbedYet, textAlign: TextAlign.center, style: TextStyle(color: context.appTextSub, height: 1.5)),
               ),
             const SizedBox(height: 16),
-            if (!mountain.isStamped)
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        state.toggleStamp(globalIndex);
-                        Navigator.pop(context);
-                      },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppTheme.primary,
-                        side: const BorderSide(color: AppTheme.primary),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      child: Text(l.soloStamp),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        state.toggleStamp(globalIndex, together: true);
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.accent,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      child: Text('💑 ${l.togetherStamp}'),
-                    ),
-                  ),
-                ],
-              )
-            else
+            if (!mountain.isStamped && mountainId != null)
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton(
+                child: ElevatedButton.icon(
                   onPressed: () {
-                    state.toggleStamp(globalIndex);
                     Navigator.pop(context);
+                    context.push('/tracking?mountainId=$mountainId');
                   },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    side: const BorderSide(color: Colors.red),
+                  icon: const Icon(Icons.directions_walk),
+                  label: Text(l.startHiking),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: Text(l.cancelStamp),
                 ),
               ),
             const SizedBox(height: 20),

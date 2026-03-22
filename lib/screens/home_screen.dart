@@ -9,6 +9,7 @@ import '../providers/mountain_provider.dart';
 import '../providers/stamp_provider.dart';
 import '../providers/weather_provider.dart';
 import '../providers/location_provider.dart';
+import '../providers/badge_provider.dart';
 import '../widgets/mountain_card.dart';
 import '../widgets/weather_card.dart';
 import '../widgets/empty_state.dart';
@@ -25,29 +26,76 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchWeatherWithLocation();
+      _initWithLocation();
+      _checkNewBadges();
     });
   }
 
-  Future<void> _fetchWeatherWithLocation() async {
+  void _checkNewBadges() {
+    final badgeProv = context.read<BadgeProvider>();
+    final mountainProv = context.read<MountainProvider>();
+    final stampProv = context.read<StampProvider>();
+    final prevCount = badgeProv.earnedCount;
+    badgeProv.evaluate(records: mountainProv.records, stamps: stampProv.stamps);
+    if (badgeProv.earnedCount <= prevCount) return; // no new badges
+    final newBadges = badgeProv.getNewlyEarnedBadges();
+    if (newBadges.isNotEmpty && mounted) {
+      final l = AppLocalizations.of(context)!;
+      final isKorean = l.localeName == 'ko';
+      for (final badge in newBadges) {
+        final title = isKorean ? badge.titleKo : badge.titleEn;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Text(badge.emoji, style: const TextStyle(fontSize: 24)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l.newBadgeEarned, style: const TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
+                      Text(title, style: const TextStyle(color: Colors.white70)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: AppTheme.primary,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _initWithLocation() async {
     final locationProvider = context.read<LocationProvider>();
     final weatherProvider = context.read<WeatherProvider>();
+    final mountainProvider = context.read<MountainProvider>();
 
     await locationProvider.getCurrentPosition();
     final pos = locationProvider.currentPosition;
-    if (pos != null) {
-      await weatherProvider.fetchWeather(pos.latitude, pos.longitude);
-    } else {
-      // GPS 못 가져오면 서울 좌표 폴백
-      await weatherProvider.fetchWeather(AppConstants.defaultLat, AppConstants.defaultLng);
+
+    final lat = pos?.latitude ?? AppConstants.defaultLat;
+    final lng = pos?.longitude ?? AppConstants.defaultLng;
+
+    await Future.wait([
+      weatherProvider.fetchWeather(lat, lng),
+      mountainProvider.loadRecommended(lat: lat, lng: lng),
+    ]);
+
+    // 산 목록에서 누락된 도장 동기화
+    if (mounted && mountainProvider.mountains.isNotEmpty) {
+      context.read<StampProvider>().syncWithMountains(mountainProvider.mountains);
     }
   }
 
   Future<void> _onRefresh() async {
-    await Future.wait([
-      _fetchWeatherWithLocation(),
-      context.read<MountainProvider>().refresh(),
-    ]);
+    await _initWithLocation();
   }
 
   @override
@@ -123,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 }
-                if (state.mountains.isEmpty) {
+                if (state.recommended.isEmpty && state.mountains.isEmpty) {
                   return SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -134,15 +182,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 }
+                final displayList = state.recommended.isNotEmpty ? state.recommended : state.mountains.take(10).toList();
                 return SliverToBoxAdapter(
                   child: SizedBox(
                     height: 220,
                     child: ListView.separated(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       scrollDirection: Axis.horizontal,
-                      itemCount: state.mountains.length,
+                      itemCount: displayList.length,
                       separatorBuilder: (_, _) => const SizedBox(width: 12),
-                      itemBuilder: (context, index) => MountainCard(mountain: state.mountains[index]),
+                      itemBuilder: (context, index) => MountainCard(mountain: displayList[index]),
                     ),
                   ),
                 );
@@ -201,12 +250,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         final r = state.records[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
-                          child: _RecentRecord(
-                            mountain: r.mountain,
-                            date: r.date,
-                            duration: r.duration,
-                            distance: r.distance,
-                            emoji: r.emoji,
+                          child: GestureDetector(
+                            onTap: () => context.push('/record/${r.id}'),
+                            child: _RecentRecord(
+                              mountain: r.mountain,
+                              date: r.date,
+                              duration: r.duration,
+                              distance: r.distance,
+                              emoji: r.emoji,
+                            ),
                           ),
                         );
                       },
@@ -223,7 +275,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showAllMountains(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
     final mountains = context.read<MountainProvider>().mountains;
     showModalBottomSheet(
       context: context,
@@ -233,41 +284,96 @@ class _HomeScreenState extends State<HomeScreen> {
         initialChildSize: 0.7,
         minChildSize: 0.5,
         maxChildSize: 0.9,
-        builder: (sheetContext, scrollController) => Container(
-          decoration: BoxDecoration(
-            color: Theme.of(sheetContext).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2))),
-                    const SizedBox(height: 16),
-                    Text(l.allMountains, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: ListView.separated(
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: mountains.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 12),
-                  itemBuilder: (ctx, index) => GestureDetector(
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      context.push('/mountain/${mountains[index].id}');
-                    },
-                    child: _MountainDetailTile(mountain: mountains[index]),
-                  ),
-                ),
-              ),
-            ],
-          ),
+        builder: (sheetContext, scrollController) => _AllMountainsSheet(
+          mountains: mountains,
+          scrollController: scrollController,
+          onTap: (mountain) {
+            Navigator.pop(sheetContext);
+            context.push('/mountain/${mountain.id}');
+          },
         ),
+      ),
+    );
+  }
+}
+
+class _AllMountainsSheet extends StatefulWidget {
+  final List<Mountain> mountains;
+  final ScrollController scrollController;
+  final void Function(Mountain) onTap;
+
+  const _AllMountainsSheet({
+    required this.mountains,
+    required this.scrollController,
+    required this.onTap,
+  });
+
+  @override
+  State<_AllMountainsSheet> createState() => _AllMountainsSheetState();
+}
+
+class _AllMountainsSheetState extends State<_AllMountainsSheet> {
+  final _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final queryLower = _query.toLowerCase();
+    final filtered = _query.isEmpty
+        ? widget.mountains
+        : widget.mountains.where((m) => m.name.toLowerCase().contains(queryLower) || m.location.toLowerCase().contains(queryLower)).toList();
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2))),
+                const SizedBox(height: 16),
+                Text(l.allMountains, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: l.searchHint,
+                    prefixIcon: const Icon(Icons.search, color: AppTheme.primary),
+                    filled: true,
+                    fillColor: context.appSurface,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                  ),
+                  onChanged: (v) => setState(() => _query = v),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: filtered.isEmpty
+                ? Center(child: Text(l.noSearchResults, style: TextStyle(color: context.appTextSub)))
+                : ListView.separated(
+                    controller: widget.scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: filtered.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                    itemBuilder: (ctx, index) => GestureDetector(
+                      onTap: () => widget.onTap(filtered[index]),
+                      child: _MountainDetailTile(mountain: filtered[index]),
+                    ),
+                  ),
+          ),
+        ],
       ),
     );
   }

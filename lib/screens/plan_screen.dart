@@ -116,8 +116,27 @@ class _NewPlanSheet extends StatefulWidget {
 
 class _NewPlanSheetState extends State<_NewPlanSheet> {
   String? _selectedMountain;
+  String? _selectedMountainId;
   String? _selectedEmoji;
   DateTime? _selectedDate;
+  final _mountainSearchController = TextEditingController();
+  final _mountainSearchFocus = FocusNode();
+  String _mountainQuery = '';
+
+  @override
+  void dispose() {
+    _mountainSearchController.dispose();
+    _mountainSearchFocus.dispose();
+    super.dispose();
+  }
+
+  List<Mountain> get _filteredMountains {
+    if (_mountainQuery.isEmpty) return [];
+    return widget.mountains
+        .where((m) => m.name.contains(_mountainQuery) || m.location.contains(_mountainQuery))
+        .take(10)
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,9 +149,8 @@ class _NewPlanSheetState extends State<_NewPlanSheet> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
+          shrinkWrap: true,
           children: [
             Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2)))),
             const SizedBox(height: 20),
@@ -141,19 +159,84 @@ class _NewPlanSheetState extends State<_NewPlanSheet> {
 
             Text(l.whichMountain, style: TextStyle(fontWeight: FontWeight.w600, color: context.appTextSub, fontSize: 13)),
             const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: widget.mountains.map((m) => ChoiceChip(
-                label: Text(m.name),
-                selected: _selectedMountain == m.name,
-                onSelected: (v) => setState(() {
-                  _selectedMountain = v ? m.name : null;
-                  _selectedEmoji = v ? m.emoji : null;
-                }),
-                selectedColor: AppTheme.primary,
-                labelStyle: TextStyle(color: _selectedMountain == m.name ? Colors.white : context.appText),
-              )).toList(),
-            ),
+
+            // 선택된 산 표시
+            if (_selectedMountain != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: AppTheme.primary.withAlpha(20),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTheme.primary),
+                ),
+                child: Row(
+                  children: [
+                    Text(_selectedEmoji ?? '🏔️', style: const TextStyle(fontSize: 20)),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(_selectedMountain!, style: TextStyle(fontWeight: FontWeight.w700, color: context.appText, fontSize: 15))),
+                    GestureDetector(
+                      onTap: () => setState(() {
+                        _selectedMountain = null;
+                        _selectedMountainId = null;
+                        _selectedEmoji = null;
+                        _mountainSearchController.clear();
+                        _mountainQuery = '';
+                      }),
+                      child: Icon(Icons.close, size: 18, color: context.appTextSub),
+                    ),
+                  ],
+                ),
+              ),
+
+            // 검색 입력
+            if (_selectedMountain == null)
+              TextField(
+                controller: _mountainSearchController,
+                focusNode: _mountainSearchFocus,
+                decoration: InputDecoration(
+                  hintText: l.searchHint,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  prefixIcon: const Icon(Icons.search, color: AppTheme.primary, size: 20),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppTheme.primary)),
+                  filled: true,
+                  fillColor: context.appBg,
+                ),
+                style: TextStyle(fontSize: 14, color: context.appText),
+                onChanged: (v) => setState(() => _mountainQuery = v.trim()),
+              ),
+
+            // 검색 결과
+            if (_selectedMountain == null && _filteredMountains.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _filteredMountains.map((m) => ChoiceChip(
+                    label: Text('${m.emoji} ${m.name}'),
+                    selected: false,
+                    onSelected: (_) => setState(() {
+                      _selectedMountain = m.name;
+                      _selectedMountainId = m.id;
+                      _selectedEmoji = m.emoji;
+                      _mountainQuery = '';
+                      _mountainSearchController.clear();
+                    }),
+                    backgroundColor: context.appSurface,
+                    labelStyle: TextStyle(color: context.appText, fontSize: 13),
+                  )).toList(),
+                ),
+              ),
+
+            if (_selectedMountain == null && _mountainQuery.isNotEmpty && _filteredMountains.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(l.noSearchResults, style: TextStyle(color: context.appTextSub, fontSize: 13), textAlign: TextAlign.center),
+              ),
 
             const SizedBox(height: 16),
             Text(l.whenToGo, style: TextStyle(fontWeight: FontWeight.w600, color: context.appTextSub, fontSize: 13)),
@@ -195,7 +278,8 @@ class _NewPlanSheetState extends State<_NewPlanSheet> {
                     ? () {
                         widget.onSave(HikingPlan(
                           mountain: _selectedMountain!,
-                          date: DateFormat('M월 d일', 'ko_KR').format(_selectedDate!),
+                          mountainId: int.tryParse(_selectedMountainId ?? ''),
+                          date: '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}',
                           status: PlanStatus.pending,
                           emoji: _selectedEmoji ?? '🏔️',
                         ));

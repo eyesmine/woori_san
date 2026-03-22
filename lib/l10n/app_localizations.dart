@@ -829,6 +829,582 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'맑음 · 12°C · 바람 약함'**
   String get weatherFallback;
+
+  /// No description provided for @rateLimitError.
+  ///
+  /// In ko, this message translates to:
+  /// **'요청이 너무 많습니다. 잠시 후 다시 시도해주세요.'**
+  String get rateLimitError;
+
+  /// No description provided for @imageTooLarge.
+  ///
+  /// In ko, this message translates to:
+  /// **'이미지 크기는 10MB 이하여야 합니다'**
+  String get imageTooLarge;
+
+  /// No description provided for @addChecklistItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'준비물 추가'**
+  String get addChecklistItem;
+
+  /// No description provided for @deleteChecklistItem.
+  ///
+  /// In ko, this message translates to:
+  /// **'삭제'**
+  String get deleteChecklistItem;
+
+  /// No description provided for @checklistItemHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 준비물을 입력하세요'**
+  String get checklistItemHint;
+
+  /// No description provided for @favorites.
+  ///
+  /// In ko, this message translates to:
+  /// **'즐겨찾기'**
+  String get favorites;
+
+  /// No description provided for @addToFavorites.
+  ///
+  /// In ko, this message translates to:
+  /// **'즐겨찾기 추가'**
+  String get addToFavorites;
+
+  /// No description provided for @removeFromFavorites.
+  ///
+  /// In ko, this message translates to:
+  /// **'즐겨찾기 해제'**
+  String get removeFromFavorites;
+
+  /// No description provided for @noFavoritesYet.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 즐겨찾기한 산이 없어요\n마음에 드는 산을 추가해보세요!'**
+  String get noFavoritesYet;
+
+  /// No description provided for @partner.
+  ///
+  /// In ko, this message translates to:
+  /// **'파트너'**
+  String get partner;
+
+  /// No description provided for @registerPartner.
+  ///
+  /// In ko, this message translates to:
+  /// **'파트너 등록'**
+  String get registerPartner;
+
+  /// No description provided for @removePartner.
+  ///
+  /// In ko, this message translates to:
+  /// **'파트너 해제'**
+  String get removePartner;
+
+  /// No description provided for @partnerRegistered.
+  ///
+  /// In ko, this message translates to:
+  /// **'파트너가 등록되었습니다'**
+  String get partnerRegistered;
+
+  /// No description provided for @partnerRemoved.
+  ///
+  /// In ko, this message translates to:
+  /// **'파트너가 해제되었습니다'**
+  String get partnerRemoved;
+
+  /// No description provided for @partnerSearchHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'파트너 ID를 입력하세요'**
+  String get partnerSearchHint;
+
+  /// No description provided for @noPartnerYet.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 등록된 파트너가 없어요\n함께 등산할 파트너를 등록해보세요!'**
+  String get noPartnerYet;
+
+  /// No description provided for @removePartnerConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'파트너를 해제하시겠습니까?'**
+  String get removePartnerConfirm;
+
+  /// No description provided for @elevationProfile.
+  ///
+  /// In ko, this message translates to:
+  /// **'고도 프로필'**
+  String get elevationProfile;
+
+  /// No description provided for @maxElevation.
+  ///
+  /// In ko, this message translates to:
+  /// **'최고 고도'**
+  String get maxElevation;
+
+  /// No description provided for @minElevation.
+  ///
+  /// In ko, this message translates to:
+  /// **'최저 고도'**
+  String get minElevation;
+
+  /// No description provided for @elevationGainLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'누적 상승'**
+  String get elevationGainLabel;
+
+  /// No description provided for @recordDetail.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 상세'**
+  String get recordDetail;
+
+  /// No description provided for @routeMap.
+  ///
+  /// In ko, this message translates to:
+  /// **'경로 지도'**
+  String get routeMap;
+
+  /// No description provided for @startPoint.
+  ///
+  /// In ko, this message translates to:
+  /// **'출발'**
+  String get startPoint;
+
+  /// No description provided for @endPoint.
+  ///
+  /// In ko, this message translates to:
+  /// **'도착'**
+  String get endPoint;
+
+  /// No description provided for @noRouteData.
+  ///
+  /// In ko, this message translates to:
+  /// **'경로 데이터가 없습니다'**
+  String get noRouteData;
+
+  /// No description provided for @statistics.
+  ///
+  /// In ko, this message translates to:
+  /// **'통계'**
+  String get statistics;
+
+  /// No description provided for @monthlyHikes.
+  ///
+  /// In ko, this message translates to:
+  /// **'월별 등산 횟수'**
+  String get monthlyHikes;
+
+  /// No description provided for @cumulativeDistance.
+  ///
+  /// In ko, this message translates to:
+  /// **'누적 거리'**
+  String get cumulativeDistance;
+
+  /// No description provided for @averageDuration.
+  ///
+  /// In ko, this message translates to:
+  /// **'평균 소요 시간'**
+  String get averageDuration;
+
+  /// No description provided for @hikesThisYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'올해 등산'**
+  String get hikesThisYear;
+
+  /// No description provided for @distanceThisYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'올해 거리'**
+  String get distanceThisYear;
+
+  /// No description provided for @noDataForYear.
+  ///
+  /// In ko, this message translates to:
+  /// **'해당 연도의 데이터가 없습니다'**
+  String get noDataForYear;
+
+  /// No description provided for @statisticsSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'나의 등산 기록을 한눈에'**
+  String get statisticsSubtitle;
+
+  /// No description provided for @emergencyContact.
+  ///
+  /// In ko, this message translates to:
+  /// **'비상 연락처'**
+  String get emergencyContact;
+
+  /// No description provided for @emergencySos.
+  ///
+  /// In ko, this message translates to:
+  /// **'긴급 SOS'**
+  String get emergencySos;
+
+  /// No description provided for @sosConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 위치를 비상 연락처로 전송하시겠습니까?'**
+  String get sosConfirm;
+
+  /// No description provided for @sosSent.
+  ///
+  /// In ko, this message translates to:
+  /// **'SOS 메시지가 전송되었습니다'**
+  String get sosSent;
+
+  /// No description provided for @emergencyName.
+  ///
+  /// In ko, this message translates to:
+  /// **'연락처 이름'**
+  String get emergencyName;
+
+  /// No description provided for @emergencyPhone.
+  ///
+  /// In ko, this message translates to:
+  /// **'전화번호'**
+  String get emergencyPhone;
+
+  /// No description provided for @emergencySettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'비상 연락처 설정'**
+  String get emergencySettings;
+
+  /// No description provided for @noEmergencyContact.
+  ///
+  /// In ko, this message translates to:
+  /// **'비상 연락처를 먼저 설정해주세요'**
+  String get noEmergencyContact;
+
+  /// No description provided for @sunrise.
+  ///
+  /// In ko, this message translates to:
+  /// **'일출'**
+  String get sunrise;
+
+  /// No description provided for @sunset.
+  ///
+  /// In ko, this message translates to:
+  /// **'일몰'**
+  String get sunset;
+
+  /// No description provided for @reviews.
+  ///
+  /// In ko, this message translates to:
+  /// **'리뷰'**
+  String get reviews;
+
+  /// No description provided for @writeReview.
+  ///
+  /// In ko, this message translates to:
+  /// **'리뷰 작성'**
+  String get writeReview;
+
+  /// No description provided for @reviewHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'등산 후기를 남겨보세요 (최대 500자)'**
+  String get reviewHint;
+
+  /// No description provided for @submitReview.
+  ///
+  /// In ko, this message translates to:
+  /// **'리뷰 등록'**
+  String get submitReview;
+
+  /// No description provided for @deleteReview.
+  ///
+  /// In ko, this message translates to:
+  /// **'리뷰 삭제'**
+  String get deleteReview;
+
+  /// No description provided for @noReviewsYet.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 리뷰가 없어요\n첫 리뷰를 남겨보세요!'**
+  String get noReviewsYet;
+
+  /// No description provided for @reviewSubmitted.
+  ///
+  /// In ko, this message translates to:
+  /// **'리뷰가 등록되었습니다'**
+  String get reviewSubmitted;
+
+  /// No description provided for @reviewDeleted.
+  ///
+  /// In ko, this message translates to:
+  /// **'리뷰가 삭제되었습니다'**
+  String get reviewDeleted;
+
+  /// No description provided for @rating.
+  ///
+  /// In ko, this message translates to:
+  /// **'평점'**
+  String get rating;
+
+  /// No description provided for @deleteReviewConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 리뷰를 삭제하시겠습니까?'**
+  String get deleteReviewConfirm;
+
+  /// No description provided for @shareRecord.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 공유'**
+  String get shareRecord;
+
+  /// No description provided for @shareText.
+  ///
+  /// In ko, this message translates to:
+  /// **'우리산 등산 기록'**
+  String get shareText;
+
+  /// No description provided for @offlineMaps.
+  ///
+  /// In ko, this message translates to:
+  /// **'오프라인 지도'**
+  String get offlineMaps;
+
+  /// No description provided for @downloadMaps.
+  ///
+  /// In ko, this message translates to:
+  /// **'지도 미리 불러오기'**
+  String get downloadMaps;
+
+  /// No description provided for @clearMapCache.
+  ///
+  /// In ko, this message translates to:
+  /// **'캐시 삭제'**
+  String get clearMapCache;
+
+  /// No description provided for @offlineMapsInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'지도를 미리 보면 오프라인에서도 사용할 수 있어요'**
+  String get offlineMapsInfo;
+
+  /// No description provided for @preloadMap.
+  ///
+  /// In ko, this message translates to:
+  /// **'미리 보기'**
+  String get preloadMap;
+
+  /// No description provided for @cacheCleared.
+  ///
+  /// In ko, this message translates to:
+  /// **'캐시가 삭제되었습니다'**
+  String get cacheCleared;
+
+  /// No description provided for @badges.
+  ///
+  /// In ko, this message translates to:
+  /// **'배지'**
+  String get badges;
+
+  /// No description provided for @earnedBadges.
+  ///
+  /// In ko, this message translates to:
+  /// **'획득한 배지'**
+  String get earnedBadges;
+
+  /// No description provided for @lockedBadges.
+  ///
+  /// In ko, this message translates to:
+  /// **'미획득 배지'**
+  String get lockedBadges;
+
+  /// No description provided for @badgeEarned.
+  ///
+  /// In ko, this message translates to:
+  /// **'배지 획득!'**
+  String get badgeEarned;
+
+  /// No description provided for @noBadgesYet.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 획득한 배지가 없어요\n등산을 시작해보세요!'**
+  String get noBadgesYet;
+
+  /// No description provided for @badgeProgress.
+  ///
+  /// In ko, this message translates to:
+  /// **'{earned}/{total} 배지 획득'**
+  String badgeProgress(Object earned, Object total);
+
+  /// No description provided for @earnedOn.
+  ///
+  /// In ko, this message translates to:
+  /// **'획득일'**
+  String get earnedOn;
+
+  /// No description provided for @weatherFeelsLike.
+  ///
+  /// In ko, this message translates to:
+  /// **'체감 온도'**
+  String get weatherFeelsLike;
+
+  /// No description provided for @weatherHumidity.
+  ///
+  /// In ko, this message translates to:
+  /// **'습도'**
+  String get weatherHumidity;
+
+  /// No description provided for @weatherWind.
+  ///
+  /// In ko, this message translates to:
+  /// **'바람'**
+  String get weatherWind;
+
+  /// No description provided for @weatherPressure.
+  ///
+  /// In ko, this message translates to:
+  /// **'기압'**
+  String get weatherPressure;
+
+  /// No description provided for @weatherVisibility.
+  ///
+  /// In ko, this message translates to:
+  /// **'가시거리'**
+  String get weatherVisibility;
+
+  /// No description provided for @myLocation.
+  ///
+  /// In ko, this message translates to:
+  /// **'내 위치'**
+  String get myLocation;
+
+  /// No description provided for @allHeight.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 높이'**
+  String get allHeight;
+
+  /// No description provided for @heightUnder500.
+  ///
+  /// In ko, this message translates to:
+  /// **'500m 이하'**
+  String get heightUnder500;
+
+  /// No description provided for @height500to1000.
+  ///
+  /// In ko, this message translates to:
+  /// **'500~1000m'**
+  String get height500to1000;
+
+  /// No description provided for @heightOver1000.
+  ///
+  /// In ko, this message translates to:
+  /// **'1000m 이상'**
+  String get heightOver1000;
+
+  /// No description provided for @sortByName.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름순'**
+  String get sortByName;
+
+  /// No description provided for @sortByHeight.
+  ///
+  /// In ko, this message translates to:
+  /// **'높이순'**
+  String get sortByHeight;
+
+  /// No description provided for @sortByDifficulty.
+  ///
+  /// In ko, this message translates to:
+  /// **'난이도순'**
+  String get sortByDifficulty;
+
+  /// No description provided for @mountainCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'개의 산'**
+  String get mountainCount;
+
+  /// No description provided for @bestRecords.
+  ///
+  /// In ko, this message translates to:
+  /// **'최고 기록'**
+  String get bestRecords;
+
+  /// No description provided for @longestDistance.
+  ///
+  /// In ko, this message translates to:
+  /// **'최장 거리'**
+  String get longestDistance;
+
+  /// No description provided for @highestElevation.
+  ///
+  /// In ko, this message translates to:
+  /// **'최고 고도'**
+  String get highestElevation;
+
+  /// No description provided for @longestDuration.
+  ///
+  /// In ko, this message translates to:
+  /// **'최장 시간'**
+  String get longestDuration;
+
+  /// No description provided for @hikingCalendar.
+  ///
+  /// In ko, this message translates to:
+  /// **'등산 캘린더'**
+  String get hikingCalendar;
+
+  /// No description provided for @nextBadge.
+  ///
+  /// In ko, this message translates to:
+  /// **'다음 배지'**
+  String get nextBadge;
+
+  /// No description provided for @badgeCategory_count.
+  ///
+  /// In ko, this message translates to:
+  /// **'횟수'**
+  String get badgeCategory_count;
+
+  /// No description provided for @badgeCategory_distance.
+  ///
+  /// In ko, this message translates to:
+  /// **'거리'**
+  String get badgeCategory_distance;
+
+  /// No description provided for @badgeCategory_region.
+  ///
+  /// In ko, this message translates to:
+  /// **'지역'**
+  String get badgeCategory_region;
+
+  /// No description provided for @badgeCategory_stamp.
+  ///
+  /// In ko, this message translates to:
+  /// **'도장'**
+  String get badgeCategory_stamp;
+
+  /// No description provided for @badgeCategory_special.
+  ///
+  /// In ko, this message translates to:
+  /// **'특수'**
+  String get badgeCategory_special;
+
+  /// No description provided for @newBadgeEarned.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 배지 획득!'**
+  String get newBadgeEarned;
+
+  /// No description provided for @noRecordYet.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 기록이 없어요'**
+  String get noRecordYet;
 }
 
 class _AppLocalizationsDelegate

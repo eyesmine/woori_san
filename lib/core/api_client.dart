@@ -60,18 +60,18 @@ class ApiClient {
         headers: {'Content-Type': 'application/json'},
       ));
       final response = await refreshDio.post(
-        '/auth/refresh',
-        data: {'refreshToken': refreshToken},
+        '/auth/refresh/',
+        data: {'refresh': refreshToken},
       );
 
       final data = response.data as Map<String, dynamic>?;
-      final newToken = data?['accessToken'] as String?;
+      final newToken = data?['access'] as String?;
       if (newToken == null) {
         await clearTokens();
         return null;
       }
 
-      final newRefresh = data?['refreshToken'] as String?;
+      final newRefresh = data?['refresh'] as String?;
       await _storage.write(key: _tokenKey, value: newToken);
       if (newRefresh != null) {
         await _storage.write(key: _refreshTokenKey, value: newRefresh);
@@ -94,6 +94,10 @@ class ApiClient {
   Future<void> clearTokens() async {
     await _storage.delete(key: _tokenKey);
     await _storage.delete(key: _refreshTokenKey);
+  }
+
+  Future<String?> getRefreshToken() async {
+    return await _storage.read(key: _refreshTokenKey);
   }
 
   Future<bool> hasToken() async {
@@ -125,6 +129,14 @@ class ApiClient {
     }
   }
 
+  Future<Response> patch(String path, {dynamic data}) async {
+    try {
+      return await _dio.patch(path, data: data);
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<Response> delete(String path) async {
     try {
       return await _dio.delete(path);
@@ -139,12 +151,83 @@ class ApiClient {
         e.type == DioExceptionType.connectionError) {
       return NetworkException();
     }
-    if (e.response?.statusCode == 401) {
-      return AuthException();
+
+    final data = e.response?.data;
+    final status = e.response?.statusCode;
+    final parsed = _parseError(data);
+
+    // 429: Rate Limit 초과
+    if (status == 429) {
+      return RateLimitException(parsed.message);
     }
-    return ServerException(
-      e.response?.data?['message'] ?? '서버 오류가 발생했습니다.',
-      statusCode: e.response?.statusCode,
-    );
+
+    // 401: 인증 에러
+    if (status == 401) {
+      return AuthException(parsed.message, parsed.code);
+    }
+
+    // validation_error: 필드별 에러
+    if (parsed.code == 'validation_error' && parsed.fieldErrors != null) {
+      return ValidationException(
+        parsed.message,
+        fieldErrors: parsed.fieldErrors!,
+        statusCode: status,
+      );
+    }
+
+    return ServerException(parsed.message, statusCode: status, code: parsed.code);
   }
+
+  /// 백엔드 에러 응답 파싱
+  /// 새 포맷: {"error": {"code": "...", "message": "...", "details": {...}}}
+  /// 레거시: {"detail": "..."} 또는 {"field": ["..."]}
+  _ParsedError _parseError(dynamic data) {
+    if (data == null) return _ParsedError('서버 오류가 발생했습니다.');
+    if (data is! Map) return _ParsedError(data.toString());
+
+    // 새 포맷: {"error": {"code": ..., "message": ..., "details": ...}}
+    final error = data['error'];
+    if (error is Map) {
+      final code = error['code'] as String?;
+      final message = error['message'] as String? ?? '서버 오류가 발생했습니다.';
+      final details = error['details'];
+
+      Map<String, List<String>>? fieldErrors;
+      if (code == 'validation_error' && details is Map) {
+        fieldErrors = {};
+        for (final entry in details.entries) {
+          final key = entry.key.toString();
+          final value = entry.value;
+          if (value is List) {
+            fieldErrors[key] = value.map((e) => e.toString()).toList();
+          }
+        }
+      }
+
+      return _ParsedError(message, code: code, fieldErrors: fieldErrors);
+    }
+
+    // 레거시: {"detail": "..."}
+    if (data['detail'] != null) return _ParsedError(data['detail'].toString());
+    if (data['message'] != null) return _ParsedError(data['message'].toString());
+
+    // 레거시: {"field": ["error1", ...]}
+    for (final entry in data.entries) {
+      final value = entry.value;
+      if (value is List && value.isNotEmpty) {
+        return _ParsedError(value.first.toString());
+      }
+      if (value is String) return _ParsedError(value);
+    }
+
+    return _ParsedError('서버 오류가 발생했습니다.');
+  }
+}
+
+class _ParsedError {
+  final String message;
+  final String? code;
+  final Map<String, List<String>>? fieldErrors;
+
+  _ParsedError(this.message, {this.code, this.fieldErrors});
 }

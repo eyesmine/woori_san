@@ -29,6 +29,9 @@ class HikingRecord {
 
   String get distance => '${distanceKm}km';
 
+  List<double> get elevations =>
+      routePoints?.map((p) => (p['alt'] as num?)?.toDouble() ?? 0.0).toList() ?? [];
+
   HikingRecord copyWith({
     String? id,
     String? mountain,

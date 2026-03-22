@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 import '../models/hiking_plan.dart';
+
+String _formatDate(String date) {
+  final parsed = DateTime.tryParse(date);
+  if (parsed != null) {
+    return DateFormat('M월 d일', 'ko_KR').format(parsed);
+  }
+  return date;
+}
 
 class PlanCard extends StatelessWidget {
   final HikingPlan plan;
@@ -48,7 +57,7 @@ class PlanCard extends StatelessWidget {
                   Row(children: [
                     Icon(Icons.calendar_today_outlined, size: 13, color: context.appTextSub),
                     const SizedBox(width: 4),
-                    Text(plan.date, style: TextStyle(color: context.appTextSub, fontSize: 13)),
+                    Text(_formatDate(plan.date), style: TextStyle(color: context.appTextSub, fontSize: 13)),
                   ]),
                 ],
               ),

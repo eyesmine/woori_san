@@ -5,16 +5,25 @@ import 'package:go_router/go_router.dart';
 import '../core/api_client.dart';
 
 class NotificationService {
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
+  FirebaseMessaging? _messaging;
   final ApiClient? _apiClient;
   final GoRouter? _router;
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+
+  bool get _isFirebaseReady => _messaging != null;
 
   NotificationService({ApiClient? apiClient, GoRouter? router})
       : _apiClient = apiClient,
         _router = router;
 
   Future<void> initialize() async {
+    try {
+      _messaging = FirebaseMessaging.instance;
+    } catch (e) {
+      debugPrint('NotificationService: Firebase not initialized, skipping — $e');
+      return;
+    }
+
     // 로컬 알림 초기화
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     const darwinSettings = DarwinInitializationSettings();
@@ -24,21 +33,23 @@ class NotificationService {
       onDidReceiveNotificationResponse: _onLocalNotificationTap,
     );
 
+    if (!_isFirebaseReady) return;
+
     // 알림 권한 요청
-    await _messaging.requestPermission(
+    await _messaging!.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
 
     // FCM 토큰 가져오기
-    final token = await _messaging.getToken();
+    final token = await _messaging!.getToken();
     if (token != null) {
       await _registerToken(token);
     }
 
     // 토큰 갱신 리스너
-    _messaging.onTokenRefresh.listen(_registerToken);
+    _messaging!.onTokenRefresh.listen(_registerToken);
 
     // 포그라운드 메시지 핸들러
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
@@ -47,13 +58,13 @@ class NotificationService {
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageTap);
 
     // 토픽 구독
-    await _messaging.subscribeToTopic('weather_alerts');
-    await _messaging.subscribeToTopic('hiking_tips');
+    await _messaging!.subscribeToTopic('weather_alerts');
+    await _messaging!.subscribeToTopic('hiking_tips');
   }
 
   Future<void> _registerToken(String token) async {
     try {
-      await _apiClient?.post('/devices', data: {'token': token});
+      await _apiClient?.post('/devices/', data: {'token': token});
     } catch (e) {
       debugPrint('NotificationService._registerToken error: $e');
     }

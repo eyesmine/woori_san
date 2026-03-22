@@ -45,6 +45,16 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Future<bool> hasSession() async => _hasToken;
+
+  @override
+  Future<void> registerPartner(String partnerId) async {
+    if (shouldFail) throw Exception('Register partner failed');
+  }
+
+  @override
+  Future<void> removePartner() async {
+    if (shouldFail) throw Exception('Remove partner failed');
+  }
 }
 
 void main() {

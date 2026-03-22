@@ -5,6 +5,11 @@ import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../models/mountain.dart';
 import '../providers/mountain_provider.dart';
+import '../providers/favorite_provider.dart';
+import '../providers/review_provider.dart';
+import '../providers/auth_provider.dart';
+import '../widgets/review_card.dart';
+
 class MountainDetailScreen extends StatelessWidget {
   final String mountainId;
   const MountainDetailScreen({super.key, required this.mountainId});
@@ -26,9 +31,24 @@ class MountainDetailScreen extends StatelessWidget {
   }
 }
 
-class _DetailBody extends StatelessWidget {
+class _DetailBody extends StatefulWidget {
   final Mountain mountain;
   const _DetailBody({required this.mountain});
+
+  @override
+  State<_DetailBody> createState() => _DetailBodyState();
+}
+
+class _DetailBodyState extends State<_DetailBody> {
+  Mountain get mountain => widget.mountain;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ReviewProvider>().loadReviews(mountain.id);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +96,20 @@ class _DetailBody extends StatelessWidget {
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => context.pop(),
             ),
+            actions: [
+              Consumer<FavoriteProvider>(
+                builder: (context, favState, _) {
+                  final isFav = favState.isFavorite(mountain.id);
+                  return IconButton(
+                    icon: Icon(
+                      isFav ? Icons.favorite : Icons.favorite_border,
+                      color: isFav ? Colors.red : Colors.white,
+                    ),
+                    onPressed: () => favState.toggleFavorite(mountain.id),
+                  );
+                },
+              ),
+            ],
           ),
 
           SliverToBoxAdapter(
@@ -140,6 +174,9 @@ class _DetailBody extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 24),
+                  _buildReviewsSection(context, l),
+
+                  const SizedBox(height: 24),
                   Text(l.location, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
                   const SizedBox(height: 12),
                   Container(
@@ -158,10 +195,11 @@ class _DetailBody extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(mountain.location, style: TextStyle(fontWeight: FontWeight.w600, color: context.appText)),
-                              Text(
-                                '위도 ${mountain.latitude.toStringAsFixed(4)}, 경도 ${mountain.longitude.toStringAsFixed(4)}',
-                                style: TextStyle(color: context.appTextSub, fontSize: 12),
-                              ),
+                              if (mountain.latitude != 0 || mountain.longitude != 0)
+                                Text(
+                                  '위도 ${mountain.latitude.toStringAsFixed(4)}, 경도 ${mountain.longitude.toStringAsFixed(4)}',
+                                  style: TextStyle(color: context.appTextSub, fontSize: 12),
+                                ),
                             ],
                           ),
                         ),
@@ -184,6 +222,58 @@ class _DetailBody extends StatelessWidget {
         label: Text(l.startHiking, style: const TextStyle(fontWeight: FontWeight.w700)),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+  Widget _buildReviewsSection(BuildContext context, AppLocalizations l) {
+    return Consumer<ReviewProvider>(
+      builder: (context, provider, _) {
+        final previewReviews = provider.reviews.take(3).toList();
+        final currentUserId = context.read<AuthProvider>().user?.id;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(l.reviews, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
+                GestureDetector(
+                  onTap: () => context.push('/mountain/${mountain.id}/reviews'),
+                  child: Text(l.viewAll, style: const TextStyle(color: AppTheme.primary, fontSize: 14, fontWeight: FontWeight.w600)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            if (provider.isLoading && previewReviews.isEmpty)
+              const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: CircularProgressIndicator(color: AppTheme.primary, strokeWidth: 2)))
+            else if (previewReviews.isEmpty)
+              GestureDetector(
+                onTap: () => context.push('/mountain/${mountain.id}/reviews'),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  decoration: BoxDecoration(color: context.appSurface, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 8, offset: const Offset(0, 2))]),
+                  child: Column(
+                    children: [
+                      Icon(Icons.rate_review_outlined, size: 32, color: Colors.grey.shade300),
+                      const SizedBox(height: 8),
+                      Text(l.noReviewsYet, textAlign: TextAlign.center, style: TextStyle(color: context.appTextSub, fontSize: 13, height: 1.4)),
+                    ],
+                  ),
+                ),
+              )
+            else
+              ...previewReviews.map((review) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: ReviewCard(
+                  review: review,
+                  isOwn: currentUserId != null && review.userId == currentUserId,
+                ),
+              )),
+          ],
+        );
+      },
     );
   }
 }

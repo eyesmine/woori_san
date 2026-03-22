@@ -121,6 +121,26 @@ class ProfileScreen extends StatelessWidget {
                 title: l.editProfile,
                 onTap: () => _showEditProfile(context),
               ),
+              _SettingsTile(
+                icon: Icons.bar_chart,
+                title: l.statistics,
+                onTap: () => context.push('/statistics'),
+              ),
+              _SettingsTile(
+                icon: Icons.emoji_events_outlined,
+                title: l.badges,
+                onTap: () => context.push('/badges'),
+              ),
+              _SettingsTile(
+                icon: Icons.favorite_outline,
+                title: l.favorites,
+                onTap: () => context.push('/favorites'),
+              ),
+              _SettingsTile(
+                icon: Icons.people_outline,
+                title: l.partner,
+                onTap: () => context.push('/partner'),
+              ),
               Consumer<SettingsProvider>(
                 builder: (context, settings, _) => _SettingsTile(
                   icon: Icons.notifications_outlined,
@@ -155,6 +175,16 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+              ),
+              _SettingsTile(
+                icon: Icons.download_for_offline_outlined,
+                title: l.offlineMaps,
+                onTap: () => context.push('/offline-maps'),
+              ),
+              _SettingsTile(
+                icon: Icons.emergency_outlined,
+                title: l.emergencyContact,
+                onTap: () => context.push('/sos-settings'),
               ),
               _SettingsTile(
                 icon: Icons.info_outline,
@@ -221,11 +251,25 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  static const _maxImageBytes = 10 * 1024 * 1024; // 10MB
+
   Future<void> _pickImage(BuildContext context, ImageSource source) async {
     try {
       final picker = ImagePicker();
       final xFile = await picker.pickImage(source: source, maxWidth: 512, imageQuality: 85);
       if (xFile == null) return;
+
+      // 10MB 제한 체크
+      final fileSize = await xFile.length();
+      if (fileSize > _maxImageBytes) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context)?.imageTooLarge ?? 'Image must be under 10MB')),
+          );
+        }
+        return;
+      }
+
       // 서버에 업로드 후 URL을 받아야 하지만, 현재는 로컬 경로를 임시 저장
       if (context.mounted) {
         context.read<AuthProvider>().updateProfile(profileImageUrl: xFile.path);

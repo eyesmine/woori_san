@@ -38,6 +38,7 @@ class FakeWeatherRemoteDataSource implements WeatherRemoteDataSource {
           humidity: 50,
           iconCode: '01d',
           forecastDate: DateTime(2025, 3, 15),
+          feelsLike: 14.0,
         );
   }
 }
@@ -79,6 +80,7 @@ void main() {
         humidity: 70,
         iconCode: '04d',
         forecastDate: DateTime(2025, 3, 14),
+        feelsLike: 9.0,
       );
       fakeLocal._cached = cachedWeather;
 

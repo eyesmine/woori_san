@@ -35,6 +35,7 @@ class FakeWeatherRemote implements WeatherRemoteDataSource {
       humidity: 40,
       iconCode: '01d',
       forecastDate: DateTime(2025, 3, 15),
+      feelsLike: 17.0,
     );
   }
 }
@@ -51,6 +52,7 @@ void main() {
         humidity: 70,
         iconCode: '04d',
         forecastDate: DateTime(2025, 3, 14),
+        feelsLike: 9.0,
       );
       final remote = FakeWeatherRemote();
       final repo = WeatherRepository(local, remote);

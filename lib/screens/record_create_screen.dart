@@ -24,11 +24,16 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
   int _hours = 0;
   int _minutes = 0;
   final _distanceController = TextEditingController();
+  final _mountainSearchController = TextEditingController();
+  final _mountainSearchFocus = FocusNode();
+  String _mountainQuery = '';
   final List<XFile> _photos = [];
 
   @override
   void dispose() {
     _distanceController.dispose();
+    _mountainSearchController.dispose();
+    _mountainSearchFocus.dispose();
     super.dispose();
   }
 
@@ -88,19 +93,80 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
           children: [
             Text(l.selectMountain, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),
             const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: mountains.map((m) => ChoiceChip(
-                label: Text('${m.emoji} ${m.name}'),
-                selected: _selectedMountain?.id == m.id,
-                onSelected: (v) => setState(() => _selectedMountain = v ? m : null),
-                selectedColor: AppTheme.primary,
-                labelStyle: TextStyle(
-                  color: _selectedMountain?.id == m.id ? Colors.white : context.appText,
+            if (_selectedMountain != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppTheme.primary.withAlpha(25),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppTheme.primary.withAlpha(77)),
                 ),
-              )).toList(),
-            ),
+                child: Row(
+                  children: [
+                    Text(_selectedMountain!.emoji, style: const TextStyle(fontSize: 24)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        _selectedMountain!.name,
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => setState(() => _selectedMountain = null),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(color: Colors.black26, shape: BoxShape.circle),
+                        child: const Icon(Icons.close, color: Colors.white, size: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else ...[
+              TextField(
+                controller: _mountainSearchController,
+                focusNode: _mountainSearchFocus,
+                decoration: InputDecoration(
+                  hintText: l.searchHint,
+                  prefixIcon: const Icon(Icons.search, color: AppTheme.primary),
+                  filled: true,
+                  fillColor: context.appSurface,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                ),
+                onChanged: (v) => setState(() => _mountainQuery = v),
+              ),
+              if (_mountainQuery.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Builder(builder: (_) {
+                  final query = _mountainQuery.toLowerCase();
+                  final filtered = mountains
+                      .where((m) => m.name.toLowerCase().contains(query) || m.location.toLowerCase().contains(query))
+                      .take(10)
+                      .toList();
+                  if (filtered.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text(l.noSearchResults, style: TextStyle(color: context.appTextSub)),
+                    );
+                  }
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: filtered.map((m) => ChoiceChip(
+                      label: Text('${m.emoji} ${m.name}'),
+                      selected: false,
+                      onSelected: (_) => setState(() {
+                        _selectedMountain = m;
+                        _mountainSearchController.clear();
+                        _mountainQuery = '';
+                      }),
+                      selectedColor: AppTheme.primary,
+                      labelStyle: TextStyle(color: context.appText),
+                    )).toList(),
+                  );
+                }),
+              ],
+            ],
 
             const SizedBox(height: 24),
             Text(l.selectDate, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),

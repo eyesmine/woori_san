@@ -13,15 +13,36 @@ class StampRepository {
 
   Future<void> saveAll(List<Stamp> stamps) async {
     await _local.saveAll(stamps);
-    // 서버 동기화
+  }
+
+  /// POST /api/stamps/ — 도장 찍기
+  Future<void> createStamp(Map<String, dynamic> data) async {
     if (_remote != null) {
       try {
-        for (final stamp in stamps) {
-          await _remote.updateStamp(stamp);
-        }
+        await _remote.createStamp(data);
       } catch (e) {
-        debugPrint('StampRepository.saveAll sync error: $e');
+        debugPrint('StampRepository.createStamp error: $e');
+        rethrow;
       }
     }
+  }
+
+  /// 서버에서 내 도장 목록 동기화
+  Future<List<Stamp>> syncFromRemote() async {
+    if (_remote == null) return getAll();
+    try {
+      final remote = await _remote.getStamps();
+      await _local.saveAll(remote);
+      return remote;
+    } catch (e) {
+      debugPrint('StampRepository.syncFromRemote error: $e');
+      return getAll();
+    }
+  }
+
+  /// GET /api/stamps/progress/
+  Future<Map<String, dynamic>> getProgress() async {
+    if (_remote == null) return {};
+    return await _remote.getProgress();
   }
 }

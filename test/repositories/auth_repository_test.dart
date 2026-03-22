@@ -15,28 +15,23 @@ class FakeAuthRemoteDataSource implements AuthRemoteDataSource {
   @override
   Future<Map<String, dynamic>> login(String email, String password) async {
     if (shouldFail) throw Exception('Login failed');
+    // 백엔드는 access/refresh만 반환
+    profileUser = User(id: '1', email: email, nickname: '테스터');
     return {
-      'accessToken': 'fake_access_token',
-      'refreshToken': 'fake_refresh_token',
-      'user': {
-        'id': '1',
-        'email': email,
-        'nickname': '테스터',
-      },
+      'access': 'fake_access_token',
+      'refresh': 'fake_refresh_token',
     };
   }
 
   @override
-  Future<Map<String, dynamic>> signup(String email, String password, String nickname) async {
+  Future<Map<String, dynamic>> signup(String email, String password, String nickname, {String? username}) async {
     if (shouldFail) throw Exception('Signup failed');
+    // 백엔드는 user info만 반환 (토큰 없음)
+    profileUser = User(id: '2', email: email, nickname: nickname);
     return {
-      'accessToken': 'fake_access_token',
-      'refreshToken': 'fake_refresh_token',
-      'user': {
-        'id': '2',
-        'email': email,
-        'nickname': nickname,
-      },
+      'email': email,
+      'username': username ?? email.split('@').first,
+      'nickname': nickname,
     };
   }
 
@@ -53,9 +48,24 @@ class FakeAuthRemoteDataSource implements AuthRemoteDataSource {
       id: '1',
       email: 'test@test.com',
       nickname: data['nickname'] ?? '테스터',
-      profileImageUrl: data['profileImageUrl'],
+      profileImageUrl: data['profile_image'],
     );
     return updatedUser!;
+  }
+
+  @override
+  Future<void> logout(String refreshToken) async {
+    if (shouldFail) throw Exception('Logout failed');
+  }
+
+  @override
+  Future<void> registerPartner(String partnerId) async {
+    if (shouldFail) throw Exception('Partner register failed');
+  }
+
+  @override
+  Future<void> removePartner() async {
+    if (shouldFail) throw Exception('Partner remove failed');
   }
 }
 
@@ -83,6 +93,9 @@ class FakeApiClient implements ApiClient {
 
   @override
   Future<bool> hasToken() async => _hasToken;
+
+  @override
+  Future<String?> getRefreshToken() async => _refreshToken;
 }
 
 void main() {

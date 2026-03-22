@@ -6,8 +6,15 @@ import '../providers/stamp_provider.dart';
 import '../widgets/stamp_tile.dart';
 import '../widgets/empty_state.dart';
 
-class StampScreen extends StatelessWidget {
+class StampScreen extends StatefulWidget {
   const StampScreen({super.key});
+
+  @override
+  State<StampScreen> createState() => _StampScreenState();
+}
+
+class _StampScreenState extends State<StampScreen> {
+  String _searchQuery = '';
 
   @override
   Widget build(BuildContext context) {
@@ -25,54 +32,106 @@ class StampScreen extends StatelessWidget {
             );
           }
           final togetherList = state.togetherStamps;
-          return ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              _ProgressHeader(
-                total: state.stamps.length,
-                stamped: state.totalStamped,
-                together: state.togetherStamped,
-              ),
-              const SizedBox(height: 24),
+          final filtered = _searchQuery.isEmpty
+              ? state.stamps
+              : state.stamps.where((s) => s.name.contains(_searchQuery) || s.region.contains(_searchQuery)).toList();
 
-              if (togetherList.isNotEmpty) ...[
-                Row(children: [
-                  Text('💑 ${l.togetherMountains}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.appText)),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(color: AppTheme.accent.withAlpha(38), borderRadius: BorderRadius.circular(8)),
-                    child: Text('${togetherList.length}개', style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700, fontSize: 12)),
-                  ),
-                ]),
-                const SizedBox(height: 12),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 10, mainAxisSpacing: 10, childAspectRatio: 0.85),
-                  itemCount: togetherList.length,
-                  itemBuilder: (context, index) => StampTile(
-                    mountain: togetherList[index],
-                    globalIndex: state.stamps.indexOf(togetherList[index]),
+          const gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 0.85,
+          );
+
+          return CustomScrollView(
+            slivers: [
+              // Progress header
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  child: _ProgressHeader(
+                    total: state.stamps.length,
+                    stamped: state.totalStamped,
+                    together: state.togetherStamped,
                   ),
                 ),
-                const SizedBox(height: 28),
+              ),
+
+              // Search field
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: l.searchHint,
+                      hintStyle: TextStyle(color: context.appTextSub, fontSize: 14),
+                      prefixIcon: Icon(Icons.search, color: context.appTextSub, size: 20),
+                      filled: true,
+                      fillColor: context.appSurface,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    style: TextStyle(fontSize: 14, color: context.appText),
+                    onChanged: (v) => setState(() => _searchQuery = v.trim()),
+                  ),
+                ),
+              ),
+
+              // Together section (only when no search query)
+              if (togetherList.isNotEmpty && _searchQuery.isEmpty) ...[
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                    child: Row(children: [
+                      Text('💑 ${l.togetherMountains}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.appText)),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(color: AppTheme.accent.withAlpha(38), borderRadius: BorderRadius.circular(8)),
+                        child: Text('${togetherList.length}개', style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700, fontSize: 12)),
+                      ),
+                    ]),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  sliver: SliverGrid(
+                    gridDelegate: gridDelegate,
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => StampTile(
+                        mountain: togetherList[index],
+                        globalIndex: state.stamps.indexOf(togetherList[index]),
+                      ),
+                      childCount: togetherList.length,
+                    ),
+                  ),
+                ),
               ],
 
-              Row(children: [
-                Text(l.allMountains, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.appText)),
-                const SizedBox(width: 8),
-                Text('${state.totalStamped} / ${state.stamps.length}', style: TextStyle(color: context.appTextSub, fontSize: 14)),
-              ]),
-              const SizedBox(height: 12),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 10, mainAxisSpacing: 10, childAspectRatio: 0.85),
-                itemCount: state.stamps.length,
-                itemBuilder: (context, index) => StampTile(
-                  mountain: state.stamps[index],
-                  globalIndex: index,
+              // All mountains title + count
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 28, 20, 12),
+                  child: Row(children: [
+                    Text(l.allMountains, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: context.appText)),
+                    const SizedBox(width: 8),
+                    Text('${state.totalStamped} / ${state.stamps.length}', style: TextStyle(color: context.appTextSub, fontSize: 14)),
+                  ]),
+                ),
+              ),
+
+              // All stamps (lazy loaded via SliverGrid)
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                sliver: SliverGrid(
+                  gridDelegate: gridDelegate,
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => StampTile(
+                      mountain: filtered[index],
+                      globalIndex: state.stamps.indexOf(filtered[index]),
+                    ),
+                    childCount: filtered.length,
+                  ),
                 ),
               ),
             ],

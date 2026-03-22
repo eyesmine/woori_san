@@ -31,6 +31,15 @@ import 'providers/weather_provider.dart';
 import 'providers/location_provider.dart';
 import 'providers/tracking_provider.dart';
 import 'providers/settings_provider.dart';
+import 'providers/favorite_provider.dart';
+import 'providers/statistics_provider.dart';
+import 'providers/review_provider.dart';
+import 'providers/badge_provider.dart';
+import 'datasources/remote/review_remote.dart';
+import 'datasources/local/review_local.dart';
+import 'repositories/review_repository.dart';
+import 'datasources/local/favorite_local.dart';
+import 'datasources/local/badge_local.dart';
 import 'services/location_service.dart';
 import 'services/notification_service.dart';
 import 'package:go_router/go_router.dart';
@@ -49,14 +58,14 @@ void main() async {
   // 환경 변수 로드 (.env.example 에셋에서 로드)
   try {
     await dotenv.load(fileName: '.env.example');
-  } catch (_) {
-    debugPrint('.env.example 파일을 찾을 수 없습니다 — 기본값을 사용합니다.');
+  } catch (e) {
+    debugPrint('.env.example 파일을 찾을 수 없습니다 — 기본값을 사용합니다: $e');
   }
 
   // 한국어 로케일 초기화
   await initializeDateFormatting('ko_KR');
 
-  // Hive 초기화
+  // Hive 초기화 (Box 열기 실패 시 앱 실행 불가 → 크래시 허용)
   await Hive.initFlutter();
   await Future.wait([
     Hive.openBox(AppConstants.cacheBox),
@@ -64,20 +73,26 @@ void main() async {
     Hive.openBox(AppConstants.planBox),
     Hive.openBox(AppConstants.weatherBox),
     Hive.openBox(AppConstants.settingsBox),
+    Hive.openBox(AppConstants.favoriteBox),
+    Hive.openBox(AppConstants.reviewBox),
+    Hive.openBox(AppConstants.badgeBox),
   ]);
 
   // Firebase 초기화 (google-services.json 없으면 스킵)
   try {
     await Firebase.initializeApp();
-  } catch (_) {
-    debugPrint('Firebase 초기화 실패 — google-services.json / GoogleService-Info.plist 설정을 확인하세요.');
+  } catch (e) {
+    debugPrint('Firebase 초기화 실패 — google-services.json / GoogleService-Info.plist 설정을 확인하세요: $e');
   }
 
   // Naver Map 초기화 (Client ID 미설정이면 스킵)
-  try {
-    await FlutterNaverMap().init(clientId: AppConstants.naverMapClientId);
-  } catch (_) {
-    debugPrint('Naver Map 초기화 실패 — Client ID 설정을 확인하세요.');
+  final naverKey = AppConstants.naverMapClientId;
+  if (naverKey.isNotEmpty && naverKey != 'YOUR_NAVER_MAP_CLIENT_ID') {
+    try {
+      await FlutterNaverMap().init(clientId: naverKey);
+    } catch (e) {
+      debugPrint('Naver Map 초기화 실패 — Client ID 설정을 확인하세요: $e');
+    }
   }
 
   // ApiClient (싱글턴)
@@ -95,6 +110,11 @@ void main() async {
   final stampLocal = StampLocalDataSource();
   final planLocal = PlanLocalDataSource();
   final weatherLocal = WeatherLocalDataSource();
+  final favoriteLocal = FavoriteLocalDataSource();
+  final reviewRemote = ReviewRemoteDataSource(apiClient);
+  final reviewLocal = ReviewLocalDataSource();
+  final reviewRepo = ReviewRepository(reviewLocal, reviewRemote);
+  final badgeLocal = BadgeLocalDataSource();
 
   // Repositories
   final authRepo = AuthRepository(authRemote, apiClient);
@@ -123,6 +143,10 @@ void main() async {
         ChangeNotifierProvider(create: (_) => LocationProvider(locationService)),
         ChangeNotifierProvider(create: (_) => TrackingProvider(locationService)),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => FavoriteProvider(favoriteLocal)),
+        ChangeNotifierProvider(create: (_) => StatisticsProvider(planRepo)),
+        ChangeNotifierProvider(create: (_) => ReviewProvider(reviewRepo)),
+        ChangeNotifierProvider(create: (_) => BadgeProvider()),
       ],
       child: WooriSanApp(router: router),
     ),

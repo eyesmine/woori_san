@@ -68,6 +68,32 @@ void main() {
       expect(restored.iconCode, original.iconCode);
       expect(restored.forecastDate, original.forecastDate);
     });
+
+    test('toJson/fromJson preserves sunrise and sunset', () {
+      final original = Weather(
+        temperature: 15.0,
+        condition: 'Clear',
+        description: '맑음',
+        windSpeed: 3.0,
+        humidity: 50,
+        iconCode: '01d',
+        forecastDate: DateTime(2025, 3, 15),
+        sunrise: DateTime(2025, 3, 15, 6, 30),
+        sunset: DateTime(2025, 3, 15, 18, 45),
+      );
+      final restored = Weather.fromJson(original.toJson());
+
+      expect(restored.sunrise, original.sunrise);
+      expect(restored.sunset, original.sunset);
+    });
+
+    test('fromJson handles null sunrise/sunset', () {
+      final weather = _makeWeather();
+      final restored = Weather.fromJson(weather.toJson());
+
+      expect(restored.sunrise, isNull);
+      expect(restored.sunset, isNull);
+    });
   });
 }
 
@@ -85,5 +111,9 @@ Weather _makeWeather({
     humidity: humidity,
     iconCode: '01d',
     forecastDate: DateTime(2025, 3, 15),
+    feelsLike: temperature - 1,
+    pressure: 1013,
+    windDeg: 180,
+    visibility: 10000,
   );
 }

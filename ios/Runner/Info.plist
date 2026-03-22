@@ -64,7 +64,7 @@
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>등산 경로를 기록하기 위해 백그라운드 위치 정보가 필요합니다.</string>
 	<key>NMFClientId</key>
-	<string>YOUR_NAVER_MAP_CLIENT_ID</string>
+	<string>hgou7b9qvd</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

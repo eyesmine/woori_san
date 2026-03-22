@@ -5,22 +5,24 @@
 ## 주요 기능
 
 ### 홈
-- 이번 주 추천 등산 코스 (난이도, 소요시간 등)
-- 날씨 카드 (실시간 GPS 기반 날씨, 조건별 동적 메시지)
+- 이번 주 추천 등산 코스 (사용자 GPS 위치 기반 백엔드 추천 API 연동)
+- 날씨 카드 (실시간 GPS 기반 날씨, 조건별 동적 메시지, 일출/일몰 시간)
 - 함께한 산행 통계 (산행 횟수, 총 거리, 획득 도장)
-- 최근 산행 기록 + 기록 추가 버튼
-- Pull-to-refresh 지원
+- 최근 산행 기록 → 탭하면 기록 상세 화면 (고도 프로필, 경로 지도)
+- Pull-to-refresh 지원 (위치 기반 추천 + 날씨 새로고침)
 - 로딩/에러/빈 상태 UI
 - 검색 / 프로필 바로가기
 
 ### 산 상세
 - 산 정보 (고도, 난이도, 코스 거리/시간, 위치 좌표)
 - 코스 정보 카드
+- 즐겨찾기 하트 아이콘 (우상단)
+- 리뷰 섹션 (최근 3개 미리보기 + 전체보기)
 - "등산 시작" 버튼 → 실시간 추적 화면 연결
 - 잘못된 산 ID 접근 시 에러 화면
 
 ### 검색
-- 산 이름 / 지역 검색
+- 산 이름 / 지역 검색 (100대 명산 전체 대상)
 - 난이도 필터 (초급 / 중급 / 상급)
 - 지역 필터 (산 데이터에서 동적 추출)
 
@@ -28,59 +30,100 @@
 - 등산 계획 추가 (산 선택 + 날짜)
 - 계획 상태 토글 (확정 / 조율 중) — 탭으로 전환
 - 스와이프로 계획 삭제
-- 준비물 체크리스트
+- 준비물 체크리스트 (항목 추가/삭제 가능, 스와이프 삭제)
 
 ### 도장 컬렉션
-- 명산 도전 진행률
+- 100대 명산 도전 진행률
 - 혼자 도장 / 함께 도장 구분
 - 함께 오른 산 별도 표시
-- 정상 도착 시 GPS 인증 자동 도장
+- 정상 도착 시 GPS 인증 자동 도장 (`POST /api/stamps/` → 서버 100m 검증)
+- 서버 실패 시 로컬 fallback 저장
+- 함께 찍은 도장 / 100대 명산 진행률 API 연동
 - 빈 상태 UI
 
 ### 지도
-- 네이버 지도 기반 산 위치 표시
+- 네이버 지도 기반 산 위치 표시 (100개 마커)
 - 마커 탭으로 산 상세 정보 확인 → 상세 화면 이동
 - 현재 위치 이동
 
 ### 실시간 등산 추적
 - 네이티브: NaverMap 실시간 경로 폴리라인 + 산 마커 (웹: 그라데이션 폴백)
-- GPS 기반 경로 추적 (위치 포인트 기록)
+- GPS 기반 경로 추적 (위치 + 고도 포인트 기록)
 - 경과 시간, 거리, 속도 실시간 표시
 - 일시정지 / 재개 / 종료
-- 정상 도착 자동 감지 → 도장 자동 부여 (Provider 레벨 중복 방지)
-- 종료 시 HikingRecord 자동 생성
+- 긴급 SOS 버튼 (AppBar, 비상연락처로 현재 위치 SMS 전송)
+- 정상 도착 자동 감지 → 서버 도장 API 호출 (GPS 검증) → 실패 시 로컬 fallback
+- 종료 시 HikingRecord 자동 생성 (고도 데이터 포함)
 - 위치 권한 거부 시 에러 화면
+
+### 기록 상세
+- 산 이름, 날짜, 거리, 소요 시간, 누적 상승 표시
+- 고도 프로필 그래프 (fl_chart LineChart, 최고/최저 고도 표시)
+- 경로 지도 (NaverMap 폴리라인 + 출발/도착 마커)
+- SNS 공유 버튼 (기록 이미지 생성 → 공유)
 
 ### 기록 추가
 - 수동 산행 기록 입력 (산 선택, 날짜, 시간, 거리)
-- 사진 첨부 (갤러리에서 다중 선택, 미리보기, 삭제)
+- 사진 첨부 (갤러리에서 다중 선택, 미리보기, 삭제, 10MB 제한)
 - 소요 시간 / 거리 입력 검증
-- 키보드 자동 해제
 - 기존 기록 목록에 즉시 반영
+
+### 통계 대시보드
+- 총 등산 횟수, 누적 거리, 평균 소요 시간 요약 카드
+- 월별 등산 횟수 막대 차트 (fl_chart BarChart)
+- 누적 거리 꺾은선 차트 (fl_chart LineChart)
+- 연도별 필터 (ChoiceChip)
+
+### 배지/업적
+- 12종 배지 (첫 등산, 5/10/50회, 50/100km, 3/5지역, 10/50도장, 사계절, 얼리버드)
+- 획득/미획득 그리드 표시 (2열)
+- 배지 탭 → 상세 설명 바텀시트
+- 등산 기록/도장 변경 시 자동 평가
+
+### 즐겨찾기
+- 산 상세 화면에서 하트 아이콘으로 즐겨찾기 토글
+- 즐겨찾기 목록 화면 (프로필에서 접근)
+
+### 파트너
+- 파트너 등록/해제 (백엔드 API 연동)
+- 파트너 정보 카드 표시
+- 확인 다이얼로그로 안전한 해제
+
+### 산 리뷰
+- 산별 리뷰 목록 (별점, 내용, 사진, 작성일)
+- 리뷰 작성 (별점 선택 + 텍스트 500자)
+- 본인 리뷰 삭제 (확인 다이얼로그)
+- Pull-to-refresh 지원
+
+### 긴급 SOS
+- 비상 연락처 설정 (이름, 전화번호)
+- 등산 중 SOS 버튼 → 현재 GPS 좌표를 SMS로 전송
+- Google Maps 링크 포함
+
+### 오프라인 지도
+- 산별 지도 미리 불러오기 (SDK 캐시 워밍)
+- 캐시 상태 표시 및 삭제
 
 ### 프로필 / 설정
 - 사용자 정보 (닉네임, 이메일, 가입일)
-- 프로필 사진 변경 (갤러리/카메라 선택)
+- 프로필 사진 변경 (갤러리/카메라, 10MB 제한)
 - 산행 통계 요약
-- 프로필 편집 (닉네임 변경)
-- 다크 모드 토글 (수동 전환, Hive 영속화)
-- 알림 설정 토글 (Hive 영속화, FCM 토픽 구독/해제 연동)
-- 언어 전환 (한국어/English, Hive 영속화)
-- 로그아웃
+- 설정 타일: 통계, 배지, 즐겨찾기, 파트너, 알림, 다크 모드, 언어, 오프라인 지도, 비상 연락처, 앱 정보
+- 로그아웃 (확인 다이얼로그)
 
 ### 인증
-- 이메일/비밀번호 로그인, 회원가입
+- 이메일/비밀번호 로그인, 회원가입 (username 자동 생성)
 - 이메일 정규식 검증
+- 로그인 흐름: `POST /auth/login/` → JWT 발급 → `GET /auth/me/` 프로필 조회
 - JWT 토큰 자동 갱신 (QueuedInterceptorsWrapper)
-- 토큰 응답 null 안전 검증
+- 429 Rate Limit 처리 (RateLimitException → 안내 메시지)
 - GoRouter 기반 인증 리다이렉트
-- 화면 전환 시 에러 메시지 자동 초기화
 
 ### 알림
 - Firebase Cloud Messaging 푸시 알림
 - 포그라운드: flutter_local_notifications로 표시
-- 알림 탭 시 GoRouter 기반 화면 이동 (라우트 유효성 검증)
-- 토픽 구독/해제 (weather_alerts, hiking_tips) — 프로필 설정과 연동
+- 알림 탭 시 GoRouter 기반 화면 이동
+- 토픽 구독/해제 (weather_alerts, hiking_tips)
 
 ---
 
@@ -89,18 +132,21 @@
 | 분류 | 라이브러리 | 용도 |
 |------|-----------|------|
 | 프레임워크 | `Flutter 3.x` | UI 렌더링 |
-| 상태관리 | `Provider 6.x` | 전역 상태 관리 (8개 Provider) |
+| 상태관리 | `Provider 6.x` | 전역 상태 관리 (12개 Provider) |
 | 라우팅 | `go_router 14.x` | 선언적 라우팅, 인증 리다이렉트, StatefulShellRoute |
 | HTTP 통신 | `Dio 5.x` | REST API 호출, JWT 인터셉터, 토큰 자동 갱신 |
 | 지도 | `flutter_naver_map` | 지도 렌더링, 마커, 경로 폴리라인 |
 | GPS | `geolocator 13.x` | 위치 추적, 정상 인증 |
-| 로컬 DB | `Hive 2.x` | 오프라인 캐싱, 도장 기록, 앱 설정 영속화 |
+| 로컬 DB | `Hive 2.x` | 오프라인 캐싱, 도장/즐겨찾기/배지/설정 영속화 |
+| 차트 | `fl_chart` | 통계 막대/꺾은선 차트, 고도 프로필 그래프 |
 | 이미지 | `cached_network_image` | 산 썸네일 캐싱 |
-| 사진 | `image_picker` | 갤러리/카메라 이미지 선택, 프로필/기록 사진 첨부 |
+| 사진 | `image_picker` | 갤러리/카메라 이미지 선택, 10MB 제한 |
 | 알림 | `firebase_messaging` + `flutter_local_notifications` | FCM 푸시 + 포그라운드 로컬 알림 |
-| 다국어 | `flutter_localizations` + `intl` + `AppLocalizations` | 한국어/영어 l10n (118키), 모든 Screen/Widget 적용, 날짜 포맷 통일 |
+| 공유 | `share_plus` + `screenshot` | 등산 기록 이미지 생성 → SNS 공유 |
+| SMS | `url_launcher` | 긴급 SOS SMS 발송 |
+| 다국어 | `flutter_localizations` + `intl` + `AppLocalizations` | 한국어/영어 l10n (~190키) |
 | 환경 변수 | `flutter_dotenv` | `.env.example` 파일에서 API 키 로드 |
-| 보안 저장소 | `flutter_secure_storage` | JWT 토큰 암호화 저장 (Keychain / EncryptedSharedPreferences) |
+| 보안 저장소 | `flutter_secure_storage` | JWT 토큰 암호화 저장 |
 | 유틸 | `permission_handler` | 권한 관리 |
 
 ---
@@ -110,33 +156,99 @@
 | 항목 | 전략 |
 |------|------|
 | API 키 | `.env.example`에서 로드, CI/CD에서 실제 키 주입 |
-| JWT 토큰 | `flutter_secure_storage`로 암호화 저장 (iOS Keychain, Android EncryptedSharedPreferences) |
-| 토큰 갱신 | `QueuedInterceptorsWrapper`로 401 발생 시 자동 갱신, 갱신 실패 시 토큰 삭제 |
-| API 응답 | 모든 Remote DataSource에서 응답 타입 검증 (`is! List` 가드, 명시적 캐스팅) |
+| JWT 토큰 | `flutter_secure_storage`로 암호화 저장 |
+| 토큰 갱신 | `QueuedInterceptorsWrapper`로 401 발생 시 자동 갱신, 실패 시 토큰 삭제 |
+| Rate Limit | 429 응답 시 `RateLimitException` → 안내 메시지 |
+| 이미지 업로드 | 클라이언트 10MB 제한 체크 |
+| API 응답 | 모든 Remote DataSource에서 응답 타입 검증, DRF pagination 대응 |
+| 에러 응답 | 구조화된 에러 포맷 파싱, 레거시 포맷 fallback |
 
 ---
 
-### 에러 처리 전략
+### 백엔드 API 연동
 
-모든 레이어에서 일관된 에러 처리를 적용합니다.
+Django REST Framework 기반 백엔드와 연동합니다. Base URL: `http://localhost:8000/api`
 
-| 레이어 | 전략 | 세부 사항 |
-|--------|------|-----------|
-| DataSource | 예외 발생 | `DioException` → 커스텀 `AppException` 변환, 응답 타입 검증 |
-| Repository | `debugPrint` + 폴백 | 원격 실패 시 로컬 캐시/기본값으로 폴백, 동기화 실패 로깅 |
-| Provider | `isLoading` / `error` 상태 관리 | UI에서 Consumer로 상태별 렌더링 |
-| Screen | 로딩/에러/빈 상태 UI | `CircularProgressIndicator`, `EmptyState`, 에러 메시지 |
-| Service | `debugPrint` + 안전한 실패 | FCM 토큰 등록, 알림 라우팅 실패 시 앱 크래시 방지 |
+**인증 `/api/auth/`**
 
-**커스텀 예외 클래스**
+| Method | Endpoint | 설명 | Flutter 호출 |
+|--------|----------|------|-------------|
+| POST | `/api/auth/register/` | 회원가입 | `AuthRemoteDataSource.signup()` |
+| POST | `/api/auth/login/` | 로그인 → JWT 발급 | `AuthRemoteDataSource.login()` |
+| POST | `/api/auth/refresh/` | Access Token 갱신 | `ApiClient._refreshToken()` |
+| POST | `/api/auth/logout/` | 로그아웃 (Refresh Token 블랙리스트) | `AuthRemoteDataSource.logout()` |
+| GET | `/api/auth/me/` | 내 프로필 조회 (partner_id, partner_nickname 포함) | `AuthRemoteDataSource.getProfile()` |
+| PATCH | `/api/auth/me/` | 프로필 수정 | `AuthRemoteDataSource.updateProfile()` |
+| POST | `/api/auth/partner/` | 파트너 등록 | `AuthRemoteDataSource.registerPartner()` |
+| DELETE | `/api/auth/partner/` | 파트너 해제 | `AuthRemoteDataSource.removePartner()` |
 
-| 예외 | 용도 |
-|------|------|
-| `AppException` | 기본 예외 (message + statusCode) |
-| `AuthException` | 인증 실패 (토큰 없음, 만료 등) |
-| `NetworkException` | 네트워크 연결 실패 |
-| `ServerException` | 서버 오류 (4xx/5xx) |
-| `CacheException` | 로컬 캐시 읽기 실패 |
+**산 & 코스 `/api/mountains/`**
+
+| Method | Endpoint | 설명 | Flutter 호출 |
+|--------|----------|------|-------------|
+| GET | `/api/mountains/` | 산 목록 (필터: region, difficulty, min_height, max_height) | `MountainRemoteDataSource.getMountains()` |
+| GET | `/api/mountains/{id}/` | 산 상세 | `MountainRemoteDataSource.getDetail()` |
+| GET | `/api/mountains/recommend/?lat=&lng=` | 위치 기반 추천 (계절/미방문 산 고려) | `MountainRemoteDataSource.getRecommended()` |
+| GET | `/api/mountains/{id}/courses/` | 코스 목록 | `MountainRemoteDataSource.getCourses()` |
+
+**리뷰 `/api/mountains/{id}/reviews/`**
+
+| Method | Endpoint | 설명 | Flutter 호출 |
+|--------|----------|------|-------------|
+| GET | `/api/mountains/{id}/reviews/` | 리뷰 목록 (DRF pagination) | `ReviewRemoteDataSource.getReviews()` |
+| POST | `/api/mountains/{id}/reviews/` | 리뷰 작성 (content, rating, photo_urls) | `ReviewRemoteDataSource.createReview()` |
+| DELETE | `/api/reviews/{id}/` | 리뷰 삭제 (본인만) | `ReviewRemoteDataSource.deleteReview()` |
+
+**등산 계획 `/api/plans/`**
+
+| Method | Endpoint | 설명 | Flutter 호출 |
+|--------|----------|------|-------------|
+| GET | `/api/plans/` | 내 계획 목록 | `PlanRemoteDataSource.getPlans()` |
+| POST | `/api/plans/` | 계획 생성 | `PlanRemoteDataSource.createPlan()` |
+| GET | `/api/plans/{id}/` | 계획 상세 | `PlanRemoteDataSource.getPlan()` |
+| PUT | `/api/plans/{id}/` | 계획 수정 | `PlanRemoteDataSource.updatePlan()` |
+| DELETE | `/api/plans/{id}/` | 계획 삭제 (Soft Delete) | `PlanRemoteDataSource.deletePlan()` |
+| POST | `/api/plans/{id}/invite/` | 파트너 초대 | `PlanRemoteDataSource.invitePartner()` |
+| PATCH | `/api/plans/{id}/status/` | 상태 변경 | `PlanRemoteDataSource.updateStatus()` |
+| GET | `/api/plans/{id}/checklist/` | 체크리스트 조회 | `PlanRemoteDataSource.getChecklist()` |
+| POST | `/api/plans/{id}/checklist/` | 체크리스트 항목 추가 | `PlanRemoteDataSource.addChecklistItem()` |
+| PATCH | `/api/plans/{id}/checklist/{item_id}/` | 체크 항목 토글 | `PlanRemoteDataSource.toggleChecklistItem()` |
+
+**도장 `/api/stamps/`**
+
+| Method | Endpoint | 설명 | Flutter 호출 |
+|--------|----------|------|-------------|
+| GET | `/api/stamps/` | 내 도장 전체 목록 | `StampRemoteDataSource.getStamps()` |
+| POST | `/api/stamps/` | 도장 찍기 (GPS 100m 이내 검증, Soft Delete) | `StampRemoteDataSource.createStamp()` |
+| GET | `/api/stamps/together/` | 함께 찍은 도장 | `StampRemoteDataSource.getTogetherStamps()` |
+| GET | `/api/stamps/progress/` | 100대 명산 진행률 | `StampRemoteDataSource.getProgress()` |
+
+**백엔드 ↔ Flutter 필드 매핑**
+
+| 모델 | 백엔드 필드 | Flutter 필드 | 비고 |
+|------|-----------|-------------|------|
+| **JWT** | `access`, `refresh` | `accessToken`, `refreshToken` | 로그인/갱신 응답 |
+| **User** | `profile_image`, `created_at`, `partner_id`, `partner_nickname` | `profileImageUrl`, `createdAt`, `partnerId`, `partnerNickname` | |
+| **Mountain** | `region`, `lat`/`lng`, `thumbnail`, `easy`/`mid`/`hard` | `location`, `latitude`/`longitude`, `imageUrl`, `초급`/`중급`/`상급` | |
+| **HikingPlan** | `planned_at`, `mountain` (int), `mountain_name` | `date`, `mountainId`, `mountain` | `status`: `pending`/`confirmed`/`done` |
+| **Stamp** | `mountain_name`, `stamped_at`, `is_together` | `name`, `stampDate`, `isTogetherStamped` | `stamped_at` 존재 → `isStamped: true` |
+| **Review** | `mountain_id`, `user_id`, `user_nickname`, `profile_image`, `photo_urls`, `created_at` | `mountainId`, `userId`, `userNickname`, `userProfileImageUrl`, `photoUrls`, `createdAt` | |
+| **Weather** | OpenWeatherMap `sys.sunrise`/`sys.sunset` | `sunrise`, `sunset` (DateTime) | Unix timestamp → DateTime |
+| **에러 응답** | `{"error": {"code", "message", "details"}}` | `AppException` 계열 | 레거시 포맷 호환 |
+
+---
+
+### 커스텀 예외 클래스
+
+| 예외 | 필드 | 용도 |
+|------|------|------|
+| `AppException` | `message`, `statusCode`, `code` | 기본 예외 |
+| `AuthException` | + `code` | 인증 실패 |
+| `ValidationException` | + `fieldErrors`, `firstFieldError` | 필드별 유효성 검증 에러 |
+| `ServerException` | + `code` | 서버 오류 |
+| `NetworkException` | - | 네트워크 연결 실패 |
+| `CacheException` | - | 로컬 캐시 읽기 실패 |
+| `RateLimitException` | - | 429 Rate Limit 초과 |
 
 ---
 
@@ -144,92 +256,118 @@
 
 ```
 lib/
-├── main.dart                          # 앱 진입점, dotenv 로드, Provider 등록, 동적 테마/로케일
+├── main.dart                          # 앱 진입점, 12개 Provider 등록
 │
 ├── core/
-│   ├── api_client.dart                # Dio + FlutterSecureStorage, JWT 인터셉터, 토큰 갱신
-│   ├── constants.dart                 # dotenv 기반 설정 로드, Hive box 이름, Cache TTL
-│   └── exceptions.dart                # 커스텀 에러 클래스 (Auth/Network/Server/Cache)
+│   ├── api_client.dart                # Dio, JWT 인터셉터, 429 Rate Limit 처리
+│   ├── constants.dart                 # dotenv 설정, Hive box 이름 (8개), Cache TTL
+│   └── exceptions.dart                # 7개 커스텀 에러 클래스
 │
 ├── router/
-│   └── app_router.dart                # GoRouter 설정, 인증 리다이렉트, ShellScaffold, 안전한 파라미터 처리
+│   └── app_router.dart                # GoRouter (22개 라우트), 인증 리다이렉트
 │
-├── models/                            # Domain 모델
-│   ├── mountain.dart                  # 산 정보 + Difficulty enum + 좌표
+├── models/
+│   ├── mountain.dart                  # 산 정보 + Difficulty enum + 100대 명산 데이터
 │   ├── hiking_plan.dart               # 등산 계획 + 체크리스트
-│   ├── hiking_record.dart             # 산행 기록 (GPS 경로, 사진, 고도 포함)
-│   ├── stamp.dart                     # 도장 기록
-│   ├── user.dart                      # 유저 정보
-│   └── weather.dart                   # 날씨 데이터
+│   ├── hiking_record.dart             # 산행 기록 (GPS 경로, 고도, 사진)
+│   ├── stamp.dart                     # 도장 기록 + 100대 명산 스탬프 데이터
+│   ├── user.dart                      # 유저 정보 (파트너 필드 포함)
+│   ├── weather.dart                   # 날씨 데이터 (일출/일몰 포함)
+│   ├── review.dart                    # 산 리뷰
+│   └── badge.dart                     # 배지/업적 (12종 정의)
 │
-├── repositories/                      # Data Layer — 서버/로컬 추상화, 동기화 실패 로깅
-│   ├── auth_repository.dart           # 로그인, 가입, 프로필 업데이트, 토큰 검증
-│   ├── mountain_repository.dart       # 산 목록 (캐시 → 원격 → 기본값 폴백)
+├── repositories/
+│   ├── auth_repository.dart           # 인증 + 파트너 관리
+│   ├── mountain_repository.dart       # 산 목록 (위치 기반 추천)
 │   ├── plan_repository.dart           # 계획/체크리스트/기록 CRUD
-│   ├── stamp_repository.dart          # 도장 저장/조회
-│   └── weather_repository.dart        # 날씨 캐시 → 원격 폴백
+│   ├── stamp_repository.dart          # 도장 생성(GPS), 서버 동기화
+│   ├── weather_repository.dart        # 날씨 캐시 → 원격 폴백
+│   └── review_repository.dart         # 리뷰 CRUD (캐시 지원)
 │
 ├── datasources/
-│   ├── remote/                        # REST API 호출 (응답 타입 검증 포함)
-│   │   ├── auth_remote.dart           # 인증 + 프로필 업데이트
+│   ├── remote/                        # REST API 호출
+│   │   ├── auth_remote.dart
 │   │   ├── mountain_remote.dart
 │   │   ├── plan_remote.dart
 │   │   ├── stamp_remote.dart
-│   │   └── weather_remote.dart        # OpenWeatherMap API
+│   │   ├── weather_remote.dart
+│   │   └── review_remote.dart
 │   └── local/                         # Hive 로컬 캐시
-│       ├── mountain_local.dart        # 24시간 TTL
+│       ├── mountain_local.dart
 │       ├── plan_local.dart
 │       ├── stamp_local.dart
-│       └── weather_local.dart         # 3시간 TTL
+│       ├── weather_local.dart
+│       ├── favorite_local.dart
+│       ├── review_local.dart
+│       └── badge_local.dart
 │
-├── providers/                         # 상태관리 (ChangeNotifier) — isLoading/error 패턴
-│   ├── auth_provider.dart             # 로그인, 가입, 프로필 업데이트
-│   ├── mountain_provider.dart         # 추천 코스, 산행 기록, 검색, 로딩/에러 상태
-│   ├── plan_provider.dart             # 계획, 체크리스트, 상태 토글
-│   ├── stamp_provider.dart            # 도장 현황, 범위 검사
-│   ├── weather_provider.dart          # 날씨 데이터, 로딩/에러 상태
-│   ├── settings_provider.dart         # 다크 모드, 알림 (FCM 연동), 언어 설정 (Hive 영속화)
-│   ├── location_provider.dart         # GPS 위치, 추적 상태, 스트림 중복 방어, 에러 로깅
-│   └── tracking_provider.dart         # 실시간 등산 추적 (경로, 시간, 거리, 정상 감지, 다이얼로그 상태)
+├── providers/                         # 상태관리 (12개 ChangeNotifier)
+│   ├── auth_provider.dart             # 로그인, 가입, 파트너, Rate Limit 처리
+│   ├── mountain_provider.dart         # 추천 코스 (위치 기반), 검색
+│   ├── plan_provider.dart             # 계획, 체크리스트 (추가/삭제)
+│   ├── stamp_provider.dart            # 도장 현황, GPS 도장 생성
+│   ├── weather_provider.dart          # 날씨 데이터
+│   ├── settings_provider.dart         # 다크 모드, 알림, 언어, 비상 연락처
+│   ├── location_provider.dart         # GPS 위치
+│   ├── tracking_provider.dart         # 실시간 등산 추적 (고도 기록)
+│   ├── favorite_provider.dart         # 산 즐겨찾기
+│   ├── statistics_provider.dart       # 통계 계산 (월별/연도별)
+│   ├── review_provider.dart           # 산 리뷰 CRUD
+│   └── badge_provider.dart            # 배지 평가/관리
 │
 ├── services/
-│   ├── location_service.dart          # Geolocator 래퍼, 정상 인증 (isNearSummit)
-│   └── notification_service.dart      # FCM + 로컬 알림, GoRouter 기반 화면 이동
+│   ├── location_service.dart          # Geolocator 래퍼, 정상 인증
+│   ├── notification_service.dart      # FCM + 로컬 알림
+│   ├── sos_service.dart               # 긴급 SOS SMS 발송
+│   └── share_service.dart             # 등산 기록 이미지 공유
 │
-├── screens/
-│   ├── home_screen.dart               # 코스 추천 + 날씨 + 통계 + 기록 + 로딩/에러 상태
-│   ├── plan_screen.dart               # 등산 계획 + 상태 토글 + 체크리스트 + DateFormat
-│   ├── stamp_screen.dart              # 도장 컬렉션 + 빈 상태
-│   ├── map_screen.dart                # 네이버 지도 + 산 마커 + 상세 연결
-│   ├── login_screen.dart              # 로그인 (이메일 정규식, 에러 초기화)
-│   ├── signup_screen.dart             # 회원가입 (이메일 정규식, 에러 초기화)
-│   ├── mountain_detail_screen.dart    # 산 상세 정보 + 등산 시작
-│   ├── profile_screen.dart            # 프로필 사진 변경 + 설정 토글 (다크모드/알림/언어)
-│   ├── record_create_screen.dart      # 수동 기록 추가 + 사진 첨부 (웹/네이티브 분기)
-│   ├── tracking_screen.dart           # NaverMap 실시간 경로 (네이티브) + 폴백 (웹) + Listener 다이얼로그
-│   └── search_screen.dart             # 산 검색 + 난이도/지역 동적 필터
+├── screens/                           # 19개 화면
+│   ├── home_screen.dart               # 추천 코스 + 날씨 + 통계 + 기록
+│   ├── plan_screen.dart               # 등산 계획 + 체크리스트
+│   ├── stamp_screen.dart              # 도장 컬렉션
+│   ├── map_screen.dart                # 네이버 지도 + 100개 마커
+│   ├── login_screen.dart              # 로그인
+│   ├── signup_screen.dart             # 회원가입
+│   ├── mountain_detail_screen.dart    # 산 상세 + 즐겨찾기 + 리뷰
+│   ├── profile_screen.dart            # 프로필 + 11개 설정 타일
+│   ├── record_create_screen.dart      # 수동 기록 추가
+│   ├── record_detail_screen.dart      # 기록 상세 (고도/경로/공유)
+│   ├── tracking_screen.dart           # 실시간 추적 + SOS
+│   ├── search_screen.dart             # 산 검색 + 필터
+│   ├── statistics_screen.dart         # 통계 대시보드 (차트)
+│   ├── favorites_screen.dart          # 즐겨찾기 목록
+│   ├── partner_screen.dart            # 파트너 관리
+│   ├── reviews_screen.dart            # 리뷰 목록 + 작성
+│   ├── badge_screen.dart              # 배지 그리드
+│   ├── sos_settings_screen.dart       # 비상 연락처 설정
+│   └── offline_map_settings_screen.dart # 오프라인 지도 관리
 │
-├── widgets/                           # 재사용 컴포넌트
-│   ├── mountain_card.dart             # 산 카드 + DifficultyTag + CachedNetworkImage
-│   ├── plan_card.dart                 # 계획 카드 (Dismissible + 상태 토글)
+├── widgets/                           # 13개 재사용 컴포넌트
+│   ├── mountain_card.dart             # 산 카드 + DifficultyTag
+│   ├── plan_card.dart                 # 계획 카드 (Dismissible)
 │   ├── stamp_tile.dart                # 도장 타일 + 상세 모달
-│   ├── weather_card.dart              # 날씨 카드 (동적 메시지, 로딩/에러 표시)
+│   ├── weather_card.dart              # 날씨 카드 (일출/일몰 포함)
 │   ├── empty_state.dart               # 공유 빈 상태 위젯
-│   └── checklist_card.dart            # 준비물 체크리스트 (애니메이션)
+│   ├── checklist_card.dart            # 체크리스트 (추가/삭제/스와이프)
+│   ├── elevation_chart.dart           # 고도 프로필 차트 (fl_chart)
+│   ├── route_map_widget.dart          # 경로 지도 (NaverMap 폴리라인)
+│   ├── stats_chart.dart               # 월별/누적 통계 차트 (fl_chart)
+│   ├── review_card.dart               # 리뷰 카드 (별점, 사진)
+│   ├── review_form.dart               # 리뷰 작성 바텀시트
+│   ├── share_record_card.dart         # SNS 공유용 기록 이미지
+│   └── badge_tile.dart                # 배지 타일 (획득/잠금)
 │
 ├── theme/
-│   └── app_theme.dart                 # Light/Dark 테마, AppThemeColors extension, 색상, 버튼 스타일
+│   └── app_theme.dart                 # Light/Dark 테마, AppThemeColors extension
 │
 └── l10n/
-    ├── app_localizations.dart         # 생성된 AppLocalizations 클래스
-    ├── app_localizations_ko.dart      # 한국어 구현
-    ├── app_localizations_en.dart      # 영어 구현
-    ├── app_ko.arb                     # 한국어 (118키)
-    └── app_en.arb                     # 영어 (118키)
+    ├── app_ko.arb                     # 한국어 (~190키)
+    └── app_en.arb                     # 영어 (~190키)
 
-test/                                  # 123개 테스트, 17개 파일
+test/                                  # 142개 테스트, 18개 파일
 ├── core/
-│   └── exceptions_test.dart
+│   ├── exceptions_test.dart
+│   └── api_client_error_test.dart
 ├── models/
 │   ├── mountain_test.dart
 │   ├── weather_test.dart
@@ -238,10 +376,10 @@ test/                                  # 123개 테스트, 17개 파일
 │   └── hiking_record_extended_test.dart
 ├── providers/
 │   ├── auth_provider_test.dart
-│   ├── mountain_provider_test.dart     # isLoading/error 테스트 포함
+│   ├── mountain_provider_test.dart
 │   ├── mountain_provider_search_test.dart
-│   ├── plan_provider_test.dart         # updatePlanStatus 테스트 포함
-│   ├── stamp_provider_test.dart        # 범위 검사 테스트 포함
+│   ├── plan_provider_test.dart
+│   ├── stamp_provider_test.dart
 │   ├── weather_provider_test.dart
 │   └── tracking_provider_test.dart
 ├── repositories/
@@ -263,187 +401,51 @@ test/                                  # 123개 테스트, 17개 파일
 | `/plan` | PlanScreen | 계획 (Shell 탭 1) |
 | `/stamp` | StampScreen | 도장 (Shell 탭 2) |
 | `/map` | MapScreen | 지도 (Shell 탭 3) |
-| `/mountain/:id` | MountainDetailScreen | 산 상세 (파라미터 null 안전 처리) |
+| `/mountain/:id` | MountainDetailScreen | 산 상세 (즐겨찾기 + 리뷰) |
+| `/mountain/:id/reviews` | ReviewsScreen | 리뷰 목록 + 작성 |
 | `/profile` | ProfileScreen | 프로필/설정 |
-| `/record/new` | RecordCreateScreen | 기록 추가 + 사진 첨부 |
-| `/tracking?mountainId=` | TrackingScreen | 실시간 추적 + NaverMap 경로 |
-| `/search` | SearchScreen | 산 검색 + 동적 필터 |
+| `/record/new` | RecordCreateScreen | 기록 추가 |
+| `/record/:id` | RecordDetailScreen | 기록 상세 (고도/경로/공유) |
+| `/tracking?mountainId=` | TrackingScreen | 실시간 추적 + SOS |
+| `/search` | SearchScreen | 산 검색 |
+| `/statistics` | StatisticsScreen | 통계 대시보드 |
+| `/favorites` | FavoritesScreen | 즐겨찾기 목록 |
+| `/partner` | PartnerScreen | 파트너 관리 |
+| `/badges` | BadgeScreen | 배지/업적 |
+| `/sos-settings` | SosSettingsScreen | 비상 연락처 설정 |
+| `/offline-maps` | OfflineMapSettingsScreen | 오프라인 지도 |
 
 인증 리다이렉트: 미로그인 시 → `/login`, 로그인 후 `/login` 접근 시 → `/home`
 
 ---
 
-### 레이어 설계
+### 데이터
 
-Clean Architecture 3-레이어 구조를 따릅니다.
-
-```
-┌──────────────────────────────────┐
-│       Presentation Layer         │  screens/ + widgets/ + providers/
-│  UI 렌더링, 사용자 이벤트 처리     │
-└──────────────┬───────────────────┘
-               │ 데이터 요청
-┌──────────────▼───────────────────┐
-│         Domain Layer             │  models/ + services/
-│  비즈니스 로직, 데이터 모델 정의   │
-└──────────────┬───────────────────┘
-               │ 저장/조회
-┌──────────────▼───────────────────┐
-│          Data Layer              │  repositories/ + datasources/
-│  API 통신, 로컬 캐시 추상화        │
-└──────────────────────────────────┘
-```
-
-**핵심 원칙**
-- 상위 레이어는 하위 레이어에 의존하지 않음
-- Repository가 Remote/Local 중 어디서 데이터를 가져올지 결정
-- 오프라인 상태에서는 Hive 로컬 캐시로 폴백
-- 모든 레이어에서 에러를 `debugPrint`로 기록하고 안전하게 폴백
+- **100대 명산**: 실제 한국 100대 명산 데이터 (정확한 GPS 좌표, 높이, 난이도, 설명)
+- **100개 도장**: 각 명산에 대응하는 도장 데이터
+- **12종 배지**: 등산 횟수/거리/지역/계절/시간 기반 업적
+- **6개 기본 체크리스트**: 등산화, 물, 간식, 방풍자켓, 스틱, 구급약
 
 ---
 
-### 상태관리 흐름
-
-```
-사용자 액션 (버튼 탭)
-        │
-        ▼
-   Provider.notifyListeners()
-        │
-   ┌────┴────┐
-   │         │
-isLoading  error
-   │         │
-   ▼         ▼
-   Repository.getData()
-        │
-   ┌────┴────┐
-   │         │
-   ▼         ▼
-Remote     Local
-(Dio)     (Hive)
-   │         │
-   └────┬────┘
-        │
-        ▼
-   모델 변환 (JSON → Dart)
-        │
-        ▼
-   UI 자동 리빌드 (Consumer<Provider>)
-        │
-   ┌────┴────┬────────┐
-   ▼         ▼        ▼
-로딩 UI   에러 UI   데이터 UI
-```
-
-**Provider 목록**
-
-| Provider | 관리 상태 | 로딩/에러 |
-|----------|---------|-----------|
-| `AuthProvider` | 로그인 상태, JWT 토큰, 프로필 업데이트 | O |
-| `MountainProvider` | 추천 코스 목록, 산행 기록, 통계, 검색 | O |
-| `PlanProvider` | 예정된 계획 목록, 체크리스트, 상태 토글 | - |
-| `StampProvider` | 도장 현황, 함께 도장 목록, 범위 검사 | - |
-| `WeatherProvider` | 날씨 데이터 (3시간 캐싱) | O |
-| `SettingsProvider` | 다크 모드, 알림, 언어 설정 (Hive 영속화) | - |
-| `LocationProvider` | GPS 위치, 추적 상태, 스트림 에러 핸들링 | - |
-| `TrackingProvider` | 실시간 추적 (경로, 시간, 거리, 속도, 정상 감지, 다이얼로그 상태) | O (권한 에러) |
-
----
-
-### 다크 모드 지원
-
-모든 화면과 컴포넌트가 Light/Dark 테마를 완전히 지원합니다.
-`AppThemeColors` extension을 통해 `context.appBg`, `context.appSurface`, `context.appText`, `context.appTextSub`로 테마 인식 색상을 사용합니다.
-프로필 > 설정에서 수동 전환 가능하며, 설정값은 Hive에 영속화됩니다.
-
-| 항목 | Light | Dark |
-|------|-------|------|
-| 배경 | `#F8F6F1` | `#121212` |
-| 표면 | `#FFFFFF` | `#1E1E1E` |
-| 텍스트 (주) | `#1C1C1E` | `#E0E0E0` |
-| 텍스트 (보조) | `#6B7280` | `#9E9E9E` |
-| 바텀시트 | `scaffoldBackgroundColor` 동적 적용 |
-| 바텀네비 | 테마 brightness 기반 분기 |
-
----
-
-### 입력 검증
-
-| 화면 | 검증 항목 |
-|------|-----------|
-| 로그인/회원가입 | 이메일 정규식 (`^[a-zA-Z0-9._%+-]+@...`) |
-| 회원가입 | 닉네임 2자 이상, 비밀번호 6자 이상 |
-| 기록 추가 | 산 선택 필수, 날짜 필수, 거리 > 0, 소요시간 > 0 |
-| 계획 추가 | 산 선택 필수, 날짜 필수 |
-
----
-
-### 로컬 저장소 전략
-
-| 데이터 | 저장소 | 만료 |
-|--------|--------|------|
-| JWT 토큰 | `flutter_secure_storage` | 로그아웃 시 삭제 |
-| 앱 설정 (테마, 언어, 알림) | `Hive` (settings) | 영구 |
-| 산 목록 캐시 | `Hive` | 24시간 |
-| 도장 기록 | `Hive` | 영구 (서버 동기화) |
-| 계획/기록 | `Hive` | 영구 |
-| 날씨 데이터 | `Hive` | 3시간 |
-
----
-
-### 웹 호환성
-
-| 기능 | 네이티브 (iOS/Android) | 웹 (Chrome) |
-|------|----------------------|-------------|
-| 지도 | NaverMap 렌더링 | 미지원 (NaverMap SDK 미지원) |
-| 추적 지도 | NaverMap + 실시간 폴리라인 | 그라데이션 폴백 UI |
-| 사진 첨부 | `Image.file` (로컬 경로) | `Image.network` (blob URL) |
-| GPS | Geolocator (네이티브) | 브라우저 Geolocation API |
-| 보안 저장소 | Keychain / EncryptedSharedPreferences | sessionStorage (제한적) |
-
----
-
-### 설정 필요 항목
-
-앱 실행 전 아래 설정이 필요합니다:
-
-**1. 환경 변수 설정**
-
-`.env.example` 파일의 플레이스홀더를 실제 값으로 교체:
-
-```
-API_BASE_URL=http://localhost:8000
-NAVER_MAP_CLIENT_ID=실제_네이버_클라이언트_ID
-WEATHER_API_KEY=실제_OpenWeatherMap_API_키
-```
-
-> `.env.example`은 에셋 번들에 포함되어 앱에서 직접 로드합니다. 실제 키를 커밋하지 않으려면 CI/CD에서 빌드 전 파일을 교체하세요.
-
-**2. 플랫폼별 설정**
-
-| 항목 | 파일 | 설명 |
-|------|------|------|
-| Naver Map Client ID | `AndroidManifest.xml`, `Info.plist` | 네이버 클라우드 콘솔에서 발급 |
-| Firebase | `android/app/google-services.json`, `ios/Runner/GoogleService-Info.plist` | Firebase Console에서 다운로드 |
-
----
-
-## 시작하기
+### 빌드 & 실행
 
 ```bash
 # 의존성 설치
 flutter pub get
 
-# 실행 (모바일)
+# .env.example에 실제 키 설정 (로컬 개발)
+# API_BASE_URL, NAVER_MAP_CLIENT_ID, WEATHER_API_KEY
+
+# 안드로이드 실행
 flutter run
 
-# 실행 (웹)
-flutter run -d chrome
+# iOS 시뮬레이터 빌드
+flutter build ios --simulator
 
-# 분석
-flutter analyze
-
-# 테스트 (123개)
+# 테스트
 flutter test
+
+# 정적 분석
+flutter analyze
 ```

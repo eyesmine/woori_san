@@ -9,7 +9,16 @@ import '../theme/app_theme.dart';
 import '../providers/tracking_provider.dart';
 import '../providers/mountain_provider.dart';
 import '../providers/stamp_provider.dart';
+import '../providers/settings_provider.dart';
+import '../providers/auth_provider.dart';
 import '../models/mountain.dart';
+import '../services/sos_service.dart';
+
+bool get _useNativeMap {
+  if (kIsWeb) return false;
+  final key = AppConstants.naverMapClientId;
+  return key.isNotEmpty && key != 'YOUR_NAVER_MAP_CLIENT_ID';
+}
 
 class TrackingScreen extends StatefulWidget {
   final String? mountainId;
@@ -48,15 +57,27 @@ class _TrackingScreenState extends State<TrackingScreen> {
   void _onTrackingChanged() {
     if (_tracking.summitReached && !_tracking.summitDialogShown && mounted) {
       _tracking.markSummitDialogShown();
-      // Auto-stamp
+      // Auto-stamp via backend (GPS 검증)
       final mountain = _tracking.currentMountain;
-      if (mountain != null) {
+      final lastPos = _tracking.routePoints.isNotEmpty ? _tracking.routePoints.last : null;
+      if (mountain != null && lastPos != null) {
         final stampProvider = context.read<StampProvider>();
-        final stamps = stampProvider.stamps;
-        final idx = stamps.indexWhere((s) => s.name == mountain.name);
-        if (idx != -1 && !stamps[idx].isStamped) {
-          stampProvider.toggleStamp(idx, together: true);
-        }
+        final hasPartner = context.read<AuthProvider>().user?.partnerId != null;
+        stampProvider.createStamp(
+          mountainId: mountain.id,
+          lat: lastPos.latitude,
+          lng: lastPos.longitude,
+          together: hasPartner,
+        ).then((success) {
+          if (!success && mounted) {
+            // 서버 실패 시 로컬 fallback
+            final stamps = stampProvider.stamps;
+            final idx = stamps.indexWhere((s) => s.name == mountain.name);
+            if (idx != -1 && !stamps[idx].isStamped) {
+              stampProvider.toggleStamp(idx, together: hasPartner);
+            }
+          }
+        });
       }
       _showSummitDialog();
     }
@@ -86,6 +107,45 @@ class _TrackingScreenState extends State<TrackingScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(l.confirm, style: const TextStyle(color: AppTheme.primary)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSosDialog(BuildContext context, TrackingProvider tracking) {
+    final l = AppLocalizations.of(context)!;
+    final settings = context.read<SettingsProvider>();
+
+    if (settings.emergencyPhone == null || settings.emergencyPhone!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.noEmergencyContact)));
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(l.emergencySos),
+        content: Text(l.sosConfirm),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l.cancel)),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              final points = tracking.routePoints;
+              if (points.isEmpty) return;
+              final last = points.last;
+              final sent = await SosService.sendSos(
+                phoneNumber: settings.emergencyPhone!,
+                lat: last.latitude,
+                lng: last.longitude,
+                mountainName: tracking.currentMountain?.name,
+              );
+              if (sent && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l.sosSent)));
+              }
+            },
+            child: Text(l.emergencySos, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -157,6 +217,13 @@ class _TrackingScreenState extends State<TrackingScreen> {
                 }
               },
             ),
+            actions: [
+              if (tracking.isActive)
+                IconButton(
+                  icon: const Icon(Icons.sos, color: Colors.red),
+                  onPressed: () => _showSosDialog(context, tracking),
+                ),
+            ],
           ),
           body: Column(
             children: [
@@ -169,9 +236,9 @@ class _TrackingScreenState extends State<TrackingScreen> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: kIsWeb
-                      ? _GradientPlaceholder(tracking: tracking)
-                      : _TrackingMap(tracking: tracking),
+                  child: _useNativeMap
+                      ? _TrackingMap(tracking: tracking)
+                      : _GradientPlaceholder(tracking: tracking),
                 ),
               ),
 
