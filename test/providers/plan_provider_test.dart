@@ -55,7 +55,7 @@ void main() {
       expect(provider.checklist.length, 2);
     });
 
-    test('addPlan adds a plan', () {
+    test('addPlan adds a plan', () async {
       final plan = HikingPlan(
         id: 'p1',
         mountain: '북한산',
@@ -64,28 +64,28 @@ void main() {
         emoji: '⛰️',
       );
 
-      provider.addPlan(plan);
+      await provider.addPlan(plan);
 
       expect(provider.plans.length, 1);
       expect(provider.plans.first.mountain, '북한산');
     });
 
-    test('removePlan removes by id', () {
-      provider.addPlan(HikingPlan(id: 'p1', mountain: '북한산', date: '3월 15일', status: PlanStatus.confirmed, emoji: '⛰️'));
-      provider.addPlan(HikingPlan(id: 'p2', mountain: '관악산', date: '3월 22일', status: PlanStatus.pending, emoji: '🌄'));
+    test('removePlan removes by id', () async {
+      await provider.addPlan(HikingPlan(id: 'p1', mountain: '북한산', date: '3월 15일', status: PlanStatus.confirmed, emoji: '⛰️'));
+      await provider.addPlan(HikingPlan(id: 'p2', mountain: '관악산', date: '3월 22일', status: PlanStatus.pending, emoji: '🌄'));
 
       expect(provider.plans.length, 2);
 
-      provider.removePlan('p1');
+      await provider.removePlan('p1');
 
       expect(provider.plans.length, 1);
       expect(provider.plans.first.id, 'p2');
     });
 
-    test('removePlan does nothing with non-existent id', () {
-      provider.addPlan(HikingPlan(id: 'p1', mountain: '북한산', date: '3월 15일', status: PlanStatus.confirmed, emoji: '⛰️'));
+    test('removePlan does nothing with non-existent id', () async {
+      await provider.addPlan(HikingPlan(id: 'p1', mountain: '북한산', date: '3월 15일', status: PlanStatus.confirmed, emoji: '⛰️'));
 
-      provider.removePlan('non_existent');
+      await provider.removePlan('non_existent');
 
       expect(provider.plans.length, 1);
     });
@@ -100,16 +100,16 @@ void main() {
       expect(provider.checklist[0].checked, false);
     });
 
-    test('changes are persisted', () {
-      provider.addPlan(HikingPlan(id: 'p1', mountain: '수락산', date: '4월 1일', status: PlanStatus.pending, emoji: '🍃'));
+    test('changes are persisted', () async {
+      await provider.addPlan(HikingPlan(id: 'p1', mountain: '수락산', date: '4월 1일', status: PlanStatus.pending, emoji: '🍃'));
 
       final persisted = fakeLocal.getPlans();
       expect(persisted.length, 1);
       expect(persisted.first.mountain, '수락산');
     });
 
-    test('updatePlanStatus changes plan status', () {
-      provider.addPlan(HikingPlan(
+    test('updatePlanStatus changes plan status', () async {
+      await provider.addPlan(HikingPlan(
         mountain: '북한산',
         date: '3월 15일',
         status: PlanStatus.pending,
@@ -117,24 +117,24 @@ void main() {
       ));
 
       final planId = provider.plans.first.id;
-      provider.updatePlanStatus(planId, PlanStatus.confirmed);
+      await provider.updatePlanStatus(planId, PlanStatus.confirmed);
       expect(provider.plans.first.status, PlanStatus.confirmed);
     });
 
-    test('updatePlanStatus with non-existent id does nothing', () {
-      provider.addPlan(HikingPlan(
+    test('updatePlanStatus with non-existent id does nothing', () async {
+      await provider.addPlan(HikingPlan(
         mountain: '북한산',
         date: '3월 15일',
         status: PlanStatus.pending,
         emoji: '⛰️',
       ));
 
-      provider.updatePlanStatus('non_existent', PlanStatus.confirmed);
+      await provider.updatePlanStatus('non_existent', PlanStatus.confirmed);
       expect(provider.plans.first.status, PlanStatus.pending);
     });
 
-    test('updatePlanStatus from confirmed to pending', () {
-      provider.addPlan(HikingPlan(
+    test('updatePlanStatus from confirmed to pending', () async {
+      await provider.addPlan(HikingPlan(
         mountain: '북한산',
         date: '3월 15일',
         status: PlanStatus.confirmed,
@@ -142,7 +142,7 @@ void main() {
       ));
 
       final planId = provider.plans.first.id;
-      provider.updatePlanStatus(planId, PlanStatus.pending);
+      await provider.updatePlanStatus(planId, PlanStatus.pending);
       expect(provider.plans.first.status, PlanStatus.pending);
     });
   });

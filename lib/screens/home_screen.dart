@@ -26,21 +26,18 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int? _lastBadgeCountChecked;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initWithLocation();
-      _checkNewBadges();
     });
   }
 
   void _checkNewBadges() {
     final badgeProv = context.read<BadgeProvider>();
-    final mountainProv = context.read<MountainProvider>();
-    final stampProv = context.read<StampProvider>();
-
-    badgeProv.evaluate(records: mountainProv.records, stamps: stampProv.stamps);
 
     final box = Hive.box(AppConstants.settingsBox);
     final lastShownCount = box.get('lastBadgeCount', defaultValue: 0) as int;
@@ -116,6 +113,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final badgeCount = context.select<BadgeProvider, int>((p) => p.earnedCount);
+    if (_lastBadgeCountChecked != badgeCount) {
+      _lastBadgeCountChecked = badgeCount;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _checkNewBadges();
+      });
+    }
+
     final l = AppLocalizations.of(context)!;
     return Scaffold(
       body: RefreshIndicator(

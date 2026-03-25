@@ -1,15 +1,10 @@
-import 'package:flutter/material.dart';
 import '../models/hiking_record.dart';
-import '../repositories/plan_repository.dart';
 
-class StatisticsProvider extends ChangeNotifier {
-  final PlanRepository _planRepo;
+class StatisticsProvider {
+  final List<HikingRecord> _records;
 
-  late List<HikingRecord> _records;
-
-  StatisticsProvider(this._planRepo) {
-    _records = _planRepo.getRecords();
-  }
+  StatisticsProvider({required List<HikingRecord> records})
+      : _records = List.unmodifiable(records);
 
   List<HikingRecord> get records => _records;
   int get totalHikes => _records.length;
@@ -120,10 +115,5 @@ class StatisticsProvider extends ChangeNotifier {
       regions.add(r.mountain);
     }
     return regions;
-  }
-
-  void refresh() {
-    _records = _planRepo.getRecords();
-    notifyListeners();
   }
 }

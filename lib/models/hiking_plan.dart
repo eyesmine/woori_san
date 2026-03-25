@@ -30,6 +30,26 @@ class HikingPlan {
     this.memo,
   }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
 
+  HikingPlan copyWith({
+    String? id,
+    String? mountain,
+    int? mountainId,
+    String? date,
+    PlanStatus? status,
+    String? emoji,
+    String? memo,
+  }) {
+    return HikingPlan(
+      id: id ?? this.id,
+      mountain: mountain ?? this.mountain,
+      mountainId: mountainId ?? this.mountainId,
+      date: date ?? this.date,
+      status: status ?? this.status,
+      emoji: emoji ?? this.emoji,
+      memo: memo ?? this.memo,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'mountain': mountainId ?? mountain,

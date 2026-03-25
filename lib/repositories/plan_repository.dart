@@ -15,15 +15,56 @@ class PlanRepository {
 
   Future<void> savePlans(List<HikingPlan> plans) async {
     await _local.savePlans(plans);
-    // 서버 동기화 (실패해도 로컬은 저장됨)
-    if (_remote != null) {
-      try {
-        for (final plan in plans) {
-          await _remote.createPlan(plan);
-        }
-      } catch (e) {
-        AppLogger.warning('계획 서버 동기화 실패', tag: 'PlanRepo', error: e);
-      }
+  }
+
+  Future<HikingPlan> addPlan(HikingPlan plan) async {
+    final plans = List<HikingPlan>.of(getPlans());
+    plans.add(plan);
+    await _local.savePlans(plans);
+
+    if (_remote == null) return plan;
+
+    try {
+      final remotePlan = await _remote.createPlan(plan);
+      final syncedPlans = getPlans()
+          .map((existing) => existing.id == plan.id ? remotePlan : existing)
+          .toList();
+      await _local.savePlans(syncedPlans);
+      return remotePlan;
+    } catch (e) {
+      AppLogger.warning('계획 생성 서버 동기화 실패', tag: 'PlanRepo', error: e);
+      return plan;
+    }
+  }
+
+  Future<void> updatePlanStatus(HikingPlan plan) async {
+    final plans = List<HikingPlan>.of(getPlans());
+    final index = plans.indexWhere((existing) => existing.id == plan.id);
+    if (index == -1) return;
+
+    plans[index] = plan;
+    await _local.savePlans(plans);
+
+    if (_remote == null) return;
+
+    try {
+      await _remote.updateStatus(plan.id, plan.status.name);
+    } catch (e) {
+      AppLogger.warning('계획 상태 서버 동기화 실패', tag: 'PlanRepo', error: e);
+    }
+  }
+
+  Future<void> deletePlan(String id) async {
+    final plans = List<HikingPlan>.of(getPlans())
+      ..removeWhere((plan) => plan.id == id);
+    await _local.savePlans(plans);
+
+    if (_remote == null) return;
+
+    try {
+      await _remote.deletePlan(id);
+    } catch (e) {
+      AppLogger.warning('계획 삭제 서버 동기화 실패', tag: 'PlanRepo', error: e);
     }
   }
 

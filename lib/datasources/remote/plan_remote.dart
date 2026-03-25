@@ -15,8 +15,19 @@ class PlanRemoteDataSource {
   }
 
   /// POST /api/plans/
-  Future<void> createPlan(HikingPlan plan) async {
-    await api.post('/plans/', data: plan.toJson());
+  Future<HikingPlan> createPlan(HikingPlan plan) async {
+    final response = await api.post('/plans/', data: plan.toJson());
+    final data = response.data;
+    if (data is Map<String, dynamic>) {
+      final created = HikingPlan.fromJson(data);
+      return created.copyWith(
+        mountain: created.mountain.isNotEmpty ? created.mountain : plan.mountain,
+        mountainId: created.mountainId ?? plan.mountainId,
+        emoji: created.emoji.isNotEmpty ? created.emoji : plan.emoji,
+        memo: created.memo ?? plan.memo,
+      );
+    }
+    return plan;
   }
 
   /// GET /api/plans/{id}/

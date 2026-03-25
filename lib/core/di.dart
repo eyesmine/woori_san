@@ -99,8 +99,16 @@ class DI {
     ChangeNotifierProvider(create: (_) => TrackingProvider(_locationService)),
     ChangeNotifierProvider(create: (_) => SettingsProvider()),
     ChangeNotifierProvider(create: (_) => FavoriteProvider(_favoriteLocal)),
-    ChangeNotifierProvider(create: (_) => StatisticsProvider(_planRepo)),
+    ProxyProvider<MountainProvider, StatisticsProvider>(
+      update: (_, mountain, __) => StatisticsProvider(records: mountain.records),
+    ),
     ChangeNotifierProvider(create: (_) => ReviewProvider(_reviewRepo)),
-    ChangeNotifierProvider(create: (_) => BadgeProvider()),
+    ProxyProvider3<MountainProvider, StampProvider, AuthProvider, BadgeProvider>(
+      update: (_, mountain, stamp, auth, __) => BadgeProvider(
+        records: mountain.records,
+        stamps: stamp.stamps,
+        joinDate: auth.user?.createdAt,
+      ),
+    ),
   ];
 }

@@ -63,7 +63,7 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
     final record = HikingRecord(
       mountain: _selectedMountain!.name,
       mountainId: _selectedMountain!.id,
-      date: DateFormat('M월 d일', 'ko_KR').format(_selectedDate!),
+      date: DateFormat('yyyy.MM.dd', 'ko_KR').format(_selectedDate!),
       duration: _hours > 0 ? '${_hours}h ${_minutes}m' : '${_minutes}m',
       distanceKm: distanceKm,
       emoji: _selectedMountain!.emoji,

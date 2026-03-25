@@ -1,64 +1,58 @@
-import 'package:flutter/material.dart';
 import '../core/badge_evaluator.dart';
 import '../models/badge.dart';
 import '../models/hiking_record.dart';
 import '../models/stamp.dart';
 
-/// 배지/업적 상태 관리 Provider.
-///
-/// 평가 로직은 [BadgeEvaluator]에 위임하고, 상태 관리만 담당합니다.
-class BadgeProvider extends ChangeNotifier {
-  final Set<BadgeType> _earned = {};
-  BadgeEvaluator? _evaluator;
+class BadgeProvider {
+  final Set<BadgeType> _earned;
+  final BadgeEvaluator? _evaluator;
 
-  List<HikingRecord> _records = [];
-  List<Stamp> _stamps = [];
-  DateTime? _joinDate;
-  DateTime? _birthday;
+  BadgeProvider({
+    required List<HikingRecord> records,
+    required List<Stamp> stamps,
+    DateTime? joinDate,
+    DateTime? birthday,
+  })  : _evaluator = records.isEmpty && stamps.isEmpty && joinDate == null && birthday == null
+            ? null
+            : BadgeEvaluator(
+                records: records,
+                stamps: stamps,
+                joinDate: joinDate,
+                birthday: birthday,
+              ),
+        _earned = _buildEarned(
+          records: records,
+          stamps: stamps,
+          joinDate: joinDate,
+          birthday: birthday,
+        );
 
-  // ── public API ──────────────────────────────────
-
-  Set<BadgeType> get earned => _earned;
-  bool isEarned(BadgeType type) => _earned.contains(type);
-  int get earnedCount => _earned.length;
-
-  /// 모든 배지를 재평가합니다.
-  void evaluate({
+  static Set<BadgeType> _buildEarned({
     required List<HikingRecord> records,
     required List<Stamp> stamps,
     DateTime? joinDate,
     DateTime? birthday,
   }) {
-    _records = records;
-    _stamps = stamps;
-    _joinDate = joinDate;
-    _birthday = birthday;
-
-    _evaluator = BadgeEvaluator(
+    final evaluator = BadgeEvaluator(
       records: records,
       stamps: stamps,
       joinDate: joinDate,
       birthday: birthday,
     );
 
-    _earned.clear();
-    final baseEarned = _evaluator!.evaluateAll();
-    _earned.addAll(baseEarned);
+    final earned = <BadgeType>{};
+    earned.addAll(evaluator.evaluateAll());
 
-    // 메타 배지 (earnedCount에 의존)
-    if (_earned.length >= 50) _earned.add(BadgeType.grandMaster);
-    if (_earned.length >= 75) _earned.add(BadgeType.legendaryHiker);
-    if (_earned.length >= 90) _earned.add(BadgeType.ultimateChallenger);
+    if (earned.length >= 50) earned.add(BadgeType.grandMaster);
+    if (earned.length >= 75) earned.add(BadgeType.legendaryHiker);
+    if (earned.length >= 90) earned.add(BadgeType.ultimateChallenger);
 
-    notifyListeners();
+    return earned;
   }
 
-  /// 저장된 데이터로 재평가
-  void refresh() {
-    if (_records.isNotEmpty || _stamps.isNotEmpty) {
-      evaluate(records: _records, stamps: _stamps, joinDate: _joinDate, birthday: _birthday);
-    }
-  }
+  Set<BadgeType> get earned => _earned;
+  bool isEarned(BadgeType type) => _earned.contains(type);
+  int get earnedCount => _earned.length;
 
   /// 다음 달성에 가장 가까운 배지
   HikingBadge? get nextBadge {
@@ -67,7 +61,7 @@ class BadgeProvider extends ChangeNotifier {
     double bestRatio = -1;
     for (final b in allBadgeDefinitions) {
       if (!_earned.contains(b.type)) {
-        final r = _evaluator!.getProgressRatio(b.type, earnedCount: earnedCount);
+        final r = _evaluator.getProgressRatio(b.type, earnedCount: earnedCount);
         if (r > bestRatio) {
           bestRatio = r;
           best = b;
