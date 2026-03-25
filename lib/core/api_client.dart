@@ -1,8 +1,9 @@
+import 'dart:math';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'constants.dart';
 import 'exceptions.dart';
+import 'logger.dart';
 
 class ApiClient {
   late final Dio _dio;
@@ -10,6 +11,11 @@ class ApiClient {
 
   static const _tokenKey = 'auth_token';
   static const _refreshTokenKey = 'refresh_token';
+  static const _tag = 'ApiClient';
+
+  /// 재시도 설정
+  static const _maxRetries = 3;
+  static const _retryableStatusCodes = {408, 429, 500, 502, 503, 504};
 
   ApiClient() {
     _dio = Dio(BaseOptions(
@@ -37,7 +43,7 @@ class ApiClient {
               return handler.resolve(response);
             }
           } catch (e) {
-            debugPrint('ApiClient token refresh error: $e');
+            AppLogger.warning('Token refresh failed', tag: _tag, error: e);
           }
         }
         handler.next(error);
@@ -78,7 +84,7 @@ class ApiClient {
       }
       return newToken;
     } catch (e) {
-      debugPrint('ApiClient._refreshToken error: $e');
+      AppLogger.warning('Token refresh failed, clearing tokens', tag: _tag, error: e);
       await clearTokens();
       return null;
     }
@@ -106,43 +112,50 @@ class ApiClient {
   }
 
   Future<Response> get(String path, {Map<String, dynamic>? params}) async {
-    try {
-      return await _dio.get(path, queryParameters: params);
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
+    return _requestWithRetry(() => _dio.get(path, queryParameters: params));
   }
 
   Future<Response> post(String path, {dynamic data}) async {
-    try {
-      return await _dio.post(path, data: data);
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
+    return _requestWithRetry(() => _dio.post(path, data: data));
   }
 
   Future<Response> put(String path, {dynamic data}) async {
-    try {
-      return await _dio.put(path, data: data);
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
+    return _requestWithRetry(() => _dio.put(path, data: data));
   }
 
   Future<Response> patch(String path, {dynamic data}) async {
-    try {
-      return await _dio.patch(path, data: data);
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
+    return _requestWithRetry(() => _dio.patch(path, data: data));
   }
 
   Future<Response> delete(String path) async {
-    try {
-      return await _dio.delete(path);
-    } on DioException catch (e) {
-      throw _handleError(e);
+    return _requestWithRetry(() => _dio.delete(path));
+  }
+
+  Future<Response> _requestWithRetry(Future<Response> Function() request) async {
+    for (int attempt = 0; attempt <= _maxRetries; attempt++) {
+      try {
+        return await request();
+      } on DioException catch (e) {
+        final isRetryable = _isRetryableError(e);
+        if (!isRetryable || attempt == _maxRetries) {
+          throw _handleError(e);
+        }
+        final delay = Duration(milliseconds: min(1000 * pow(2, attempt).toInt(), 8000));
+        AppLogger.info('Retry attempt ${attempt + 1}/$_maxRetries after ${delay.inMilliseconds}ms', tag: _tag);
+        await Future.delayed(delay);
+      }
     }
+    throw NetworkException();
+  }
+
+  bool _isRetryableError(DioException e) {
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout ||
+        e.type == DioExceptionType.connectionError) {
+      return true;
+    }
+    final status = e.response?.statusCode;
+    return status != null && _retryableStatusCodes.contains(status);
   }
 
   AppException _handleError(DioException e) {

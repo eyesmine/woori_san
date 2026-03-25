@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import '../core/api_client.dart';
+import '../core/logger.dart';
 
 class NotificationService {
   FirebaseMessaging? _messaging;
@@ -20,7 +20,7 @@ class NotificationService {
     try {
       _messaging = FirebaseMessaging.instance;
     } catch (e) {
-      debugPrint('NotificationService: Firebase not initialized, skipping — $e');
+      AppLogger.info('Firebase 미초기화, 알림 스킵', tag: 'Notification');
       return;
     }
 
@@ -66,7 +66,7 @@ class NotificationService {
     try {
       await _apiClient?.post('/devices/', data: {'token': token});
     } catch (e) {
-      debugPrint('NotificationService._registerToken error: $e');
+      AppLogger.warning('FCM 토큰 등록 실패', tag: 'Notification', error: e);
     }
   }
 
@@ -114,7 +114,7 @@ class NotificationService {
     try {
       _router.go(route);
     } catch (e) {
-      debugPrint('NotificationService._navigateTo error: $e');
+      AppLogger.warning('알림 네비게이션 실패', tag: 'Notification', error: e);
     }
   }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../core/exceptions.dart';
+import '../core/logger.dart';
 import '../models/mountain.dart';
 import '../models/stamp.dart';
 import '../repositories/stamp_repository.dart';
@@ -65,11 +67,13 @@ class StampProvider extends ChangeNotifier {
         'lng': lng,
         'together': together,
       });
-      // 서버 성공 시 로컬도 동기화
       await syncFromRemote();
       return true;
+    } on NetworkException {
+      AppLogger.warning('도장 생성 실패: 네트워크 오류', tag: 'StampProvider');
+      return false;
     } catch (e) {
-      debugPrint('StampProvider.createStamp error: $e');
+      AppLogger.error('createStamp 실패', tag: 'StampProvider', error: e);
       return false;
     }
   }
@@ -81,7 +85,7 @@ class StampProvider extends ChangeNotifier {
     try {
       _stamps = await _repo.syncFromRemote();
     } catch (e) {
-      debugPrint('StampProvider.syncFromRemote error: $e');
+      AppLogger.error('syncFromRemote 실패', tag: 'StampProvider', error: e);
     } finally {
       _isSyncing = false;
       notifyListeners();

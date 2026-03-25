@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import '../core/logger.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -104,7 +105,7 @@ class _MapScreenState extends State<MapScreen> {
           _detailedMountains[m.id] = detail;
         }
       } catch (e) {
-        debugPrint('MapScreen._loadMountainDetails(${m.id}) error: $e');
+        AppLogger.warning('산 상세정보 로드 실패: ${m.id}', tag: 'MapScreen', error: e);
       }
     }
     _loadingDetails = false;

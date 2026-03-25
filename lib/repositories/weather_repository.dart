@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import '../core/logger.dart';
 import '../datasources/local/weather_local.dart';
 import '../datasources/remote/weather_remote.dart';
 import '../models/weather.dart';
@@ -20,7 +20,7 @@ class WeatherRepository {
       await _local.cache(weather);
       return weather;
     } catch (e) {
-      debugPrint('WeatherRepository.getWeather error: $e');
+      AppLogger.warning('날씨 조회 실패', tag: 'WeatherRepo', error: e);
       return null;
     }
   }

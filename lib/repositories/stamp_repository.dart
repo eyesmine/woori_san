@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import '../core/logger.dart';
 import '../models/stamp.dart';
 import '../datasources/local/stamp_local.dart';
 import '../datasources/remote/stamp_remote.dart';
@@ -21,7 +21,7 @@ class StampRepository {
       try {
         await _remote.createStamp(data);
       } catch (e) {
-        debugPrint('StampRepository.createStamp error: $e');
+        AppLogger.error('도장 생성 실패', tag: 'StampRepo', error: e);
         rethrow;
       }
     }
@@ -35,7 +35,7 @@ class StampRepository {
       await _local.saveAll(remote);
       return remote;
     } catch (e) {
-      debugPrint('StampRepository.syncFromRemote error: $e');
+      AppLogger.warning('도장 동기화 실패, 로컬 데이터 사용', tag: 'StampRepo', error: e);
       return getAll();
     }
   }

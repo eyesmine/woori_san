@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import '../core/logger.dart';
 import '../models/hiking_plan.dart';
 import '../models/hiking_record.dart';
 import '../datasources/local/plan_local.dart';
@@ -22,7 +22,7 @@ class PlanRepository {
           await _remote.createPlan(plan);
         }
       } catch (e) {
-        debugPrint('PlanRepository.savePlans sync error: $e');
+        AppLogger.warning('계획 서버 동기화 실패', tag: 'PlanRepo', error: e);
       }
     }
   }

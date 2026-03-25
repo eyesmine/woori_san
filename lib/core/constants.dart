@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'logger.dart';
 
 class AppConstants {
   static const String appName = '우리산';
@@ -37,7 +37,7 @@ class AppConstants {
     try {
       return dotenv.get(key, fallback: fallback);
     } catch (e) {
-      debugPrint('AppConstants._env($key) error: $e');
+      AppLogger.warning('env($key) 로드 실패', tag: 'Constants', error: e);
       return fallback;
     }
   }

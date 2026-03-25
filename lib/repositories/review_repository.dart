@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import '../core/logger.dart';
 import '../models/review.dart';
 import '../datasources/local/review_local.dart';
 import '../datasources/remote/review_remote.dart';
@@ -15,7 +15,7 @@ class ReviewRepository {
       await _local.cache(mountainId, remote);
       return remote;
     } catch (e) {
-      debugPrint('ReviewRepository.getReviews remote error: $e');
+      AppLogger.warning('리뷰 원격 조회 실패, 캐시 사용', tag: 'ReviewRepo', error: e);
       final cached = _local.getCached(mountainId);
       if (cached != null) return cached;
       rethrow;

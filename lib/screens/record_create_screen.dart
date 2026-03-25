@@ -1,6 +1,7 @@
 import 'dart:io' show File;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import '../core/logger.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -44,7 +45,7 @@ class _RecordCreateScreenState extends State<RecordCreateScreen> {
       if (files.isNotEmpty) {
         setState(() => _photos.addAll(files));
       }
-    } catch (e) { debugPrint('Photo pick error: $e'); }
+    } catch (e) { AppLogger.warning('사진 선택 실패', tag: 'RecordCreate', error: e); }
   }
 
   void _save() {

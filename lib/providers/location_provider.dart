@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import '../core/logger.dart';
 import '../services/location_service.dart';
 
 class LocationProvider extends ChangeNotifier {
@@ -33,7 +34,7 @@ class LocationProvider extends ChangeNotifier {
       _currentPosition = await _locationService.getCurrentPosition();
       notifyListeners();
     } catch (e) {
-      debugPrint('LocationProvider.getCurrentPosition error: $e');
+      AppLogger.error('현재 위치 조회 실패', tag: 'LocationProvider', error: e);
     }
   }
 
@@ -46,7 +47,7 @@ class LocationProvider extends ChangeNotifier {
         notifyListeners();
       },
       onError: (e) {
-        debugPrint('LocationProvider.startTracking stream error: $e');
+        AppLogger.error('위치 스트림 오류', tag: 'LocationProvider', error: e);
       },
     );
     notifyListeners();

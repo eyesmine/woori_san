@@ -75,10 +75,12 @@
 - 연도별 필터 (ChoiceChip)
 
 ### 배지/업적
-- 12종 배지 (첫 등산, 5/10/50회, 50/100km, 3/5지역, 10/50도장, 사계절, 얼리버드)
+- 100종 배지 (횟수/거리/고도/지역/도장/함께/시간/꾸준함/도전/스페셜 10개 카테고리)
 - 획득/미획득 그리드 표시 (2열)
 - 배지 탭 → 상세 설명 바텀시트
+- 진행도 바 + 진행 문자열 (예: "5 / 10")
 - 등산 기록/도장 변경 시 자동 평가
+- 새 배지 획득 시 홈 화면 스낵바 알림
 
 ### 즐겨찾기
 - 산 상세 화면에서 하트 아이콘으로 즐겨찾기 토글
@@ -120,10 +122,11 @@
 - GoRouter 기반 인증 리다이렉트
 
 ### 알림
-- Firebase Cloud Messaging 푸시 알림
+- Firebase Cloud Messaging 푸시 알림 (FCM HTTP v1 API)
 - 포그라운드: flutter_local_notifications로 표시
 - 알림 탭 시 GoRouter 기반 화면 이동
 - 토픽 구독/해제 (weather_alerts, hiking_tips)
+- FCM 토큰 서버 등록 (`POST /api/devices/`)
 
 ---
 
@@ -134,7 +137,7 @@
 | 프레임워크 | `Flutter 3.x` | UI 렌더링 |
 | 상태관리 | `Provider 6.x` | 전역 상태 관리 (12개 Provider) |
 | 라우팅 | `go_router 14.x` | 선언적 라우팅, 인증 리다이렉트, StatefulShellRoute |
-| HTTP 통신 | `Dio 5.x` | REST API 호출, JWT 인터셉터, 토큰 자동 갱신 |
+| HTTP 통신 | `Dio 5.x` | REST API 호출, JWT 인터셉터, 토큰 자동 갱신, 재시도 로직 |
 | 지도 | `flutter_naver_map` | 지도 렌더링, 마커, 경로 폴리라인 |
 | GPS | `geolocator 13.x` | 위치 추적, 정상 인증 |
 | 로컬 DB | `Hive 2.x` | 오프라인 캐싱, 도장/즐겨찾기/배지/설정 영속화 |
@@ -142,6 +145,7 @@
 | 이미지 | `cached_network_image` | 산 썸네일 캐싱 |
 | 사진 | `image_picker` | 갤러리/카메라 이미지 선택, 10MB 제한 |
 | 알림 | `firebase_messaging` + `flutter_local_notifications` | FCM 푸시 + 포그라운드 로컬 알림 |
+| Firebase | `firebase_core` | Firebase 초기화 (`firebase_options.dart` 기반) |
 | 공유 | `share_plus` + `screenshot` | 등산 기록 이미지 생성 → SNS 공유 |
 | SMS | `url_launcher` | 긴급 SOS SMS 발송 |
 | 다국어 | `flutter_localizations` + `intl` + `AppLocalizations` | 한국어/영어 l10n (~190키) |
@@ -156,12 +160,16 @@
 | 항목 | 전략 |
 |------|------|
 | API 키 | `.env.example`에서 로드, CI/CD에서 실제 키 주입 |
+| Firebase 키 | `google-services.json`, `GoogleService-Info.plist`, `firebase_options.dart` — `.gitignore`에 등록 |
 | JWT 토큰 | `flutter_secure_storage`로 암호화 저장 |
 | 토큰 갱신 | `QueuedInterceptorsWrapper`로 401 발생 시 자동 갱신, 실패 시 토큰 삭제 |
+| 네트워크 재시도 | Exponential backoff (최대 3회), 408/429/5xx 대상 |
 | Rate Limit | 429 응답 시 `RateLimitException` → 안내 메시지 |
 | 이미지 업로드 | 클라이언트 10MB 제한 체크 |
 | API 응답 | 모든 Remote DataSource에서 응답 타입 검증, DRF pagination 대응 |
 | 에러 응답 | 구조화된 에러 포맷 파싱, 레거시 포맷 fallback |
+| 에러 핸들링 | Provider별 `NetworkException`/`ValidationException`/`AuthException` 구분 처리 |
+| 입력 검증 | `Validators` 유틸리티 — 이메일/비밀번호/닉네임 검증 + XSS sanitize |
 
 ---
 
@@ -256,12 +264,17 @@ Django REST Framework 기반 백엔드와 연동합니다. Base URL: `http://loc
 
 ```
 lib/
-├── main.dart                          # 앱 진입점, 12개 Provider 등록
+├── main.dart                          # 앱 진입점, Firebase/Hive/NaverMap 초기화
+├── firebase_options.dart              # FlutterFire CLI 생성 (Firebase 앱 설정)
 │
 ├── core/
-│   ├── api_client.dart                # Dio, JWT 인터셉터, 429 Rate Limit 처리
+│   ├── api_client.dart                # Dio, JWT 인터셉터, 재시도 로직, Rate Limit 처리
+│   ├── badge_evaluator.dart           # 100종 배지 평가/진행도 로직 (순수 클래스)
 │   ├── constants.dart                 # dotenv 설정, Hive box 이름 (8개), Cache TTL
-│   └── exceptions.dart                # 7개 커스텀 에러 클래스
+│   ├── di.dart                        # DI 컨테이너 (DataSource/Repo/Provider 초기화)
+│   ├── exceptions.dart                # 7개 커스텀 에러 클래스
+│   ├── logger.dart                    # 구조화된 로거 (debug/info/warning/error)
+│   └── validators.dart               # 입력 유효성 검증 + XSS sanitize
 │
 ├── router/
 │   └── app_router.dart                # GoRouter (22개 라우트), 인증 리다이렉트
@@ -274,7 +287,7 @@ lib/
 │   ├── user.dart                      # 유저 정보 (파트너 필드 포함)
 │   ├── weather.dart                   # 날씨 데이터 (일출/일몰 포함)
 │   ├── review.dart                    # 산 리뷰
-│   └── badge.dart                     # 배지/업적 (12종 정의)
+│   └── badge.dart                     # 배지/업적 (100종 정의, 10개 카테고리)
 │
 ├── repositories/
 │   ├── auth_repository.dart           # 인증 + 파트너 관리
@@ -302,7 +315,7 @@ lib/
 │       └── badge_local.dart
 │
 ├── providers/                         # 상태관리 (12개 ChangeNotifier)
-│   ├── auth_provider.dart             # 로그인, 가입, 파트너, Rate Limit 처리
+│   ├── auth_provider.dart             # 로그인, 가입, 파트너, 예외별 에러 메시지
 │   ├── mountain_provider.dart         # 추천 코스 (위치 기반), 검색
 │   ├── plan_provider.dart             # 계획, 체크리스트 (추가/삭제)
 │   ├── stamp_provider.dart            # 도장 현황, GPS 도장 생성
@@ -311,9 +324,9 @@ lib/
 │   ├── location_provider.dart         # GPS 위치
 │   ├── tracking_provider.dart         # 실시간 등산 추적 (고도 기록)
 │   ├── favorite_provider.dart         # 산 즐겨찾기
-│   ├── statistics_provider.dart       # 통계 계산 (월별/연도별)
+│   ├── statistics_provider.dart       # 통계 계산 (월별/연도별, 캘린더, 최고기록)
 │   ├── review_provider.dart           # 산 리뷰 CRUD
-│   └── badge_provider.dart            # 배지 평가/관리
+│   └── badge_provider.dart            # 배지 상태관리 (평가 로직은 BadgeEvaluator에 위임)
 │
 ├── services/
 │   ├── location_service.dart          # Geolocator 래퍼, 정상 인증
@@ -342,7 +355,7 @@ lib/
 │   ├── sos_settings_screen.dart       # 비상 연락처 설정
 │   └── offline_map_settings_screen.dart # 오프라인 지도 관리
 │
-├── widgets/                           # 13개 재사용 컴포넌트
+├── widgets/                           # 16개 재사용 컴포넌트
 │   ├── mountain_card.dart             # 산 카드 + DifficultyTag
 │   ├── plan_card.dart                 # 계획 카드 (Dismissible)
 │   ├── stamp_tile.dart                # 도장 타일 + 상세 모달
@@ -355,7 +368,10 @@ lib/
 │   ├── review_card.dart               # 리뷰 카드 (별점, 사진)
 │   ├── review_form.dart               # 리뷰 작성 바텀시트
 │   ├── share_record_card.dart         # SNS 공유용 기록 이미지
-│   └── badge_tile.dart                # 배지 타일 (획득/잠금)
+│   ├── badge_tile.dart                # 배지 타일 (획득/잠금)
+│   ├── home_header_banner.dart        # 홈 헤더 배너
+│   ├── home_stats_card.dart           # 홈 통계 카드
+│   └── recent_record_tile.dart        # 최근 기록 타일
 │
 ├── theme/
 │   └── app_theme.dart                 # Light/Dark 테마, AppThemeColors extension
@@ -364,10 +380,13 @@ lib/
     ├── app_ko.arb                     # 한국어 (~190키)
     └── app_en.arb                     # 영어 (~190키)
 
-test/                                  # 142개 테스트, 18개 파일
+test/                                  # 185개 테스트, 21개 파일
 ├── core/
 │   ├── exceptions_test.dart
-│   └── api_client_error_test.dart
+│   ├── api_client_error_test.dart
+│   ├── badge_evaluator_test.dart
+│   ├── logger_test.dart
+│   └── validators_test.dart
 ├── models/
 │   ├── mountain_test.dart
 │   ├── weather_test.dart
@@ -423,7 +442,7 @@ test/                                  # 142개 테스트, 18개 파일
 
 - **100대 명산**: 실제 한국 100대 명산 데이터 (정확한 GPS 좌표, 높이, 난이도, 설명)
 - **100개 도장**: 각 명산에 대응하는 도장 데이터
-- **12종 배지**: 등산 횟수/거리/지역/계절/시간 기반 업적
+- **100종 배지**: 횟수/거리/고도/지역/도장/함께/시간/꾸준함/도전/스페셜 10개 카테고리
 - **6개 기본 체크리스트**: 등산화, 물, 간식, 방풍자켓, 스틱, 구급약
 
 ---
@@ -437,6 +456,16 @@ flutter pub get
 # .env.example에 실제 키 설정 (로컬 개발)
 # API_BASE_URL, NAVER_MAP_CLIENT_ID, WEATHER_API_KEY
 
+# Firebase 설정 (최초 1회)
+# 1. Firebase CLI 로그인
+firebase login
+# 2. FlutterFire CLI로 설정 파일 생성
+dart pub global activate flutterfire_cli
+export PATH="$PATH:$HOME/.pub-cache/bin"
+flutterfire configure --project=woori-san --platforms=android,ios \
+  --android-package-name=com.woorisan.app --ios-bundle-id=com.woorisan.app
+# → google-services.json, GoogleService-Info.plist, firebase_options.dart 자동 생성
+
 # 안드로이드 실행
 flutter run
 
@@ -449,3 +478,39 @@ flutter test
 # 정적 분석
 flutter analyze
 ```
+
+### CI/CD
+
+GitHub Actions로 PR/push마다 자동 검증합니다. (`.github/workflows/ci.yml`)
+
+```
+push/PR → flutter pub get → flutter analyze → flutter test (185개)
+```
+
+### 푸시 알림 테스트
+
+```bash
+# Firebase access token 발급 후 FCM HTTP v1 API로 전송
+curl -X POST \
+  "https://fcm.googleapis.com/v1/projects/woori-san/messages:send" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": {
+      "topic": "weather_alerts",
+      "notification": {
+        "title": "🏔️ 우리산",
+        "body": "오늘 등산하기 좋은 날씨예요!"
+      },
+      "data": { "route": "/home" }
+    }
+  }'
+```
+
+### 앱 식별자
+
+| 플랫폼 | App ID |
+|--------|--------|
+| Android | `com.woorisan.app` |
+| iOS | `com.woorisan.app` |
+| Firebase | `woori-san` |

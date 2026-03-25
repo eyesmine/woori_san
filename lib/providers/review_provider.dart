@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import '../core/exceptions.dart';
+import '../core/logger.dart';
 import '../models/review.dart';
 import '../repositories/review_repository.dart';
 
@@ -22,9 +24,11 @@ class ReviewProvider extends ChangeNotifier {
 
     try {
       _reviews = await _repo.getReviews(mountainId);
+    } on NetworkException {
+      _error = '네트워크 연결을 확인해주세요.';
     } catch (e) {
-      _error = e.toString();
-      debugPrint('ReviewProvider.loadReviews error: $e');
+      _error = '리뷰를 불러올 수 없습니다.';
+      AppLogger.error('loadReviews 실패', tag: 'ReviewProvider', error: e);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -47,12 +51,16 @@ class ReviewProvider extends ChangeNotifier {
       await _repo.createReview(mountainId, data);
       await loadReviews(mountainId);
       return true;
+    } on NetworkException {
+      _error = '네트워크 연결을 확인해주세요.';
+    } on ValidationException catch (e) {
+      _error = e.firstFieldError;
     } catch (e) {
-      _error = e.toString();
-      debugPrint('ReviewProvider.createReview error: $e');
-      notifyListeners();
-      return false;
+      _error = '리뷰 작성에 실패했습니다.';
+      AppLogger.error('createReview 실패', tag: 'ReviewProvider', error: e);
     }
+    notifyListeners();
+    return false;
   }
 
   Future<bool> deleteReview(String reviewId, String mountainId) async {
@@ -60,11 +68,13 @@ class ReviewProvider extends ChangeNotifier {
       await _repo.deleteReview(reviewId);
       await loadReviews(mountainId);
       return true;
+    } on NetworkException {
+      _error = '네트워크 연결을 확인해주세요.';
     } catch (e) {
-      _error = e.toString();
-      debugPrint('ReviewProvider.deleteReview error: $e');
-      notifyListeners();
-      return false;
+      _error = '리뷰 삭제에 실패했습니다.';
+      AppLogger.error('deleteReview 실패', tag: 'ReviewProvider', error: e);
     }
+    notifyListeners();
+    return false;
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../core/constants.dart';
@@ -13,6 +14,9 @@ import '../providers/badge_provider.dart';
 import '../widgets/mountain_card.dart';
 import '../widgets/weather_card.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/home_stats_card.dart';
+import '../widgets/home_header_banner.dart';
+import '../widgets/recent_record_tile.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,10 +39,21 @@ class _HomeScreenState extends State<HomeScreen> {
     final badgeProv = context.read<BadgeProvider>();
     final mountainProv = context.read<MountainProvider>();
     final stampProv = context.read<StampProvider>();
-    final prevCount = badgeProv.earnedCount;
+
     badgeProv.evaluate(records: mountainProv.records, stamps: stampProv.stamps);
-    if (badgeProv.earnedCount <= prevCount) return; // no new badges
-    final newBadges = badgeProv.getNewlyEarnedBadges();
+
+    final box = Hive.box(AppConstants.settingsBox);
+    final lastShownCount = box.get('lastBadgeCount', defaultValue: 0) as int;
+    final currentCount = badgeProv.earnedCount;
+
+    if (currentCount <= lastShownCount) return;
+
+    final allEarned = badgeProv.getNewlyEarnedBadges();
+    final newCount = currentCount - lastShownCount;
+    final newBadges = allEarned.length > newCount
+        ? allEarned.sublist(allEarned.length - newCount)
+        : allEarned;
+
     if (newBadges.isNotEmpty && mounted) {
       final l = AppLocalizations.of(context)!;
       final isKorean = l.localeName == 'ko';
@@ -70,6 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     }
+
+    box.put('lastBadgeCount', currentCount);
   }
 
   Future<void> _initWithLocation() async {
@@ -88,7 +105,6 @@ class _HomeScreenState extends State<HomeScreen> {
       mountainProvider.loadRecommended(lat: lat, lng: lng),
     ]);
 
-    // 산 목록에서 누락된 도장 동기화
     if (mounted && mountainProvider.mountains.isNotEmpty) {
       context.read<StampProvider>().syncWithMountains(mountainProvider.mountains);
     }
@@ -111,8 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
               expandedHeight: 200,
               pinned: true,
               backgroundColor: context.appBg,
-              flexibleSpace: FlexibleSpaceBar(
-                background: const _HeaderBanner(),
+              flexibleSpace: const FlexibleSpaceBar(
+                background: HomeHeaderBanner(),
               ),
               title: Text('${l.appTitle} 🏔️'),
               actions: [
@@ -190,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       scrollDirection: Axis.horizontal,
                       itemCount: displayList.length,
-                      separatorBuilder: (_, _) => const SizedBox(width: 12),
+                      separatorBuilder: (_, __) => const SizedBox(width: 12),
                       itemBuilder: (context, index) => MountainCard(mountain: displayList[index]),
                     ),
                   ),
@@ -218,12 +234,13 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Consumer2<MountainProvider, StampProvider>(
-                  builder: (context, mState, sState, _) => _StatsCard(
-                    hikes: mState.totalHikes,
-                    distance: mState.totalDistance,
-                    stamps: sState.totalStamped,
-                  ),
+                child: Builder(
+                  builder: (context) {
+                    final hikes = context.select<MountainProvider, int>((p) => p.totalHikes);
+                    final distance = context.select<MountainProvider, String>((p) => p.totalDistance);
+                    final stamps = context.select<StampProvider, int>((p) => p.totalStamped);
+                    return HomeStatsCard(hikes: hikes, distance: distance, stamps: stamps);
+                  },
                 ),
               ),
             ),
@@ -252,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           padding: const EdgeInsets.only(bottom: 12),
                           child: GestureDetector(
                             onTap: () => context.push('/record/${r.id}'),
-                            child: _RecentRecord(
+                            child: RecentRecordTile(
                               mountain: r.mountain,
                               date: r.date,
                               duration: r.duration,
@@ -366,7 +383,7 @@ class _AllMountainsSheetState extends State<_AllMountainsSheet> {
                     controller: widget.scrollController,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: filtered.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 12),
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
                     itemBuilder: (ctx, index) => GestureDetector(
                       onTap: () => widget.onTap(filtered[index]),
                       child: _MountainDetailTile(mountain: filtered[index]),
@@ -375,87 +392,6 @@ class _AllMountainsSheetState extends State<_AllMountainsSheet> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _HeaderBanner extends StatelessWidget {
-  const _HeaderBanner();
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1B4332), Color(0xFF2D6A4F), Color(0xFF40916C)],
-        ),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(l.headerSubtitle, style: const TextStyle(color: Colors.white70, fontSize: 14)),
-              const SizedBox(height: 4),
-              Text(l.headerTitle, style: const TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800, height: 1.3)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StatsCard extends StatelessWidget {
-  final int hikes;
-  final String distance;
-  final int stamps;
-  const _StatsCard({required this.hikes, required this.distance, required this.stamps});
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.primary,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: AppTheme.primary.withAlpha(77), blurRadius: 16, offset: const Offset(0, 6))],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _StatItem(value: '$hikes', label: l.totalHikes, icon: '🏔️'),
-          Container(width: 1, height: 40, color: Colors.white24),
-          _StatItem(value: distance, label: l.totalDistance, icon: '📍'),
-          Container(width: 1, height: 40, color: Colors.white24),
-          _StatItem(value: '$stamps개', label: l.earnedStamps, icon: '🎖️'),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatItem extends StatelessWidget {
-  final String value;
-  final String label;
-  final String icon;
-  const _StatItem({required this.value, required this.label, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(icon, style: const TextStyle(fontSize: 20)),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
-        Text(label, style: const TextStyle(color: Colors.white70, fontSize: 11)),
-      ],
     );
   }
 }
@@ -500,55 +436,6 @@ class _MountainDetailTile extends StatelessWidget {
               DifficultyTag(difficulty: mountain.difficulty),
               const SizedBox(height: 4),
               Text(mountain.time, style: TextStyle(color: context.appTextSub, fontSize: 12)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RecentRecord extends StatelessWidget {
-  final String mountain;
-  final String date;
-  final String duration;
-  final String distance;
-  final String emoji;
-
-  const _RecentRecord({required this.mountain, required this.date, required this.duration, required this.distance, required this.emoji});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: context.appSurface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 8, offset: const Offset(0, 2))],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 50, height: 50,
-            decoration: BoxDecoration(color: AppTheme.primary.withAlpha(25), borderRadius: BorderRadius.circular(14)),
-            child: Center(child: Text(emoji, style: const TextStyle(fontSize: 24))),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(mountain, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: context.appText)),
-                const SizedBox(height: 4),
-                Text(date, style: TextStyle(color: context.appTextSub, fontSize: 13)),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(duration, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppTheme.primary)),
-              Text(distance, style: TextStyle(color: context.appTextSub, fontSize: 12)),
             ],
           ),
         ],

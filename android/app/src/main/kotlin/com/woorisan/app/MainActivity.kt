@@ -1,4 +1,4 @@
-package com.example.woori_san
+package com.woorisan.app
 
 import io.flutter.embedding.android.FlutterActivity
 

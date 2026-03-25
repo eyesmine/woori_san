@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/validators.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
@@ -100,7 +101,7 @@ class _ReviewFormState extends State<ReviewForm> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _isSubmitting || _controller.text.trim().isEmpty
+              onPressed: _isSubmitting || _controller.text.trim().length < 5
                   ? null
                   : _submit,
               child: _isSubmitting
@@ -118,9 +119,10 @@ class _ReviewFormState extends State<ReviewForm> {
   }
 
   Future<void> _submit() async {
-    if (_controller.text.trim().isEmpty) return;
+    final content = Validators.sanitize(_controller.text.trim());
+    if (content.length < 5) return;
     setState(() => _isSubmitting = true);
-    final success = await widget.onSubmit(_controller.text.trim(), _rating);
+    final success = await widget.onSubmit(content, _rating);
     if (mounted) {
       setState(() => _isSubmitting = false);
       if (success) Navigator.pop(context);

@@ -2,6 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import '../core/constants.dart';
+import '../core/logger.dart';
 
 class SettingsProvider extends ChangeNotifier {
   late final Box _box;
@@ -61,7 +62,7 @@ class SettingsProvider extends ChangeNotifier {
         messaging.unsubscribeFromTopic('hiking_tips');
       }
     } catch (e) {
-      debugPrint('SettingsProvider._syncFcmTopics error: $e');
+      AppLogger.warning('FCM 토픽 동기화 실패', tag: 'SettingsProvider', error: e);
     }
   }
 

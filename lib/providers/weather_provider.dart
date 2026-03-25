@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../core/exceptions.dart';
+import '../core/logger.dart';
 import '../models/weather.dart';
 import '../repositories/weather_repository.dart';
 
@@ -22,10 +24,12 @@ class WeatherProvider extends ChangeNotifier {
 
     try {
       _weather = await _repo.getWeather(lat, lng);
-      _isLoading = false;
-      notifyListeners();
+    } on NetworkException {
+      _error = '네트워크 연결을 확인해주세요.';
     } catch (e) {
       _error = '날씨 정보를 불러올 수 없습니다.';
+      AppLogger.error('fetchWeather 실패', tag: 'WeatherProvider', error: e);
+    } finally {
       _isLoading = false;
       notifyListeners();
     }

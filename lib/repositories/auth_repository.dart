@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
 import '../core/api_client.dart';
 import '../core/exceptions.dart';
+import '../core/logger.dart';
 import '../datasources/remote/auth_remote.dart';
 import '../models/user.dart';
 
@@ -13,12 +13,12 @@ class AuthRepository {
   /// 로그인: 토큰 저장 → 프로필 조회
   Future<User> login(String email, String password) async {
     final data = await _remote.login(email, password);
-    debugPrint('AuthRepository.login response keys: ${data.keys.toList()}');
+    AppLogger.debug('login response keys: ${data.keys.toList()}', tag: 'AuthRepo');
     // Django Simple JWT: access/refresh 또는 token 키
     final accessToken = (data['access'] ?? data['token'] ?? data['accessToken']) as String?;
     final refreshToken = (data['refresh'] ?? data['refreshToken']) as String?;
     if (accessToken == null) {
-      debugPrint('AuthRepository.login response data: $data');
+      AppLogger.error('login 응답에 토큰 없음', tag: 'AuthRepo');
       throw AuthException('서버 응답에 토큰이 없습니다.');
     }
     await _apiClient.setTokens(
@@ -35,7 +35,7 @@ class AuthRepository {
     try {
       return await login(email, password);
     } catch (e) {
-      debugPrint('AuthRepository.signup auto-login error: $e');
+      AppLogger.warning('자동 로그인 실패', tag: 'AuthRepo', error: e);
       rethrow;
     }
   }
@@ -59,7 +59,7 @@ class AuthRepository {
       }
     } catch (e) {
       // 서버 로그아웃 실패해도 로컬 토큰은 삭제
-      debugPrint('AuthRepository.logout server error (ignored): $e');
+      AppLogger.info('서버 로그아웃 실패 (무시)', tag: 'AuthRepo');
     }
     await _apiClient.clearTokens();
   }
