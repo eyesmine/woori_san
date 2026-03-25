@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -18,7 +19,8 @@ import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -40,6 +42,9 @@ void main() async {
       child: WooriSanApp(router: router),
     ),
   );
+
+  // 초기화 완료 후 스플래시 제거
+  FlutterNativeSplash.remove();
 
   // 푸시 알림 초기화 (runApp 이후)
   NotificationService(apiClient: DI.apiClient, router: router).initialize();

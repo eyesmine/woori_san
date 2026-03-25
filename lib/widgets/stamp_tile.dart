@@ -118,65 +118,67 @@ class StampTile extends StatelessWidget {
           color: context.appSurface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2))),
-            const SizedBox(height: 20),
-            const Text('🏔️', style: TextStyle(fontSize: 48)),
-            const SizedBox(height: 8),
-            Text(mountain.name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: context.appText)),
-            Text('${mountain.region} · ${mountain.height}m', style: TextStyle(color: context.appTextSub, fontSize: 14)),
-            const SizedBox(height: 16),
-            if (mountain.isTogetherStamped)
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: AppTheme.accent.withAlpha(25), borderRadius: BorderRadius.circular(14)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('💑 ${l.togetherClimbedDate}: ', style: TextStyle(fontWeight: FontWeight.w600, color: context.appText)),
-                    Text(mountain.stampDate ?? '', style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700)),
-                  ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2))),
+              const SizedBox(height: 20),
+              const Text('🏔️', style: TextStyle(fontSize: 48)),
+              const SizedBox(height: 8),
+              Text(mountain.name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: context.appText)),
+              Text('${mountain.region} · ${mountain.height}m', style: TextStyle(color: context.appTextSub, fontSize: 14)),
+              const SizedBox(height: 16),
+              if (mountain.isTogetherStamped)
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(color: AppTheme.accent.withAlpha(25), borderRadius: BorderRadius.circular(14)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('💑 ${l.togetherClimbedDate}: ', style: TextStyle(fontWeight: FontWeight.w600, color: context.appText)),
+                      Text(mountain.stampDate ?? '', style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700)),
+                    ],
+                  ),
+                )
+              else if (mountain.isStamped)
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(color: AppTheme.primary.withAlpha(20), borderRadius: BorderRadius.circular(14)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('✅ ${l.climbedDate}: ', style: TextStyle(fontWeight: FontWeight.w600, color: context.appText)),
+                      Text(mountain.stampDate ?? '', style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700)),
+                    ],
+                  ),
+                )
+              else
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(14)),
+                  child: Text(l.notClimbedYet, textAlign: TextAlign.center, style: TextStyle(color: context.appTextSub, height: 1.5)),
                 ),
-              )
-            else if (mountain.isStamped)
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: AppTheme.primary.withAlpha(20), borderRadius: BorderRadius.circular(14)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('✅ ${l.climbedDate}: ', style: TextStyle(fontWeight: FontWeight.w600, color: context.appText)),
-                    Text(mountain.stampDate ?? '', style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.w700)),
-                  ],
-                ),
-              )
-            else
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(14)),
-                child: Text(l.notClimbedYet, textAlign: TextAlign.center, style: TextStyle(color: context.appTextSub, height: 1.5)),
-              ),
-            const SizedBox(height: 16),
-            if (!mountain.isStamped && mountainId != null)
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    context.push('/tracking?mountainId=$mountainId');
-                  },
-                  icon: const Icon(Icons.directions_walk),
-                  label: Text(l.startHiking),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              const SizedBox(height: 16),
+              if (!mountain.isStamped && mountainId != null)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      context.push('/tracking?mountainId=$mountainId');
+                    },
+                    icon: const Icon(Icons.directions_walk),
+                    label: Text(l.startHiking),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ),
-              ),
-            const SizedBox(height: 20),
-          ],
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );

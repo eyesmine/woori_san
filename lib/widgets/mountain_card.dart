@@ -42,7 +42,9 @@ class MountainCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(mountain.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: context.appText)),
+                  Text(mountain.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: context.appText), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 2),
+                  Text(mountain.location, style: TextStyle(fontSize: 11, color: context.appTextSub), maxLines: 1, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 4),
                   Row(children: [
                     DifficultyTag(difficulty: mountain.difficulty),

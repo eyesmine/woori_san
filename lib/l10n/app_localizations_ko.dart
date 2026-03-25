@@ -525,6 +525,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get noReviewsYet => '아직 리뷰가 없어요\n첫 리뷰를 남겨보세요!';
 
   @override
+  String get loginRequired => '로그인이 필요합니다';
+
+  @override
   String get reviewSubmitted => '리뷰가 등록되었습니다';
 
   @override

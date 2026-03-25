@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -179,6 +180,34 @@ class _DetailBodyState extends State<_DetailBody> {
                   const SizedBox(height: 24),
                   Text(l.location, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: context.appText)),
                   const SizedBox(height: 12),
+                  if (mountain.latitude != 0 || mountain.longitude != 0)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: SizedBox(
+                        height: 260,
+                        child: NaverMap(
+                          forceGesture: true,
+                          options: NaverMapViewOptions(
+                            initialCameraPosition: NCameraPosition(
+                              target: NLatLng(mountain.latitude, mountain.longitude),
+                              zoom: 13,
+                            ),
+                            mapType: NMapType.terrain,
+                            consumeSymbolTapEvents: false,
+                          ),
+                          onMapReady: (controller) {
+                            final marker = NMarker(
+                              id: 'mountain_${mountain.id}',
+                              position: NLatLng(mountain.latitude, mountain.longitude),
+                              caption: NOverlayCaption(text: mountain.name, textSize: 12, color: AppTheme.primary),
+                            );
+                            controller.addOverlay(marker);
+                          },
+                        ),
+                      ),
+                    ),
+                  if (mountain.latitude != 0 || mountain.longitude != 0)
+                    const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(

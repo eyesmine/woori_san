@@ -42,7 +42,7 @@ class MountainRemoteDataSource {
     final response = await api.get('/mountains/recommend/', params: {
       if (lat != null) 'lat': lat,
       if (lng != null) 'lng': lng,
-      if (radius != null) 'radius': radius,
+      if (radius != null && radius > 0) 'radius': radius,
     });
     final data = response.data;
     if (data is! List) return [];

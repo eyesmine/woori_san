@@ -172,6 +172,7 @@
   "submitReview": "리뷰 등록",
   "deleteReview": "리뷰 삭제",
   "noReviewsYet": "아직 리뷰가 없어요\n첫 리뷰를 남겨보세요!",
+  "loginRequired": "로그인이 필요합니다",
   "reviewSubmitted": "리뷰가 등록되었습니다",
   "reviewDeleted": "리뷰가 삭제되었습니다",
   "rating": "평점",

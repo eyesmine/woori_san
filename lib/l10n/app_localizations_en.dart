@@ -528,6 +528,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noReviewsYet => 'No reviews yet\nBe the first to review!';
 
   @override
+  String get loginRequired => 'Login required';
+
+  @override
   String get reviewSubmitted => 'Review submitted';
 
   @override

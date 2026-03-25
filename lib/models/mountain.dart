@@ -41,6 +41,7 @@ class Mountain {
   final double latitude;
   final double longitude;
   final String? imageUrl;
+  final List<Map<String, dynamic>> courses;
 
   const Mountain({
     required this.id,
@@ -56,6 +57,7 @@ class Mountain {
     required this.latitude,
     required this.longitude,
     this.imageUrl,
+    this.courses = const [],
   });
 
   String get distance => '${distanceKm}km';
@@ -74,6 +76,7 @@ class Mountain {
     'latitude': latitude,
     'longitude': longitude,
     'imageUrl': imageUrl,
+    if (courses.isNotEmpty) 'courses': courses,
   };
 
   factory Mountain.fromJson(Map<String, dynamic> json) {
@@ -101,6 +104,9 @@ class Mountain {
       latitude: lat != null ? double.tryParse(lat.toString()) ?? 0 : 0,
       longitude: lng != null ? double.tryParse(lng.toString()) ?? 0 : 0,
       imageUrl: json['imageUrl'] ?? json['thumbnail'],
+      courses: json['courses'] is List
+          ? (json['courses'] as List).map((c) => Map<String, dynamic>.from(c as Map)).toList()
+          : [],
     );
   }
 

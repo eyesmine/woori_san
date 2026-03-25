@@ -18,11 +18,13 @@
 - 코스 정보 카드
 - 즐겨찾기 하트 아이콘 (우상단)
 - 리뷰 섹션 (최근 3개 미리보기 + 전체보기)
+- 위치 지도 (NaverMap terrain 모드, 마커 + 인터랙티브 제스처)
 - "등산 시작" 버튼 → 실시간 추적 화면 연결
 - 잘못된 산 ID 접근 시 에러 화면
 
 ### 검색
-- 산 이름 / 지역 검색 (100대 명산 전체 대상)
+- 산 이름 / 지역 검색 (3,607개 전국 산 대상)
+- 동명이산 구분: 지역명 함께 표시 (예: "국사봉" - 경기 / "국사봉" - 강원)
 - 난이도 필터 (초급 / 중급 / 상급)
 - 지역 필터 (산 데이터에서 동적 추출)
 
@@ -93,8 +95,9 @@
 
 ### 산 리뷰
 - 산별 리뷰 목록 (별점, 내용, 사진, 작성일)
-- 리뷰 작성 (별점 선택 + 텍스트 500자)
+- 리뷰 작성 (별점 선택 + 텍스트 500자, 비로그인 시 안내)
 - 본인 리뷰 삭제 (확인 다이얼로그)
+- 실패 시 에러 메시지 SnackBar 표시
 - Pull-to-refresh 지원
 
 ### 긴급 SOS
@@ -127,6 +130,7 @@
 - 알림 탭 시 GoRouter 기반 화면 이동
 - 토픽 구독/해제 (weather_alerts, hiking_tips)
 - FCM 토큰 서버 등록 (`POST /api/devices/`)
+- iOS APNS 토큰 대기 처리 (크래시 방지)
 
 ---
 
@@ -144,7 +148,7 @@
 | 차트 | `fl_chart` | 통계 막대/꺾은선 차트, 고도 프로필 그래프 |
 | 이미지 | `cached_network_image` | 산 썸네일 캐싱 |
 | 사진 | `image_picker` | 갤러리/카메라 이미지 선택, 10MB 제한 |
-| 알림 | `firebase_messaging` + `flutter_local_notifications` | FCM 푸시 + 포그라운드 로컬 알림 |
+| 알림 | `firebase_messaging` + `flutter_local_notifications` | FCM 푸시 + 포그라운드 로컬 알림 (iOS APNS 대기 처리) |
 | Firebase | `firebase_core` | Firebase 초기화 (`firebase_options.dart` 기반) |
 | 공유 | `share_plus` + `screenshot` | 등산 기록 이미지 생성 → SNS 공유 |
 | SMS | `url_launcher` | 긴급 SOS SMS 발송 |
@@ -152,6 +156,8 @@
 | 환경 변수 | `flutter_dotenv` | `.env.example` 파일에서 API 키 로드 |
 | 보안 저장소 | `flutter_secure_storage` | JWT 토큰 암호화 저장 |
 | 유틸 | `permission_handler` | 권한 관리 |
+| 앱 아이콘 | `flutter_launcher_icons` | iOS/Android 아이콘 자동 생성 |
+| 스플래시 | `flutter_native_splash` | 네이티브 스플래시 화면 (Light/Dark) |
 
 ---
 
@@ -196,15 +202,15 @@ Django REST Framework 기반 백엔드와 연동합니다. Base URL: `http://loc
 |--------|----------|------|-------------|
 | GET | `/api/mountains/` | 산 목록 (필터: region, difficulty, min_height, max_height) | `MountainRemoteDataSource.getMountains()` |
 | GET | `/api/mountains/{id}/` | 산 상세 | `MountainRemoteDataSource.getDetail()` |
-| GET | `/api/mountains/recommend/?lat=&lng=` | 위치 기반 추천 (계절/미방문 산 고려) | `MountainRemoteDataSource.getRecommended()` |
-| GET | `/api/mountains/{id}/courses/` | 코스 목록 | `MountainRemoteDataSource.getCourses()` |
+| GET | `/api/mountains/recommend/?lat=&lng=&radius=` | 위치 기반 추천 (계절/미방문 산 고려, radius>0 필수) | `MountainRemoteDataSource.getRecommended()` |
+| GET | `/api/mountains/{id}/courses/` | 코스 목록 (상세 응답 courses 배열에도 포함) | `MountainRemoteDataSource.getCourses()` |
 
 **리뷰 `/api/mountains/{id}/reviews/`**
 
 | Method | Endpoint | 설명 | Flutter 호출 |
 |--------|----------|------|-------------|
 | GET | `/api/mountains/{id}/reviews/` | 리뷰 목록 (DRF pagination) | `ReviewRemoteDataSource.getReviews()` |
-| POST | `/api/mountains/{id}/reviews/` | 리뷰 작성 (content, rating, photo_urls) | `ReviewRemoteDataSource.createReview()` |
+| POST | `/api/mountains/{id}/reviews/` | 리뷰 작성 → 생성된 리뷰 객체 반환 | `ReviewRemoteDataSource.createReview()` |
 | DELETE | `/api/reviews/{id}/` | 리뷰 삭제 (본인만) | `ReviewRemoteDataSource.deleteReview()` |
 
 **등산 계획 `/api/plans/`**
@@ -237,10 +243,10 @@ Django REST Framework 기반 백엔드와 연동합니다. Base URL: `http://loc
 |------|-----------|-------------|------|
 | **JWT** | `access`, `refresh` | `accessToken`, `refreshToken` | 로그인/갱신 응답 |
 | **User** | `profile_image`, `created_at`, `partner_id`, `partner_nickname` | `profileImageUrl`, `createdAt`, `partnerId`, `partnerNickname` | |
-| **Mountain** | `region`, `lat`/`lng`, `thumbnail`, `easy`/`mid`/`hard` | `location`, `latitude`/`longitude`, `imageUrl`, `초급`/`중급`/`상급` | |
+| **Mountain** | `region`, `lat`/`lng`, `thumbnail`, `easy`/`mid`/`hard`, `courses` | `location`, `latitude`/`longitude`, `imageUrl`, `초급`/`중급`/`상급`, `courses` | courses: 상세 응답에 포함 |
 | **HikingPlan** | `planned_at`, `mountain` (int), `mountain_name` | `date`, `mountainId`, `mountain` | `status`: `pending`/`confirmed`/`done` |
 | **Stamp** | `mountain_name`, `stamped_at`, `is_together` | `name`, `stampDate`, `isTogetherStamped` | `stamped_at` 존재 → `isStamped: true` |
-| **Review** | `mountain_id`, `user_id`, `user_nickname`, `profile_image`, `photo_urls`, `created_at` | `mountainId`, `userId`, `userNickname`, `userProfileImageUrl`, `photoUrls`, `createdAt` | |
+| **Review** | `mountain_id`, `user_id`, `user_nickname`, `profile_image`, `photo_urls`, `created_at` | `mountainId`, `userId`, `userNickname`, `userProfileImageUrl`, `photoUrls`, `createdAt` | POST 응답: 생성된 리뷰 객체 반환 |
 | **Weather** | OpenWeatherMap `sys.sunrise`/`sys.sunset` | `sunrise`, `sunset` (DateTime) | Unix timestamp → DateTime |
 | **에러 응답** | `{"error": {"code", "message", "details"}}` | `AppException` 계열 | 레거시 포맷 호환 |
 
@@ -380,7 +386,11 @@ lib/
     ├── app_ko.arb                     # 한국어 (~190키)
     └── app_en.arb                     # 영어 (~190키)
 
-test/                                  # 185개 테스트, 21개 파일
+assets/
+├── app_icon.png                       # 앱 아이콘 원본 (1024x1024)
+└── splash_logo.png                    # 스플래시 로고 (512x512)
+
+test/                                  # 194개 테스트, 24개 파일
 ├── core/
 │   ├── exceptions_test.dart
 │   ├── api_client_error_test.dart
@@ -440,10 +450,28 @@ test/                                  # 185개 테스트, 21개 파일
 
 ### 데이터
 
-- **100대 명산**: 실제 한국 100대 명산 데이터 (정확한 GPS 좌표, 높이, 난이도, 설명)
-- **100개 도장**: 각 명산에 대응하는 도장 데이터
+- **3,607개 산**: 산림청 전국 산 데이터 (100대 명산 + 전국 산, GPS 좌표, 높이, 난이도, 설명)
+- **365개 등산 코스**: 227개 산에 코스 정보 (거리, 소요시간, 난이도), 코스 없는 산은 고도 기반 추정값
+- **동명이산 대응**: id 기반 식별, 지역명 함께 표시
+- **100개 도장**: 100대 명산에 대응하는 도장 데이터
 - **100종 배지**: 횟수/거리/고도/지역/도장/함께/시간/꾸준함/도전/스페셜 10개 카테고리
 - **6개 기본 체크리스트**: 등산화, 물, 간식, 방풍자켓, 스틱, 구급약
+
+---
+
+### 앱 아이콘 & 스플래시
+
+커스텀 앱 아이콘과 스플래시 화면이 적용되어 있습니다.
+
+- **앱 아이콘**: `assets/app_icon.png` (1024x1024) — 산 + 태양 + "우리산" 디자인
+- **스플래시**: `assets/splash_logo.png` — 베이지 배경(Light) / 다크 배경(Dark)
+- 설정: `pubspec.yaml` 내 `flutter_launcher_icons`, `flutter_native_splash` 섹션
+
+```bash
+# 아이콘 교체 후 재생성
+dart run flutter_launcher_icons
+dart run flutter_native_splash:create
+```
 
 ---
 
@@ -484,7 +512,7 @@ flutter analyze
 GitHub Actions로 PR/push마다 자동 검증합니다. (`.github/workflows/ci.yml`)
 
 ```
-push/PR → flutter pub get → flutter analyze → flutter test (185개)
+push/PR → flutter pub get → flutter analyze → flutter test (194개)
 ```
 
 ### 푸시 알림 테스트

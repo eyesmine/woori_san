@@ -83,6 +83,7 @@ class _ReviewFormState extends State<ReviewForm> {
             maxLength: 500,
             maxLines: 5,
             minLines: 3,
+            onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
               hintText: l.reviewHint,
               hintStyle: TextStyle(color: context.appTextSub, fontSize: 14),

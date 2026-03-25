@@ -106,6 +106,14 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
   }
 
   void _showReviewForm(AppLocalizations l) {
+    final isLoggedIn = context.read<AuthProvider>().isLoggedIn;
+    if (!isLoggedIn) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l.loginRequired), backgroundColor: Colors.orange),
+      );
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -121,10 +129,16 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
             rating,
             [],
           );
-          if (success && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l.reviewSubmitted), backgroundColor: AppTheme.primary),
-            );
+          if (mounted) {
+            if (success) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(l.reviewSubmitted), backgroundColor: AppTheme.primary),
+              );
+            } else if (provider.error != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(provider.error!), backgroundColor: Colors.red),
+              );
+            }
           }
           return success;
         },

@@ -24,8 +24,9 @@ class ReviewRemoteDataSource {
     return [];
   }
 
-  Future<void> createReview(String mountainId, Map<String, dynamic> data) async {
-    await api.post('/mountains/$mountainId/reviews/', data: data);
+  Future<Review> createReview(String mountainId, Map<String, dynamic> data) async {
+    final response = await api.post('/mountains/$mountainId/reviews/', data: data);
+    return Review.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<void> deleteReview(String reviewId) async {

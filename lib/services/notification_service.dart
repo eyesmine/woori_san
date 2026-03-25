@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
@@ -42,10 +43,20 @@ class NotificationService {
       sound: true,
     );
 
-    // FCM 토큰 가져오기
-    final token = await _messaging!.getToken();
-    if (token != null) {
-      await _registerToken(token);
+    // FCM 토큰 가져오기 (iOS는 APNS 토큰 준비 대기 필요)
+    try {
+      if (Platform.isIOS) {
+        final apnsToken = await _messaging!.getAPNSToken();
+        if (apnsToken == null) {
+          await Future.delayed(const Duration(seconds: 3));
+        }
+      }
+      final token = await _messaging!.getToken();
+      if (token != null) {
+        await _registerToken(token);
+      }
+    } catch (e) {
+      AppLogger.warning('FCM 토큰 가져오기 실패', tag: 'Notification', error: e);
     }
 
     // 토큰 갱신 리스너
@@ -57,9 +68,13 @@ class NotificationService {
     // 백그라운드 탭 핸들러
     FirebaseMessaging.onMessageOpenedApp.listen(_handleMessageTap);
 
-    // 토픽 구독
-    await _messaging!.subscribeToTopic('weather_alerts');
-    await _messaging!.subscribeToTopic('hiking_tips');
+    // 토픽 구독 (iOS: APNS 토큰 미준비 시 실패 가능)
+    try {
+      await _messaging!.subscribeToTopic('weather_alerts');
+      await _messaging!.subscribeToTopic('hiking_tips');
+    } catch (e) {
+      AppLogger.warning('토픽 구독 실패', tag: 'Notification', error: e);
+    }
   }
 
   Future<void> _registerToken(String token) async {

@@ -172,6 +172,7 @@
   "submitReview": "Submit Review",
   "deleteReview": "Delete Review",
   "noReviewsYet": "No reviews yet\nBe the first to review!",
+  "loginRequired": "Login required",
   "reviewSubmitted": "Review submitted",
   "reviewDeleted": "Review deleted",
   "rating": "Rating",

@@ -1130,6 +1130,12 @@ abstract class AppLocalizations {
   /// **'아직 리뷰가 없어요\n첫 리뷰를 남겨보세요!'**
   String get noReviewsYet;
 
+  /// No description provided for @loginRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'로그인이 필요합니다'**
+  String get loginRequired;
+
   /// No description provided for @reviewSubmitted.
   ///
   /// In ko, this message translates to:

@@ -48,8 +48,9 @@ class ReviewProvider extends ChangeNotifier {
       if (rating != null) data['rating'] = rating;
       if (photoUrls.isNotEmpty) data['photo_urls'] = photoUrls;
 
-      await _repo.createReview(mountainId, data);
-      await loadReviews(mountainId);
+      final created = await _repo.createReview(mountainId, data);
+      _reviews.insert(0, created);
+      notifyListeners();
       return true;
     } on NetworkException {
       _error = '네트워크 연결을 확인해주세요.';

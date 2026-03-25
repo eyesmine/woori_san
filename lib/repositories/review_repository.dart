@@ -22,8 +22,8 @@ class ReviewRepository {
     }
   }
 
-  Future<void> createReview(String mountainId, Map<String, dynamic> data) async {
-    await _remote.createReview(mountainId, data);
+  Future<Review> createReview(String mountainId, Map<String, dynamic> data) async {
+    return await _remote.createReview(mountainId, data);
   }
 
   Future<void> deleteReview(String reviewId) async {
