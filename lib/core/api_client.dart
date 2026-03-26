@@ -17,6 +17,8 @@ class ApiClient {
   static const _maxRetries = 3;
   static const _retryableStatusCodes = {408, 429, 500, 502, 503, 504};
 
+  bool _isRefreshing = false;
+
   ApiClient() {
     _dio = Dio(BaseOptions(
       baseUrl: AppConstants.apiBaseUrl,
@@ -34,7 +36,8 @@ class ApiClient {
         handler.next(options);
       },
       onError: (error, handler) async {
-        if (error.response?.statusCode == 401) {
+        if (error.response?.statusCode == 401 && !_isRefreshing) {
+          _isRefreshing = true;
           try {
             final newToken = await _refreshToken();
             if (newToken != null) {
@@ -44,6 +47,8 @@ class ApiClient {
             }
           } catch (e) {
             AppLogger.warning('Token refresh failed', tag: _tag, error: e);
+          } finally {
+            _isRefreshing = false;
           }
         }
         handler.next(error);

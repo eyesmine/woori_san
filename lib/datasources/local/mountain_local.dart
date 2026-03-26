@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:hive/hive.dart';
 import '../../core/constants.dart';
+import '../../core/logger.dart';
 import '../../models/mountain.dart';
 
 class MountainLocalDataSource {
@@ -22,8 +23,14 @@ class MountainLocalDataSource {
       }
     }
 
-    final list = jsonDecode(data) as List;
-    return list.map((e) => Mountain.fromJson(e)).toList();
+    try {
+      final list = jsonDecode(data) as List;
+      return list.map((e) => Mountain.fromJson(e)).toList();
+    } catch (e) {
+      AppLogger.warning('Mountains 캐시 역직렬화 실패', tag: 'MountainLocal', error: e);
+      await clearCache();
+      return null;
+    }
   }
 
   Future<void> cache(List<Mountain> mountains) async {

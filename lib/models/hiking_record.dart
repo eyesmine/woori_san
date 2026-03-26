@@ -78,24 +78,36 @@ class HikingRecord {
   };
 
   factory HikingRecord.fromJson(Map<String, dynamic> json) {
-    final distanceKm = json['distanceKm'] != null
+    var distanceKm = json['distanceKm'] != null
         ? (json['distanceKm'] as num).toDouble()
         : double.tryParse((json['distance'] as String? ?? '').replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0;
+    // 음수 값 방어
+    if (distanceKm < 0) distanceKm = 0;
+
+    final elevationGain = json['elevationGain'] as int?;
+
     return HikingRecord(
       id: json['id'],
-      mountain: json['mountain'],
-      date: json['date'],
-      duration: json['duration'],
+      mountain: json['mountain'] ?? '알 수 없음',
+      date: json['date'] ?? '',
+      duration: json['duration'] ?? '0m 0s',
       distanceKm: distanceKm,
-      emoji: json['emoji'],
+      emoji: json['emoji'] ?? '🏔️',
       mountainId: json['mountainId'],
       routePoints: (json['routePoints'] as List?)
-          ?.map((p) => Map<String, double>.from((p as Map).map((k, v) => MapEntry(k as String, (v as num).toDouble()))))
+          ?.map((p) {
+            try {
+              return Map<String, double>.from((p as Map).map((k, v) => MapEntry(k as String, (v as num).toDouble())));
+            } catch (_) {
+              return <String, double>{};
+            }
+          })
+          .where((p) => p.isNotEmpty)
           .toList(),
       photoUrls: (json['photoUrls'] as List?)?.cast<String>(),
-      elevationGain: json['elevationGain'] as int?,
-      startTime: json['startTime'] != null ? DateTime.parse(json['startTime']) : null,
-      endTime: json['endTime'] != null ? DateTime.parse(json['endTime']) : null,
+      elevationGain: elevationGain != null && elevationGain < 0 ? 0 : elevationGain,
+      startTime: json['startTime'] != null ? DateTime.tryParse(json['startTime']) : null,
+      endTime: json['endTime'] != null ? DateTime.tryParse(json['endTime']) : null,
     );
   }
 }

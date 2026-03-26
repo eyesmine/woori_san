@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:hive/hive.dart';
 import '../../core/constants.dart';
+import '../../core/logger.dart';
 import '../../models/review.dart';
 
 class ReviewLocalDataSource {
@@ -9,8 +10,13 @@ class ReviewLocalDataSource {
   List<Review>? getCached(String mountainId) {
     final data = _box.get(mountainId);
     if (data == null) return null;
-    final list = jsonDecode(data) as List;
-    return list.map((e) => Review.fromJson(e)).toList();
+    try {
+      final list = jsonDecode(data) as List;
+      return list.map((e) => Review.fromJson(e)).toList();
+    } catch (e) {
+      AppLogger.warning('Reviews 캐시 역직렬화 실패 (mountainId=$mountainId)', tag: 'ReviewLocal', error: e);
+      return null;
+    }
   }
 
   Future<void> cache(String mountainId, List<Review> reviews) async {

@@ -110,8 +110,19 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> registerPartner(String partnerId) async {
+    final trimmedId = partnerId.trim();
+    if (trimmedId.isEmpty) {
+      _error = '파트너 ID를 입력해주세요.';
+      notifyListeners();
+      return false;
+    }
+    if (trimmedId.length > 255) {
+      _error = '파트너 ID가 너무 깁니다.';
+      notifyListeners();
+      return false;
+    }
     try {
-      await _repo.registerPartner(partnerId);
+      await _repo.registerPartner(trimmedId);
       _user = await _repo.getProfile();
       notifyListeners();
       return true;

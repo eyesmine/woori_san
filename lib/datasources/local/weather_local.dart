@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:hive/hive.dart';
 import '../../core/constants.dart';
+import '../../core/logger.dart';
 import '../../models/weather.dart';
 
 class WeatherLocalDataSource {
@@ -22,7 +23,13 @@ class WeatherLocalDataSource {
       }
     }
 
-    return Weather.fromJson(jsonDecode(data));
+    try {
+      return Weather.fromJson(jsonDecode(data));
+    } catch (e) {
+      AppLogger.warning('Weather 캐시 역직렬화 실패', tag: 'WeatherLocal', error: e);
+      await clearCache();
+      return null;
+    }
   }
 
   Future<void> cache(Weather weather) async {

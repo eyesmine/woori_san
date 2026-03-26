@@ -14,6 +14,7 @@ class TrackingProvider extends ChangeNotifier {
   double _totalDistanceMeters = 0;
   bool _isActive = false;
   bool _isPaused = false;
+  bool _isLoading = false;
   bool _summitReached = false;
   bool _summitDialogShown = false;
   Mountain? _currentMountain;
@@ -30,6 +31,7 @@ class TrackingProvider extends ChangeNotifier {
   double get totalDistanceKm => _totalDistanceMeters / 1000;
   bool get isActive => _isActive;
   bool get isPaused => _isPaused;
+  bool get isLoading => _isLoading;
   bool get summitReached => _summitReached;
   bool get summitDialogShown => _summitDialogShown;
   Mountain? get currentMountain => _currentMountain;
@@ -53,13 +55,18 @@ class TrackingProvider extends ChangeNotifier {
     if (_isActive) return;
 
     _error = null;
+    _isLoading = true;
+    notifyListeners();
+
     final hasPermission = await _locationService.requestPermission();
     if (!hasPermission) {
       _error = '위치 권한이 필요합니다';
+      _isLoading = false;
       notifyListeners();
       return;
     }
 
+    _isLoading = false;
     _currentMountain = mountain;
     _routePoints = [];
     _elapsed = Duration.zero;
@@ -152,10 +159,12 @@ class TrackingProvider extends ChangeNotifier {
     _totalDistanceMeters = 0;
     _isActive = false;
     _isPaused = false;
+    _isLoading = false;
     _summitReached = false;
     _summitDialogShown = false;
     _currentMountain = null;
     _lastPosition = null;
+    _error = null;
     notifyListeners();
   }
 

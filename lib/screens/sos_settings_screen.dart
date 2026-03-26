@@ -14,17 +14,36 @@ class SosSettingsScreen extends StatefulWidget {
 class _SosSettingsScreenState extends State<SosSettingsScreen> {
   late final TextEditingController _nameController;
   late final TextEditingController _phoneController;
+  late final SettingsProvider _settings;
+  bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
-    final settings = context.read<SettingsProvider>();
-    _nameController = TextEditingController(text: settings.emergencyName ?? '');
-    _phoneController = TextEditingController(text: settings.emergencyPhone ?? '');
+    _settings = context.read<SettingsProvider>();
+    _nameController = TextEditingController(text: _settings.emergencyName ?? '');
+    _phoneController = TextEditingController(text: _settings.emergencyPhone ?? '');
+    // async 로딩 완료 후 텍스트 필드 갱신을 위해 리스너 등록
+    _settings.addListener(_onSettingsChanged);
+  }
+
+  void _onSettingsChanged() {
+    if (!_initialized && mounted) {
+      if (_settings.emergencyName != null || _settings.emergencyPhone != null) {
+        _initialized = true;
+        if (_nameController.text.isEmpty && _settings.emergencyName != null) {
+          _nameController.text = _settings.emergencyName!;
+        }
+        if (_phoneController.text.isEmpty && _settings.emergencyPhone != null) {
+          _phoneController.text = _settings.emergencyPhone!;
+        }
+      }
+    }
   }
 
   @override
   void dispose() {
+    _settings.removeListener(_onSettingsChanged);
     _nameController.dispose();
     _phoneController.dispose();
     super.dispose();

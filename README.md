@@ -20,7 +20,7 @@
 - 리뷰 섹션 (최근 3개 미리보기 + 전체보기)
 - 위치 지도 (NaverMap terrain 모드, 마커 + 인터랙티브 제스처)
 - "등산 시작" 버튼 → 실시간 추적 화면 연결
-- 잘못된 산 ID 접근 시 에러 화면
+- 잘못된 산 ID 접근 시 에러 화면 + 홈 이동 버튼
 
 ### 검색
 - 산 이름 / 지역 검색 (3,607개 전국 산 대상)
@@ -56,7 +56,7 @@
 - 긴급 SOS 버튼 (AppBar, 비상연락처로 현재 위치 SMS 전송)
 - 정상 도착 자동 감지 → 서버 도장 API 호출 (GPS 검증) → 실패 시 로컬 fallback
 - 종료 시 HikingRecord 자동 생성 (고도 데이터 포함)
-- 위치 권한 거부 시 에러 화면
+- 위치 권한 요청 중 로딩 스피너 표시, 거부 시 에러 화면
 
 ### 기록 상세
 - 산 이름, 날짜, 거리, 소요 시간, 누적 상승 표시
@@ -101,7 +101,8 @@
 - Pull-to-refresh 지원
 
 ### 긴급 SOS
-- 비상 연락처 설정 (이름, 전화번호)
+- 비상 연락처 설정 (이름, 전화번호) — `FlutterSecureStorage`로 암호화 저장
+- 기존 Hive 평문 데이터 자동 마이그레이션
 - 등산 중 SOS 버튼 → 현재 GPS 좌표를 SMS로 전송
 - Google Maps 링크 포함
 
@@ -127,10 +128,11 @@
 ### 알림
 - Firebase Cloud Messaging 푸시 알림 (FCM HTTP v1 API)
 - 포그라운드: flutter_local_notifications로 표시
-- 알림 탭 시 GoRouter 기반 화면 이동
+- 알림 탭 시 GoRouter 기반 화면 이동 (딥링크 경로 화이트리스트 검증)
 - 토픽 구독/해제 (weather_alerts, hiking_tips)
 - FCM 토큰 서버 등록 (`POST /api/devices/`)
-- iOS APNS 토큰 대기 처리 (크래시 방지)
+- iOS APNS 토큰 대기 처리 (2초 타임아웃, 크래시 방지)
+- FCM 리스너 구독 관리 및 `dispose()` 지원
 
 ---
 
@@ -154,7 +156,7 @@
 | SMS | `url_launcher` | 긴급 SOS SMS 발송 |
 | 다국어 | `flutter_localizations` + `intl` + `AppLocalizations` | 한국어/영어 l10n (~190키) |
 | 환경 변수 | `flutter_dotenv` | `.env.example` 파일에서 API 키 로드 |
-| 보안 저장소 | `flutter_secure_storage` | JWT 토큰 암호화 저장 |
+| 보안 저장소 | `flutter_secure_storage` | JWT 토큰 + 비상연락처 암호화 저장 |
 | 유틸 | `permission_handler` | 권한 관리 |
 | 앱 아이콘 | `flutter_launcher_icons` | iOS/Android 아이콘 자동 생성 |
 | 스플래시 | `flutter_native_splash` | 네이티브 스플래시 화면 (Light/Dark) |
@@ -168,14 +170,18 @@
 | API 키 | `.env.example`에서 로드, CI/CD에서 실제 키 주입 |
 | Firebase 키 | `google-services.json`, `GoogleService-Info.plist`, `firebase_options.dart` — `.gitignore`에 등록 |
 | JWT 토큰 | `flutter_secure_storage`로 암호화 저장 |
-| 토큰 갱신 | `QueuedInterceptorsWrapper`로 401 발생 시 자동 갱신, 실패 시 토큰 삭제 |
+| 비상연락처 | `flutter_secure_storage`로 PII 암호화 저장 (Hive 평문 → 자동 마이그레이션) |
+| 토큰 갱신 | `QueuedInterceptorsWrapper`로 401 발생 시 자동 갱신, `_isRefreshing` 가드로 무한루프 방지, 실패 시 토큰 삭제 |
 | 네트워크 재시도 | Exponential backoff (최대 3회), 408/429/5xx 대상 |
 | Rate Limit | 429 응답 시 `RateLimitException` → 안내 메시지 |
 | 이미지 업로드 | 클라이언트 10MB 제한 체크 |
 | API 응답 | 모든 Remote DataSource에서 응답 타입 검증, DRF pagination 대응 |
 | 에러 응답 | 구조화된 에러 포맷 파싱, 레거시 포맷 fallback |
 | 에러 핸들링 | Provider별 `NetworkException`/`ValidationException`/`AuthException` 구분 처리 |
-| 입력 검증 | `Validators` 유틸리티 — 이메일/비밀번호/닉네임 검증 + XSS sanitize |
+| 입력 검증 | `Validators` 유틸리티 — 이메일/비밀번호/닉네임/파트너 ID 검증 + XSS sanitize |
+| 딥링크 검증 | 알림 딥링크 경로 화이트리스트 검증 (허용된 접두사만 내비게이션) |
+| 로컬 캐시 방어 | 모든 Local DataSource에서 JSON 역직렬화 실패 시 안전한 기본값 반환 (앱 크래시 방지) |
+| 데이터 파싱 방어 | `HikingRecord.fromJson` 음수/null 방어, `DateTime.tryParse` 사용 |
 
 ---
 
@@ -274,10 +280,10 @@ lib/
 ├── firebase_options.dart              # FlutterFire CLI 생성 (Firebase 앱 설정)
 │
 ├── core/
-│   ├── api_client.dart                # Dio, JWT 인터셉터, 재시도 로직, Rate Limit 처리
+│   ├── api_client.dart                # Dio, JWT 인터셉터, 재시도 로직, Rate Limit 처리, 토큰 갱신 무한루프 방지
 │   ├── badge_evaluator.dart           # 100종 배지 평가/진행도 로직 (순수 클래스)
 │   ├── constants.dart                 # dotenv 설정, Hive box 이름 (8개), Cache TTL
-│   ├── di.dart                        # DI 컨테이너 (DataSource/Repo/Provider 초기화)
+│   ├── di.dart                        # DI 컨테이너 (DataSource/Repo/Provider/NotificationService 초기화)
 │   ├── exceptions.dart                # 7개 커스텀 에러 클래스
 │   ├── logger.dart                    # 구조화된 로거 (debug/info/warning/error)
 │   └── validators.dart               # 입력 유효성 검증 + XSS sanitize
@@ -288,7 +294,7 @@ lib/
 ├── models/
 │   ├── mountain.dart                  # 산 정보 + Difficulty enum + 100대 명산 데이터
 │   ├── hiking_plan.dart               # 등산 계획 + 체크리스트
-│   ├── hiking_record.dart             # 산행 기록 (GPS 경로, 고도, 사진)
+│   ├── hiking_record.dart             # 산행 기록 (GPS 경로, 고도, 사진, 방어적 파싱)
 │   ├── stamp.dart                     # 도장 기록 + 100대 명산 스탬프 데이터
 │   ├── user.dart                      # 유저 정보 (파트너 필드 포함)
 │   ├── weather.dart                   # 날씨 데이터 (일출/일몰 포함)
@@ -311,7 +317,7 @@ lib/
 │   │   ├── stamp_remote.dart
 │   │   ├── weather_remote.dart
 │   │   └── review_remote.dart
-│   └── local/                         # Hive 로컬 캐시
+│   └── local/                         # Hive 로컬 캐시 (JSON 역직렬화 방어 처리)
 │       ├── mountain_local.dart
 │       ├── plan_local.dart
 │       ├── stamp_local.dart
@@ -321,14 +327,14 @@ lib/
 │       └── badge_local.dart
 │
 ├── providers/                         # 상태관리 (12개 ChangeNotifier)
-│   ├── auth_provider.dart             # 로그인, 가입, 파트너, 예외별 에러 메시지
+│   ├── auth_provider.dart             # 로그인, 가입, 파트너 (입력 검증), 예외별 에러 메시지
 │   ├── mountain_provider.dart         # 추천 코스 (위치 기반), 검색
 │   ├── plan_provider.dart             # 계획, 체크리스트 (추가/삭제)
 │   ├── stamp_provider.dart            # 도장 현황, GPS 도장 생성
 │   ├── weather_provider.dart          # 날씨 데이터
-│   ├── settings_provider.dart         # 다크 모드, 알림, 언어, 비상 연락처
+│   ├── settings_provider.dart         # 다크 모드, 알림, 언어, 비상 연락처 (SecureStorage 암호화)
 │   ├── location_provider.dart         # GPS 위치
-│   ├── tracking_provider.dart         # 실시간 등산 추적 (고도 기록)
+│   ├── tracking_provider.dart         # 실시간 등산 추적 (고도 기록, 로딩 상태)
 │   ├── favorite_provider.dart         # 산 즐겨찾기
 │   ├── statistics_provider.dart       # 통계 계산 (월별/연도별, 캘린더, 최고기록)
 │   ├── review_provider.dart           # 산 리뷰 CRUD
@@ -336,7 +342,7 @@ lib/
 │
 ├── services/
 │   ├── location_service.dart          # Geolocator 래퍼, 정상 인증
-│   ├── notification_service.dart      # FCM + 로컬 알림
+│   ├── notification_service.dart      # FCM + 로컬 알림 (구독 관리, 딥링크 검증)
 │   ├── sos_service.dart               # 긴급 SOS SMS 발송
 │   └── share_service.dart             # 등산 기록 이미지 공유
 │

@@ -57,7 +57,8 @@ class _TrackingScreenState extends State<TrackingScreen> {
   void _onTrackingChanged() {
     if (_tracking.summitReached && !_tracking.summitDialogShown && mounted) {
       _tracking.markSummitDialogShown();
-      // Auto-stamp via backend (GPS 검증)
+
+      // Provider를 async 콜백 바깥에서 미리 캡처
       final mountain = _tracking.currentMountain;
       final lastPos = _tracking.routePoints.isNotEmpty ? _tracking.routePoints.last : null;
       if (mountain != null && lastPos != null) {
@@ -70,7 +71,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
           together: hasPartner,
         ).then((success) {
           if (!success && mounted) {
-            // 서버 실패 시 로컬 fallback
+            // 서버 실패 시 로컬 fallback (stampProvider는 이미 캡처됨)
             final stamps = stampProvider.stamps;
             final idx = stamps.indexWhere((s) => s.name == mountain.name);
             if (idx != -1 && !stamps[idx].isStamped) {
@@ -183,6 +184,13 @@ class _TrackingScreenState extends State<TrackingScreen> {
     final l = AppLocalizations.of(context)!;
     return Consumer<TrackingProvider>(
       builder: (context, tracking, _) {
+        if (tracking.isLoading) {
+          return Scaffold(
+            appBar: AppBar(title: Text(l.trackingTitle)),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+
         if (tracking.error != null) {
           return Scaffold(
             appBar: AppBar(title: Text(l.trackingTitle)),

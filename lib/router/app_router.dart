@@ -94,7 +94,19 @@ GoRouter createRouter(AuthProvider authProvider) {
           final id = state.pathParameters['id'];
           if (id == null) {
             return Scaffold(
-              body: Center(child: Text(AppLocalizations.of(context)?.invalidAccess ?? 'Invalid access.')),
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(AppLocalizations.of(context)?.invalidAccess ?? 'Invalid access.'),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => GoRouter.of(context).go('/home'),
+                      child: const Text('홈으로'),
+                    ),
+                  ],
+                ),
+              ),
             );
           }
           return MountainDetailScreen(mountainId: id);

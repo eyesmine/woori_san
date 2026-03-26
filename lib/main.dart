@@ -47,7 +47,8 @@ void main() async {
   FlutterNativeSplash.remove();
 
   // 푸시 알림 초기화 (runApp 이후)
-  NotificationService(apiClient: DI.apiClient, router: router).initialize();
+  DI.notificationService = NotificationService(apiClient: DI.apiClient, router: router);
+  DI.notificationService!.initialize();
 }
 
 Future<void> _initializeApp() async {

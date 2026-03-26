@@ -1,19 +1,24 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import '../core/constants.dart';
 import '../core/logger.dart';
 
 class SettingsProvider extends ChangeNotifier {
   late final Box _box;
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   ThemeMode _themeMode = ThemeMode.system;
   bool _notificationsEnabled = true;
   Locale _locale = const Locale('ko');
+  String? _emergencyName;
+  String? _emergencyPhone;
 
   SettingsProvider() {
     _box = Hive.box(AppConstants.settingsBox);
     _load();
+    _loadEmergencyContact();
   }
 
   ThemeMode get themeMode => _themeMode;
@@ -66,12 +71,31 @@ class SettingsProvider extends ChangeNotifier {
     }
   }
 
-  String? get emergencyName => _box.get('emergencyName') as String?;
-  String? get emergencyPhone => _box.get('emergencyPhone') as String?;
+  String? get emergencyName => _emergencyName;
+  String? get emergencyPhone => _emergencyPhone;
 
-  void setEmergencyContact(String name, String phone) {
-    _box.put('emergencyName', name);
-    _box.put('emergencyPhone', phone);
+  Future<void> _loadEmergencyContact() async {
+    _emergencyName = await _secureStorage.read(key: 'emergencyName');
+    _emergencyPhone = await _secureStorage.read(key: 'emergencyPhone');
+    // Hive → SecureStorage 마이그레이션
+    if (_emergencyName == null && _box.containsKey('emergencyName')) {
+      _emergencyName = _box.get('emergencyName') as String?;
+      _emergencyPhone = _box.get('emergencyPhone') as String?;
+      if (_emergencyName != null) {
+        await _secureStorage.write(key: 'emergencyName', value: _emergencyName!);
+        await _secureStorage.write(key: 'emergencyPhone', value: _emergencyPhone ?? '');
+        await _box.delete('emergencyName');
+        await _box.delete('emergencyPhone');
+      }
+    }
+    notifyListeners();
+  }
+
+  Future<void> setEmergencyContact(String name, String phone) async {
+    _emergencyName = name;
+    _emergencyPhone = phone;
+    await _secureStorage.write(key: 'emergencyName', value: name);
+    await _secureStorage.write(key: 'emergencyPhone', value: phone);
     notifyListeners();
   }
 

@@ -39,7 +39,8 @@ class LocationProvider extends ChangeNotifier {
   }
 
   void startTracking() {
-    if (_isTracking || _positionStream != null) return;
+    if (_isTracking) return;
+    _positionStream?.cancel(); // 기존 구독이 있으면 해제 후 재생성
     _isTracking = true;
     _positionStream = _locationService.getPositionStream().listen(
       (position) {

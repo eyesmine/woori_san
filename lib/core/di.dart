@@ -33,11 +33,13 @@ import '../providers/statistics_provider.dart';
 import '../providers/review_provider.dart';
 import '../providers/badge_provider.dart';
 import '../services/location_service.dart';
+import '../services/notification_service.dart';
 
 class DI {
   DI._();
 
   static late final AuthProvider authProvider;
+  static NotificationService? notificationService;
 
   static void initialize() {
     final apiClient = ApiClient();
