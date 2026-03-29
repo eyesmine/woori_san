@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _passwordController,
                   obscureText: true,
                   decoration: _inputDecoration(l.password),
-                  validator: (v) => Validators.password(v, errorMessage: l.passwordValidation),
+                  validator: (v) => (v == null || v.isEmpty) ? l.passwordValidation : null,
                 ),
                 const SizedBox(height: 8),
                 Selector<AuthProvider, String?>(

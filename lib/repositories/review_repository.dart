@@ -16,8 +16,12 @@ class ReviewRepository {
       return remote;
     } catch (e) {
       AppLogger.warning('리뷰 원격 조회 실패, 캐시 사용', tag: 'ReviewRepo', error: e);
-      final cached = _local.getCached(mountainId);
-      if (cached != null) return cached;
+      try {
+        final cached = _local.getCached(mountainId);
+        if (cached != null) return cached;
+      } catch (cacheError) {
+        AppLogger.warning('리뷰 캐시 조회도 실패', tag: 'ReviewRepo', error: cacheError);
+      }
       rethrow;
     }
   }

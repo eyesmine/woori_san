@@ -19,7 +19,11 @@ class FavoriteProvider extends ChangeNotifier {
     } else {
       _favoriteIds.add(mountainId);
     }
-    _local.saveAll(_favoriteIds);
+    try {
+      _local.saveAll(_favoriteIds);
+    } catch (e) {
+      // 저장 실패 시 무시 — 다음 앱 실행 시 동기화됨
+    }
     notifyListeners();
   }
 }

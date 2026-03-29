@@ -56,15 +56,15 @@ class SettingsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _syncFcmTopics(bool enabled) {
+  Future<void> _syncFcmTopics(bool enabled) async {
     try {
       final messaging = FirebaseMessaging.instance;
       if (enabled) {
-        messaging.subscribeToTopic('weather_alerts');
-        messaging.subscribeToTopic('hiking_tips');
+        await messaging.subscribeToTopic('weather_alerts');
+        await messaging.subscribeToTopic('hiking_tips');
       } else {
-        messaging.unsubscribeFromTopic('weather_alerts');
-        messaging.unsubscribeFromTopic('hiking_tips');
+        await messaging.unsubscribeFromTopic('weather_alerts');
+        await messaging.unsubscribeFromTopic('hiking_tips');
       }
     } catch (e) {
       AppLogger.warning('FCM 토픽 동기화 실패', tag: 'SettingsProvider', error: e);

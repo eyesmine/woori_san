@@ -41,13 +41,19 @@ class StampProvider extends ChangeNotifier {
   void toggleStamp(int index, {bool together = false}) {
     if (index < 0 || index >= _stamps.length) return;
     final m = _stamps[index];
-    m.isStamped = !m.isStamped;
-    if (m.isStamped) {
-      m.stampDate = _formatDate(DateTime.now());
-      if (together) m.isTogetherStamped = true;
+    final newStamped = !m.isStamped;
+    if (newStamped) {
+      _stamps[index] = m.copyWith(
+        isStamped: true,
+        stampDate: _formatDate(DateTime.now()),
+        isTogetherStamped: together,
+      );
     } else {
-      m.isTogetherStamped = false;
-      m.stampDate = null;
+      _stamps[index] = m.copyWith(
+        isStamped: false,
+        isTogetherStamped: false,
+        clearStampDate: true,
+      );
     }
     _repo.saveAll(_stamps);
     notifyListeners();
@@ -96,7 +102,7 @@ class StampProvider extends ChangeNotifier {
     if (index < 0 || index >= _stamps.length) return;
     final m = _stamps[index];
     if (!m.isStamped) return;
-    m.isTogetherStamped = !m.isTogetherStamped;
+    _stamps[index] = m.copyWith(isTogetherStamped: !m.isTogetherStamped);
     _repo.saveAll(_stamps);
     notifyListeners();
   }

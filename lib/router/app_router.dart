@@ -148,7 +148,14 @@ GoRouter createRouter(AuthProvider authProvider) {
         path: '/mountain/:id/reviews',
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final id = state.pathParameters['id']!;
+          final id = state.pathParameters['id'];
+          if (id == null) {
+            return Scaffold(
+              body: Center(
+                child: Text(AppLocalizations.of(context)?.invalidAccess ?? 'Invalid access.'),
+              ),
+            );
+          }
           return ReviewsScreen(mountainId: id);
         },
       ),
@@ -176,11 +183,37 @@ GoRouter createRouter(AuthProvider authProvider) {
         path: '/record/:id',
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final id = state.pathParameters['id']!;
+          final id = state.pathParameters['id'];
+          if (id == null) {
+            return Scaffold(
+              body: Center(
+                child: Text(AppLocalizations.of(context)?.invalidAccess ?? 'Invalid access.'),
+              ),
+            );
+          }
           return RecordDetailScreen(recordId: id);
         },
       ),
     ],
+    errorBuilder: (context, state) {
+      final l = AppLocalizations.of(context);
+      return Scaffold(
+        appBar: AppBar(title: Text(l?.error ?? 'Error')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(l?.pageNotFound ?? 'Page not found'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => GoRouter.of(context).go('/home'),
+                child: Text(l?.homeButton ?? 'Go Home'),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
   );
 }
 

@@ -25,11 +25,18 @@ class ShareService {
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/woori_san_record.png');
     await file.writeAsBytes(image);
-    await SharePlus.instance.share(
-      ShareParams(
-        files: [XFile(file.path)],
-        text: '우리산 등산 기록 - ${record.mountain} ${record.date}',
-      ),
-    );
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text: '우리산 등산 기록 - ${record.mountain} ${record.date}',
+        ),
+      );
+    } finally {
+      // 공유 후 임시 파일 정리
+      try {
+        if (await file.exists()) await file.delete();
+      } catch (_) {}
+    }
   }
 }

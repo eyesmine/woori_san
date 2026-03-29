@@ -28,7 +28,11 @@ void main() async {
     ),
   );
 
-  await _initializeApp();
+  try {
+    await _initializeApp();
+  } catch (e) {
+    AppLogger.error('앱 초기화 실패', tag: 'Init', error: e);
+  }
 
   // DI 초기화
   DI.initialize();
@@ -43,20 +47,23 @@ void main() async {
     ),
   );
 
-  // 초기화 완료 후 스플래시 제거
+  // 스플래시 제거 (runApp 이후)
   FlutterNativeSplash.remove();
 
   // 푸시 알림 초기화 (runApp 이후)
   DI.notificationService = NotificationService(apiClient: DI.apiClient, router: router);
-  DI.notificationService!.initialize();
+  await DI.notificationService!.initialize();
 }
 
 Future<void> _initializeApp() async {
   // 환경 변수 로드
   try {
-    await dotenv.load(fileName: '.env.example');
+    await dotenv.load(fileName: '.env');
   } catch (e) {
-    AppLogger.warning('.env.example 로드 실패', tag: 'Init', error: e);
+    AppLogger.warning('.env 로드 실패, .env.example 시도', tag: 'Init', error: e);
+    try {
+      await dotenv.load(fileName: '.env.example');
+    } catch (_) {}
   }
 
   // 한국어 로케일 초기화
@@ -78,6 +85,7 @@ Future<void> _initializeApp() async {
       Hive.openBox(AppConstants.favoriteBox),
       Hive.openBox(AppConstants.reviewBox),
       Hive.openBox(AppConstants.badgeBox),
+      Hive.openBox(AppConstants.recordBox),
     ]);
   } catch (e) {
     AppLogger.error('Hive 초기화 실패', tag: 'Init', error: e);

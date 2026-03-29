@@ -657,10 +657,11 @@ class BadgeEvaluator {
     return count;
   }
 
+  /// 장마철(6~7월) 등산 여부 — hasSummerHike(6~8월)와 구별
   bool get hasRainHike {
     for (final r in records) {
       final d = r.startTime ?? _parseDateField(r.date);
-      if (d != null && d.month >= 6 && d.month <= 8) return true;
+      if (d != null && d.month >= 6 && d.month <= 7) return true;
     }
     return false;
   }
@@ -862,11 +863,25 @@ class BadgeEvaluator {
   }
 
   DateTime? _parseDateField(String date) {
+    // "2025.01.20" 또는 "2025-01-20" 형식
+    try {
+      final cleaned = date.replaceAll('.', '-');
+      final parsed = DateTime.tryParse(cleaned);
+      if (parsed != null) return parsed;
+    } catch (_) {}
+
+    // "1월 20일" 형식 — 연도 정보가 없으므로 현재 연도 사용하되 미래 날짜면 작년으로
     final m = RegExp(r'(\d+)월\s*(\d+)일').firstMatch(date);
     if (m != null) {
       final month = int.parse(m.group(1)!);
       final day = int.parse(m.group(2)!);
-      return DateTime(DateTime.now().year, month, day);
+      if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+      final now = DateTime.now();
+      var result = DateTime(now.year, month, day);
+      if (result.isAfter(now)) {
+        result = DateTime(now.year - 1, month, day);
+      }
+      return result;
     }
     return null;
   }

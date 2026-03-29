@@ -21,7 +21,7 @@ class LocationService {
   Future<Position> getCurrentPosition() async {
     return await Geolocator.getCurrentPosition(
       locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
-    );
+    ).timeout(const Duration(seconds: 15));
   }
 
   Stream<Position> getPositionStream() {

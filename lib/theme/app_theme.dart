@@ -62,7 +62,7 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: Colors.white,
+        backgroundColor: surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),

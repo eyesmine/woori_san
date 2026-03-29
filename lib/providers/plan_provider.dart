@@ -31,7 +31,9 @@ class PlanProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      AppLogger.error('addPlan 실패', tag: 'PlanProvider', error: e);
+      _plans.removeWhere((p) => p.id == plan.id);
+      notifyListeners();
+      AppLogger.error('addPlan 실패, 롤백', tag: 'PlanProvider', error: e);
     }
   }
 
@@ -39,13 +41,15 @@ class PlanProvider extends ChangeNotifier {
     final index = _plans.indexWhere((p) => p.id == id);
     if (index == -1) return;
 
-    _plans.removeAt(index);
+    final removed = _plans.removeAt(index);
     notifyListeners();
 
     try {
       await _repo.deletePlan(id);
     } catch (e) {
-      AppLogger.error('removePlan 실패', tag: 'PlanProvider', error: e);
+      _plans.insert(index.clamp(0, _plans.length), removed);
+      notifyListeners();
+      AppLogger.error('removePlan 실패, 롤백', tag: 'PlanProvider', error: e);
     }
   }
 
@@ -53,6 +57,7 @@ class PlanProvider extends ChangeNotifier {
     final index = _plans.indexWhere((p) => p.id == id);
     if (index == -1) return;
 
+    final previous = _plans[index];
     final updated = _plans[index].copyWith(status: status);
     _plans[index] = updated;
     notifyListeners();
@@ -60,7 +65,9 @@ class PlanProvider extends ChangeNotifier {
     try {
       await _repo.updatePlanStatus(updated);
     } catch (e) {
-      AppLogger.error('updatePlanStatus 실패', tag: 'PlanProvider', error: e);
+      _plans[index] = previous;
+      notifyListeners();
+      AppLogger.error('updatePlanStatus 실패, 롤백', tag: 'PlanProvider', error: e);
     }
   }
 

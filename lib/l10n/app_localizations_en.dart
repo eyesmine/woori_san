@@ -30,7 +30,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emailValidation => 'Enter a valid email';
 
   @override
-  String get passwordValidation => 'Must be at least 6 characters';
+  String get passwordValidation => '8+ characters with letters and numbers';
+
+  @override
+  String get passwordRequirement => '8+ chars, letters+numbers';
 
   @override
   String get nicknameValidation => 'Must be at least 2 characters';
@@ -669,4 +672,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noRecordYet => 'No records yet';
+
+  @override
+  String get badgeTitle => 'Badges';
+
+  @override
+  String get achievementComplete => 'Complete!';
+
+  @override
+  String get achievementIncomplete => 'Incomplete';
+
+  @override
+  String get summitArrived => 'You\'ve reached the summit!';
+
+  @override
+  String get gpsPoints => 'GPS Points';
+
+  @override
+  String get latitude => 'Latitude';
+
+  @override
+  String get longitude => 'Longitude';
+
+  @override
+  String get homeButton => 'Go Home';
+
+  @override
+  String get pageNotFound => 'Page not found';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get stampedStatus => 'Stamped';
+
+  @override
+  String get unstampedStatus => 'Not stamped';
+
+  @override
+  String get pauseButton => 'Pause';
+
+  @override
+  String get resumeButton => 'Resume';
 }

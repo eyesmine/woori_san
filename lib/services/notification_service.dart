@@ -12,6 +12,7 @@ class NotificationService {
   final GoRouter? _router;
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
+  bool _initialized = false;
   StreamSubscription<String>? _tokenRefreshSub;
   StreamSubscription<RemoteMessage>? _foregroundSub;
   StreamSubscription<RemoteMessage>? _messageTapSub;
@@ -26,6 +27,9 @@ class NotificationService {
         _router = router;
 
   Future<void> initialize() async {
+    if (_initialized) return;
+    _initialized = true;
+
     try {
       _messaging = FirebaseMessaging.instance;
     } catch (e) {
@@ -54,11 +58,14 @@ class NotificationService {
     // FCM 토큰 가져오기 (iOS는 APNS 토큰 준비 대기 — 타임아웃 적용)
     try {
       if (Platform.isIOS) {
-        final apnsToken = await _messaging!.getAPNSToken();
+        var apnsToken = await _messaging!.getAPNSToken();
         if (apnsToken == null) {
           // 최대 2초 대기 후 재시도, 실패해도 계속 진행
           await Future.delayed(const Duration(seconds: 2));
-          await _messaging!.getAPNSToken();
+          apnsToken = await _messaging!.getAPNSToken();
+          if (apnsToken == null) {
+            AppLogger.warning('APNS 토큰 획득 실패 (재시도 후)', tag: 'Notification');
+          }
         }
       }
       final token = await _messaging!.getToken();
@@ -100,7 +107,7 @@ class NotificationService {
     if (notification == null) return;
 
     _localNotifications.show(
-      notification.hashCode,
+      notification.hashCode & 0x7FFFFFFF,
       notification.title ?? '우리산',
       notification.body ?? '',
       const NotificationDetails(

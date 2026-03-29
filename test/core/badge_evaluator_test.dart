@@ -32,11 +32,14 @@ Stamp _stamp({
   bool isTogether = false,
   String? stampDate,
 }) {
-  final s = Stamp(name: name, region: region, height: height);
-  s.isStamped = isStamped;
-  s.isTogetherStamped = isTogether;
-  s.stampDate = stampDate;
-  return s;
+  return Stamp(
+    name: name,
+    region: region,
+    height: height,
+    isStamped: isStamped,
+    isTogetherStamped: isTogether,
+    stampDate: stampDate,
+  );
 }
 
 void main() {
@@ -312,6 +315,101 @@ void main() {
         stamps: [],
       );
       expect(eval.hasSpeedDemon, isTrue);
+    });
+
+    test('hasSpeedDemon negative: distance < 5km', () {
+      final eval = BadgeEvaluator(
+        records: [
+          _record(
+            distanceKm: 4.0,
+            startTime: DateTime(2025, 3, 1, 8, 0),
+            endTime: DateTime(2025, 3, 1, 9, 0),
+          ),
+        ],
+        stamps: [],
+      );
+      expect(eval.hasSpeedDemon, isFalse);
+    });
+
+    test('hasSpeedDemon negative: duration >= 2h', () {
+      final eval = BadgeEvaluator(
+        records: [
+          _record(
+            distanceKm: 6.0,
+            startTime: DateTime(2025, 3, 1, 8, 0),
+            endTime: DateTime(2025, 3, 1, 10, 0),
+          ),
+        ],
+        stamps: [],
+      );
+      expect(eval.hasSpeedDemon, isFalse);
+    });
+  });
+
+  group('BadgeEvaluator - duration parsing edge cases', () {
+    test('minutes-only format', () {
+      final eval = BadgeEvaluator(
+        records: [_record(duration: '45m')],
+        stamps: [],
+      );
+      expect(eval.maxDurationHours, closeTo(0.75, 0.01));
+    });
+
+    test('hours-only format', () {
+      final eval = BadgeEvaluator(
+        records: [_record(duration: '3h')],
+        stamps: [],
+      );
+      expect(eval.maxDurationHours, closeTo(3.0, 0.01));
+    });
+
+    test('empty duration', () {
+      final eval = BadgeEvaluator(
+        records: [_record(duration: '')],
+        stamps: [],
+      );
+      expect(eval.maxDurationHours, 0.0);
+    });
+  });
+
+  group('BadgeEvaluator - fallback date parsing', () {
+    test('weekendHikes with no startTime but parseable date', () {
+      final eval = BadgeEvaluator(
+        records: [
+          HikingRecord(
+            mountain: '북한산',
+            date: '2025.03.01', // Saturday
+            duration: '2h',
+            distanceKm: 5.0,
+            emoji: '🏔️',
+          ),
+        ],
+        stamps: [],
+      );
+      expect(eval.weekendHikes, 1);
+    });
+
+    test('maxStreak with unparseable dates and no startTime returns 0', () {
+      final eval = BadgeEvaluator(
+        records: [
+          HikingRecord(
+            mountain: '북한산',
+            date: 'unknown',
+            duration: '2h',
+            distanceKm: 5.0,
+            emoji: '🏔️',
+          ),
+          HikingRecord(
+            mountain: '설악산',
+            date: 'nope',
+            duration: '3h',
+            distanceKm: 4.0,
+            emoji: '🏔️',
+          ),
+        ],
+        stamps: [],
+      );
+      expect(eval.maxStreak, 0);
     });
   });
 }

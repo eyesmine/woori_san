@@ -98,7 +98,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
             Text(l.summitReached, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: context.appText)),
             const SizedBox(height: 8),
             Text(
-              '${context.read<TrackingProvider>().currentMountain?.name ?? ""} 정상에 도착했습니다!\n${l.stampAwarded}.',
+              '${context.read<TrackingProvider>().currentMountain?.name ?? ""} ${l.summitArrived}\n${l.stampAwarded}.',
               textAlign: TextAlign.center,
               style: TextStyle(color: context.appTextSub, height: 1.5),
             ),
@@ -293,6 +293,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
                             // Pause/Resume
                             FloatingActionButton(
                               heroTag: 'pause',
+                              tooltip: tracking.isPaused ? l.resumeButton : l.pauseButton,
                               onPressed: tracking.isPaused ? tracking.resume : tracking.pause,
                               backgroundColor: Colors.orange,
                               child: Icon(tracking.isPaused ? Icons.play_arrow : Icons.pause, color: Colors.white),
@@ -301,6 +302,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
                             // Stop
                             FloatingActionButton.large(
                               heroTag: 'stop',
+                              tooltip: l.stopHiking,
                               onPressed: _stopTracking,
                               backgroundColor: Colors.red,
                               child: const Icon(Icons.stop, color: Colors.white, size: 36),
@@ -374,7 +376,7 @@ class _GradientPlaceholder extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '${tracking.routePoints.length} GPS 포인트',
+                  '${tracking.routePoints.length} ${l.gpsPoints}',
                   style: const TextStyle(color: Colors.white, fontSize: 11),
                 ),
               ),

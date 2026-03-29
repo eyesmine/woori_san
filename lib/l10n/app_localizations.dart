@@ -143,8 +143,14 @@ abstract class AppLocalizations {
   /// No description provided for @passwordValidation.
   ///
   /// In ko, this message translates to:
-  /// **'6자 이상 입력하세요'**
+  /// **'8자 이상, 영문+숫자 포함'**
   String get passwordValidation;
+
+  /// No description provided for @passwordRequirement.
+  ///
+  /// In ko, this message translates to:
+  /// **'8자 이상, 영문+숫자'**
+  String get passwordRequirement;
 
   /// No description provided for @nicknameValidation.
   ///
@@ -1411,6 +1417,90 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'아직 기록이 없어요'**
   String get noRecordYet;
+
+  /// No description provided for @badgeTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'뱃지'**
+  String get badgeTitle;
+
+  /// No description provided for @achievementComplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'달성 완료!'**
+  String get achievementComplete;
+
+  /// No description provided for @achievementIncomplete.
+  ///
+  /// In ko, this message translates to:
+  /// **'미달성'**
+  String get achievementIncomplete;
+
+  /// No description provided for @summitArrived.
+  ///
+  /// In ko, this message translates to:
+  /// **'정상에 도착했습니다!'**
+  String get summitArrived;
+
+  /// No description provided for @gpsPoints.
+  ///
+  /// In ko, this message translates to:
+  /// **'GPS 포인트'**
+  String get gpsPoints;
+
+  /// No description provided for @latitude.
+  ///
+  /// In ko, this message translates to:
+  /// **'위도'**
+  String get latitude;
+
+  /// No description provided for @longitude.
+  ///
+  /// In ko, this message translates to:
+  /// **'경도'**
+  String get longitude;
+
+  /// No description provided for @homeButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'홈으로'**
+  String get homeButton;
+
+  /// No description provided for @pageNotFound.
+  ///
+  /// In ko, this message translates to:
+  /// **'페이지를 찾을 수 없습니다'**
+  String get pageNotFound;
+
+  /// No description provided for @error.
+  ///
+  /// In ko, this message translates to:
+  /// **'오류'**
+  String get error;
+
+  /// No description provided for @stampedStatus.
+  ///
+  /// In ko, this message translates to:
+  /// **'도장 획득'**
+  String get stampedStatus;
+
+  /// No description provided for @unstampedStatus.
+  ///
+  /// In ko, this message translates to:
+  /// **'미획득'**
+  String get unstampedStatus;
+
+  /// No description provided for @pauseButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'일시정지'**
+  String get pauseButton;
+
+  /// No description provided for @resumeButton.
+  ///
+  /// In ko, this message translates to:
+  /// **'재개'**
+  String get resumeButton;
 }
 
 class _AppLocalizationsDelegate

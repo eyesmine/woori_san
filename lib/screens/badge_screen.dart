@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/badge.dart';
 import '../providers/badge_provider.dart';
 import '../theme/app_theme.dart';
@@ -9,8 +10,9 @@ class BadgeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('뱃지')),
+      appBar: AppBar(title: Text(l?.badgeTitle ?? 'Badges')),
       body: Consumer<BadgeProvider>(
         builder: (context, provider, _) {
           return ListView(
@@ -230,14 +232,14 @@ class BadgeScreen extends StatelessWidget {
                   color: AppTheme.primary.withAlpha(25),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.check_circle, color: AppTheme.primary, size: 18),
-                    SizedBox(width: 6),
+                    const Icon(Icons.check_circle, color: AppTheme.primary, size: 18),
+                    const SizedBox(width: 6),
                     Text(
-                      '달성 완료!',
-                      style: TextStyle(
+                      AppLocalizations.of(context)?.achievementComplete ?? 'Complete!',
+                      style: const TextStyle(
                         color: AppTheme.primary,
                         fontWeight: FontWeight.w700,
                         fontSize: 14,

@@ -82,7 +82,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: _inputDecoration('${l.password} (6자 이상)'),
+                  decoration: _inputDecoration('${l.password} (${l.passwordRequirement})'),
                   validator: (v) => Validators.password(v, errorMessage: l.passwordValidation),
                 ),
                 const SizedBox(height: 8),

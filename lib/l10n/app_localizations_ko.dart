@@ -30,7 +30,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get emailValidation => '올바른 이메일을 입력하세요';
 
   @override
-  String get passwordValidation => '6자 이상 입력하세요';
+  String get passwordValidation => '8자 이상, 영문+숫자 포함';
+
+  @override
+  String get passwordRequirement => '8자 이상, 영문+숫자';
 
   @override
   String get nicknameValidation => '2자 이상 입력하세요';
@@ -666,4 +669,46 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get noRecordYet => '아직 기록이 없어요';
+
+  @override
+  String get badgeTitle => '뱃지';
+
+  @override
+  String get achievementComplete => '달성 완료!';
+
+  @override
+  String get achievementIncomplete => '미달성';
+
+  @override
+  String get summitArrived => '정상에 도착했습니다!';
+
+  @override
+  String get gpsPoints => 'GPS 포인트';
+
+  @override
+  String get latitude => '위도';
+
+  @override
+  String get longitude => '경도';
+
+  @override
+  String get homeButton => '홈으로';
+
+  @override
+  String get pageNotFound => '페이지를 찾을 수 없습니다';
+
+  @override
+  String get error => '오류';
+
+  @override
+  String get stampedStatus => '도장 획득';
+
+  @override
+  String get unstampedStatus => '미획득';
+
+  @override
+  String get pauseButton => '일시정지';
+
+  @override
+  String get resumeButton => '재개';
 }

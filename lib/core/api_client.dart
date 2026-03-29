@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -17,7 +18,7 @@ class ApiClient {
   static const _maxRetries = 3;
   static const _retryableStatusCodes = {408, 429, 500, 502, 503, 504};
 
-  bool _isRefreshing = false;
+  Completer<String?>? _refreshCompleter;
 
   ApiClient() {
     _dio = Dio(BaseOptions(
@@ -36,10 +37,9 @@ class ApiClient {
         handler.next(options);
       },
       onError: (error, handler) async {
-        if (error.response?.statusCode == 401 && !_isRefreshing) {
-          _isRefreshing = true;
+        if (error.response?.statusCode == 401) {
           try {
-            final newToken = await _refreshToken();
+            final newToken = await _refreshTokenSafe();
             if (newToken != null) {
               error.requestOptions.headers['Authorization'] = 'Bearer $newToken';
               final response = await _dio.fetch(error.requestOptions);
@@ -47,13 +47,29 @@ class ApiClient {
             }
           } catch (e) {
             AppLogger.warning('Token refresh failed', tag: _tag, error: e);
-          } finally {
-            _isRefreshing = false;
           }
         }
         handler.next(error);
       },
     ));
+  }
+
+  /// 동시 401 요청을 Completer로 조율하여 리프레시 1회만 수행
+  Future<String?> _refreshTokenSafe() async {
+    if (_refreshCompleter != null) {
+      return _refreshCompleter!.future;
+    }
+    _refreshCompleter = Completer<String?>();
+    try {
+      final token = await _refreshToken();
+      _refreshCompleter!.complete(token);
+      return token;
+    } catch (e) {
+      _refreshCompleter!.completeError(e);
+      rethrow;
+    } finally {
+      _refreshCompleter = null;
+    }
   }
 
   Dio get dio => _dio;
@@ -66,8 +82,8 @@ class ApiClient {
       // 기존 _dio의 base options를 재사용하되 인터셉터 순환 방지를 위해 별도 인스턴스 사용
       final refreshDio = Dio(BaseOptions(
         baseUrl: AppConstants.apiBaseUrl,
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 10),
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 5),
         headers: {'Content-Type': 'application/json'},
       ));
       final response = await refreshDio.post(

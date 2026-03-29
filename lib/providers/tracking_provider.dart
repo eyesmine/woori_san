@@ -84,31 +84,37 @@ class TrackingProvider extends ChangeNotifier {
       }
     });
 
-    _positionStream = _locationService.getPositionStream().listen((position) {
-      if (_isPaused) return;
+    _positionStream = _locationService.getPositionStream().listen(
+      (position) {
+        if (_isPaused) return;
 
-      if (_lastPosition != null) {
-        final distance = _locationService.calculateDistance(
-          _lastPosition!.latitude,
-          _lastPosition!.longitude,
-          position.latitude,
-          position.longitude,
-        );
-        _totalDistanceMeters += distance;
-      }
-
-      _routePoints.add(position);
-      _lastPosition = position;
-
-      // Summit check
-      if (!_summitReached && _currentMountain != null) {
-        if (_locationService.isNearSummit(position, _currentMountain!)) {
-          _summitReached = true;
+        if (_lastPosition != null) {
+          final distance = _locationService.calculateDistance(
+            _lastPosition!.latitude,
+            _lastPosition!.longitude,
+            position.latitude,
+            position.longitude,
+          );
+          _totalDistanceMeters += distance;
         }
-      }
 
-      notifyListeners();
-    });
+        _routePoints.add(position);
+        _lastPosition = position;
+
+        // Summit check
+        if (!_summitReached && _currentMountain != null) {
+          if (_locationService.isNearSummit(position, _currentMountain!)) {
+            _summitReached = true;
+          }
+        }
+
+        notifyListeners();
+      },
+      onError: (error) {
+        _error = 'GPS 신호를 수신할 수 없습니다';
+        notifyListeners();
+      },
+    );
   }
 
   void markSummitDialogShown() {
@@ -153,7 +159,9 @@ class TrackingProvider extends ChangeNotifier {
 
   void reset() {
     _timer?.cancel();
+    _timer = null;
     _positionStream?.cancel();
+    _positionStream = null;
     _routePoints = [];
     _elapsed = Duration.zero;
     _totalDistanceMeters = 0;

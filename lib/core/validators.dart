@@ -3,7 +3,6 @@ class Validators {
   Validators._();
 
   static final _emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
-  static final _dangerousChars = RegExp('[<>"\u2018\u2019\u201C\u201D]');
 
   static String? email(String? value, {required String errorMessage}) {
     if (value == null || value.trim().isEmpty) return errorMessage;
@@ -11,8 +10,11 @@ class Validators {
     return null;
   }
 
-  static String? password(String? value, {required String errorMessage, int minLength = 6}) {
+  static String? password(String? value, {required String errorMessage, int minLength = 8}) {
     if (value == null || value.length < minLength) return errorMessage;
+    // 최소 1개 영문 + 1개 숫자
+    if (!RegExp(r'[a-zA-Z]').hasMatch(value)) return errorMessage;
+    if (!RegExp(r'[0-9]').hasMatch(value)) return errorMessage;
     return null;
   }
 
@@ -28,8 +30,18 @@ class Validators {
     return null;
   }
 
-  /// XSS 방지를 위한 입력 정제
+  /// API 전송용 입력 정제 — 위험 문자를 제거 (HTML 이스케이프가 아닌 제거)
   static String sanitize(String input) {
-    return input.replaceAll(_dangerousChars, '');
+    return input.replaceAll(RegExp('[<>]'), '');
+  }
+
+  /// 화면 표시용 HTML 이스케이프 (WebView 등에서 사용)
+  static String escapeHtml(String input) {
+    return input
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#x27;');
   }
 }

@@ -2,11 +2,11 @@ class Stamp {
   final String name;
   final String region;
   final int height;
-  bool isStamped;
-  bool isTogetherStamped;
-  String? stampDate;
+  final bool isStamped;
+  final bool isTogetherStamped;
+  final String? stampDate;
 
-  Stamp({
+  const Stamp({
     required this.name,
     required this.region,
     required this.height,
@@ -14,6 +14,39 @@ class Stamp {
     this.isTogetherStamped = false,
     this.stampDate,
   });
+
+  Stamp copyWith({
+    String? name,
+    String? region,
+    int? height,
+    bool? isStamped,
+    bool? isTogetherStamped,
+    String? stampDate,
+    bool clearStampDate = false,
+  }) {
+    return Stamp(
+      name: name ?? this.name,
+      region: region ?? this.region,
+      height: height ?? this.height,
+      isStamped: isStamped ?? this.isStamped,
+      isTogetherStamped: isTogetherStamped ?? this.isTogetherStamped,
+      stampDate: clearStampDate ? null : (stampDate ?? this.stampDate),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Stamp &&
+          name == other.name &&
+          region == other.region &&
+          height == other.height &&
+          isStamped == other.isStamped &&
+          isTogetherStamped == other.isTogetherStamped &&
+          stampDate == other.stampDate;
+
+  @override
+  int get hashCode => Object.hash(name, region, height, isStamped, isTogetherStamped, stampDate);
 
   Map<String, dynamic> toJson() => {
     'name': name,
@@ -28,7 +61,7 @@ class Stamp {
     name: json['mountain_name'] ?? json['name'] ?? '',
     region: json['region'] ?? '',
     height: json['height'] ?? 0,
-    isStamped: json['isStamped'] ?? json['stamped_at'] != null,
+    isStamped: json['isStamped'] ?? (json['stamped_at'] != null),
     isTogetherStamped: json['isTogetherStamped'] ?? json['is_together'] ?? false,
     stampDate: json['stampDate'] ?? json['stamped_at']?.toString().substring(0, 10),
   );

@@ -3,10 +3,17 @@ import 'package:flutter/foundation.dart';
 
 enum LogLevel { debug, info, warning, error }
 
+/// 외부 에러 리포터 콜백 (Crashlytics 등 연동 시 설정)
+typedef ErrorReporter = void Function(String message, Object? error, StackTrace? stackTrace);
+
 class AppLogger {
   static LogLevel _minLevel = kDebugMode ? LogLevel.debug : LogLevel.info;
+  static ErrorReporter? _errorReporter;
 
   static void setMinLevel(LogLevel level) => _minLevel = level;
+
+  /// 프로덕션 에러 리포터 설정 (예: Firebase Crashlytics)
+  static void setErrorReporter(ErrorReporter reporter) => _errorReporter = reporter;
 
   static void debug(String message, {String? tag}) {
     _log(LogLevel.debug, message, tag: tag);
@@ -52,6 +59,11 @@ class AppLogger {
         stackTrace: stackTrace,
         level: level == LogLevel.error ? 1000 : 0,
       );
+    }
+
+    // 프로덕션 에러 리포팅 (error/warning)
+    if (!kDebugMode && level.index >= LogLevel.warning.index && _errorReporter != null) {
+      _errorReporter!(logMessage, error, stackTrace);
     }
   }
 }

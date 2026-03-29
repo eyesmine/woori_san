@@ -4,8 +4,16 @@ import 'logger.dart';
 class AppConstants {
   static const String appName = '우리산';
 
-  // .env에서 로드 (테스트 환경에서는 기본값 사용)
-  static String get apiBaseUrl => _env('API_BASE_URL', 'http://localhost:8000/api');
+  // .env에서 로드 — 필수 키가 없으면 빈 문자열 대신 로그 경고 후 기본값
+  static String get apiBaseUrl {
+    final v = _env('API_BASE_URL', '');
+    if (v.isEmpty) {
+      AppLogger.error('API_BASE_URL 미설정 — .env 파일을 확인해주세요.', tag: 'Constants');
+      return 'http://localhost:8000/api';
+    }
+    return v;
+  }
+
   static String get naverMapClientId => _env('NAVER_MAP_CLIENT_ID', '');
   static String get weatherApiKey => _env('WEATHER_API_KEY', '');
 

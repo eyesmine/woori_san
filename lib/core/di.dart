@@ -38,10 +38,22 @@ import '../services/notification_service.dart';
 class DI {
   DI._();
 
+  static bool _initialized = false;
   static late final AuthProvider authProvider;
   static NotificationService? notificationService;
 
   static void initialize() {
+    if (_initialized) return;
+    try {
+      _initializeInternal();
+      _initialized = true;
+    } catch (e) {
+      _initialized = false;
+      rethrow;
+    }
+  }
+
+  static void _initializeInternal() {
     final apiClient = ApiClient();
 
     // Remote DataSources
@@ -59,7 +71,8 @@ class DI {
     final weatherLocal = WeatherLocalDataSource();
     final favoriteLocal = FavoriteLocalDataSource();
     final reviewLocal = ReviewLocalDataSource();
-    BadgeLocalDataSource(); // 초기화만 수행
+    // ignore: unused_local_variable
+    final badgeLocal = BadgeLocalDataSource();
 
     // Repositories
     _authRepo = AuthRepository(authRemote, apiClient);

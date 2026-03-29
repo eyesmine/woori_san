@@ -13,10 +13,17 @@ class StampTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _showDetail(context),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+    final l = AppLocalizations.of(context);
+    final statusLabel = mountain.isStamped
+        ? (l?.stampedStatus ?? 'Stamped')
+        : (l?.unstampedStatus ?? 'Not stamped');
+    return Semantics(
+      label: '${mountain.name}, ${mountain.height}m, $statusLabel',
+      button: true,
+      child: GestureDetector(
+        onTap: () => _showDetail(context),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
           color: mountain.isStamped ? context.appSurface : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(16),
@@ -97,6 +104,7 @@ class StampTile extends StatelessWidget {
               ),
           ],
         ),
+      ),
       ),
     );
   }
